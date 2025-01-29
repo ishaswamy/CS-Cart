@@ -1,0 +1,1 @@
+This is IB Co's capstone project. A collaborative effort between [Isha Swamy](https://github.com/ishaswamy) and [Brandon Catalano](https://github.com/brandjtc)
