@@ -4,22 +4,73 @@
     box-sizing: border-box;
 }
 
+.header-frame {
+    width: 100%;
+    height: auto; 
+    border: none;
+}
+
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
-    line-height: 1.6;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 20px;
 }
 
 header {
-    background-color: #5c6bc0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
     color: white;
-    text-align: center;
-    padding: 30px 0;
+    padding: 10px 20px;
 }
 
+.logo img {
+    height: 50px;
+}
+
+.business-info {
+    flex: 1;
+    text-align: center;
+}
+
+nav {
+    display: flex;
+    gap: 10px;
+}
+
+nav button {
+    background-color: #2f00ff;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+nav button:hover {
+    background-color: #19024b;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 h1 {
-    font-size: 36px;
+    font-size: 50px;
+    
 }
 
 .login {
