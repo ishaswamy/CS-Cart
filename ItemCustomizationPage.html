@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Customization</title>
+    <link rel="stylesheet" href="styles/item_customization_style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="image-container">
+            <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg" alt="Product Image" style="width:100%;border-radius:5px;">
+        </div>
+        <div class="details-container">
+            <h2>Customize Your Item</h2>
+            <p><strong>Item Name:</strong>  Hamburger</p>
+            <p><strong>Base Price:</strong> $8.00</p>
+            
+            <h3>Ingredients:</h3>
+            <button class="ingredient-btn" onclick="toggleIngredient(this)">Bun</button>
+            <button class="ingredient-btn" onclick="toggleIngredient(this)">Lettuce</button>
+            <button class="ingredient-btn" onclick="toggleIngredient(this)">Cheese</button>
+            <button class="ingredient-btn" onclick="toggleIngredient(this)">Tomato</button>
+            
+            <h3>Extras:</h3>
+            <button class="extra-btn" onclick="toggleExtra(this, 1)">Extra Cheese (+$1.00)</button>
+            <button class="extra-btn" onclick="toggleExtra(this, 2)">Bacon (+$2.00)</button>
+            
+            <br><label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" value="1" min="1" onchange="updatePrice()">
+            
+            <p class="total-price">Total Price: $8.00</p>
+            <button onclick="addToCart()">Add to Cart</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleIngredient(button) {
+            button.classList.toggle("removed");
+        }
+
+        function toggleExtra(button, price) {
+            button.classList.toggle("selected");
+            updatePrice();
+        }
+
+        function updatePrice() {
+            let basePrice = 8.00;
+            let extraCost = 0;
+            
+            document.querySelectorAll(".extra-btn.selected").forEach(btn => {
+                if (btn.innerText.includes("Extra Cheese")) extraCost += 1;
+                if (btn.innerText.includes("Bacon")) extraCost += 2;
+            });
+            
+            let quantity = parseInt(document.getElementById("quantity").value);
+            let totalPrice = (basePrice + extraCost) * quantity;
+            
+            document.querySelector(".total-price").innerText = "Total Price: $" + totalPrice.toFixed(2);
+        }
+
+        function addToCart() {
+            alert("Item added to cart!");
+        }
+    </script>
+</body>
+</html>
