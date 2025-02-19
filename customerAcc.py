@@ -17,7 +17,7 @@ userLoginCollection= accountInfoDatabase[os.getenv("LOGIN_INFO_COL")]
 userLoginCollection.create_index(["username","email"], unique=True)
 
 pwd_encrypt= CryptContext(schemes=["bcrypt"], deprecated="auto")
-def register_user(username, email, password):
+def register_user(username, email, password, businessID):
 
     hashed_password = pwd_encrypt.hash(password) 
 
@@ -31,7 +31,7 @@ def register_user(username, email, password):
 
         "password": hashed_password,
 
-        "businessId":1
+        "businessId":businessID
 
     }
 
