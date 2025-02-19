@@ -9,8 +9,8 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 # Create a new client and connect to the server
 client = MongoClient(os.getenv("CONNECTION_STRING"), server_api=ServerApi('1'))
-accountInfoDatabase= client[os.getenv("USER_INFO_DATABASE")]
-userLoginCollection= accountInfoDatabase[os.getenv("LOGIN_INFO_COL")]
+accountInfoDatabase= client["accountInfo"]
+userLoginCollection= accountInfoDatabase["userInformation"]
 
 
 #Prevents duplicate emails and username
