@@ -1,17 +1,11 @@
 from dotenv import load_dotenv
 import os
 import pymongo
+load_dotenv()  # This line brings all environment variables from .env into os.environ
+import connectModule as cM
 from passlib.context import CryptContext
 
-load_dotenv()  # This line brings all environment variables from .env into os.environ
-
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-# Create a new client and connect to the server
-client = MongoClient(os.getenv("CONNECTION_STRING"), server_api=ServerApi('1'))
-accountInfoDatabase= client["accountInfo"]
-userLoginCollection= accountInfoDatabase["userInformation"]
-
+userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
 
 #Prevents duplicate emails and username
 userLoginCollection.create_index(["username","email"], unique=True)

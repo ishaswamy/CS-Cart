@@ -2,15 +2,11 @@ from dotenv import load_dotenv
 import os
 load_dotenv()  # This line brings all environment variables from .env into os.environ
 
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-# Create a new client and connect to the server
-client = MongoClient(os.getenv("CONNECTION_STRING"), server_api=ServerApi('1'))
-
 #import customer account login/signup
 import customerAcc as cAcc
-# Create a new client and connect to the server
+import menuChange as mChan
 
+'''
 print("\nRegular registration of new user")
 print(cAcc.register_user("testUsername","testEmail@test.com","testPass123",1))
 print("\ntesting if duplicate username AND email allowed")
@@ -29,3 +25,11 @@ print(cAcc.login_user("testUsername", "wrongPass")) #Returns incorrect user or p
 print("\nTesting invalid username")
 print(cAcc.login_user("wrongUser", "testPass123")) #Returns incorrect user or password
 
+'''
+
+print(mChan.addItem("Dotdog","Hotdog",3.50,1))
+print(mChan.addItem("Dotdog","Hotdog",3,2))
+print(mChan.addItem("Dotdog","Hotdog",3.50,1))
+
+#print(mChan.deleteItem("Dotdog",1))
+#print(mChan.deleteItem("Dotdog",2))
