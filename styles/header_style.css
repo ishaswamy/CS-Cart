@@ -12,6 +12,7 @@ header {
 
 
 header .logo img {
+
     height: 50px;
     width: auto;
 }
@@ -23,4 +24,30 @@ header .business-info {
 header nav {
     display: flex;
     gap: 15px;
+}
+
+nav {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #5c6bc0;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.nav-button:hover {
+    background-color: #4e61cb;
+}
+
+.nav-button img {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
 }

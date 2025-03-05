@@ -60,3 +60,8 @@ body {
     font-weight: bold;
     margin-top: 10px;
 }
+.header-frame {
+    width: 100%;
+    height: auto; 
+    border: none;
+}
