@@ -10,9 +10,13 @@
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
     <div class="container">
         <h2>FlexCart Sign Up</h2>
-        <form action="#" method="POST">
+        <form id="signupForm">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required placeholder="Enter your username">
+            <br>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="Enter your email">
             <br>
 
             <label for="password">Password</label>
@@ -47,5 +51,39 @@
             <p>Already have an account? <a href="LoginPage.html">Login here</a></p>
         </div>
     </div>
+
+    <script>
+        document.getElementById("signupForm").addEventListener("submit", async function(event) {
+            event.preventDefault(); 
+
+            const formData = {
+                username: document.getElementById("username").value,
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value,
+                name: document.getElementById("name").value,
+                birthday: document.getElementById("birthday").value,
+                restaurant: document.getElementById("restaurant").value
+            };
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/signup", { 
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.href = "LoginPage.html"; 
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Something went wrong. Please try again.");
+            }
+        });
+    </script>
 </body>
 </html>

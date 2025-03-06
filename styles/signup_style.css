@@ -54,7 +54,7 @@ label {
     margin-bottom: 8px;
 }
 
-input[type="text"], input[type="password"], input[type="date"], select {
+input[type="text"], input[type="password"], input[type="email"], input[type="date"], select {
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
@@ -115,7 +115,7 @@ footer a:hover {
         font-size: 18px;
     }
 
-    input[type="text"], input[type="password"], input[type="date"], select {
+    input[type="text"], input[type="password"], input[type="email"], input[type="date"], select {
         padding: 10px;
     }
 
