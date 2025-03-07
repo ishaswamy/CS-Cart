@@ -11,7 +11,7 @@ userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
 userLoginCollection.create_index(["username","email"], unique=True)
 
 pwd_encrypt= CryptContext(schemes=["bcrypt"], deprecated="auto")
-def register_user(username, email, password, businessID):
+def register_user(username, email, password, fullName, birthday, businessID):
 
     hashed_password = pwd_encrypt.hash(password) 
 
@@ -24,6 +24,10 @@ def register_user(username, email, password, businessID):
         "email": email,
 
         "password": hashed_password,
+
+        "full_name": fullName,
+
+        "birthday": birthday,
 
         "businessId":businessID
 
