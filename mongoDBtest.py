@@ -31,5 +31,7 @@ print(mChan.addItem("Dotdog","Hotdog",3.50,1))
 print(mChan.addItem("Dotdog","Hotdog",3,2))
 print(mChan.addItem("Dotdog","Hotdog",3.50,1))
 
+print(mChan.deleteItem("Dotdog",2))
+
 #print(mChan.deleteItem("Dotdog",1))
 #print(mChan.deleteItem("Dotdog",2))

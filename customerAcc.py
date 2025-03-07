@@ -5,6 +5,7 @@ load_dotenv()  # This line brings all environment variables from .env into os.en
 import connectModule as cM
 from passlib.context import CryptContext
 
+#Handles mongo DB connection
 userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
 
 #Prevents duplicate emails and username
