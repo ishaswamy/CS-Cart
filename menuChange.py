@@ -1,8 +1,10 @@
 import connectModule as cM
 import pymongo
 
-
+#Connecting to mongoDB collection
 menuCollection=cM.mongoConnect("Businesses","MenuItems")
+
+#Creating filter to prevent businesses from creating duplicates of the same item
 menuCollection.create_index( { "itemName": 1, "businessID": 1},unique= True  )
 
 '''
@@ -57,9 +59,9 @@ def addItem(itemName,category,price,businessID,freeItems=None, freeToggleItems=N
 
         menuCollection.insert_one(menu_data)
 
-        return{"message": "added food"}
+        return{"message": "added "+itemName+" to the menu."}
     except pymongo.errors.DuplicateKeyError:
-        return{"message":"no food"}
+        return{"message":"Item "+itemName+" already exists in the menu."}
 
 def deleteItem(itemName,businessID):
 

@@ -11,9 +11,11 @@ userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
 #Prevents duplicate emails and username
 userLoginCollection.create_index(["username","email"], unique=True)
 
+#Encrypts passwords in database
 pwd_encrypt= CryptContext(schemes=["bcrypt"], deprecated="auto")
 def register_user(username, email, password, fullName, birthday, businessID):
 
+    #password encryption object called
     hashed_password = pwd_encrypt.hash(password) 
 
 
@@ -35,7 +37,7 @@ def register_user(username, email, password, fullName, birthday, businessID):
     }
 
 
-
+    #Attempt to add new user to database
     try:
 
         result = userLoginCollection.insert_one(user_data)
@@ -50,6 +52,7 @@ def login_user(username_or_email,password):
      # Find the user by username or email
     user = userLoginCollection.find_one({"$or": [{"username": username_or_email}, {"email": username_or_email}]})
     if user:
+        #Checks encrypted password
         if pwd_encrypt.verify(password, user["password"]):
                 return {"message": "Login successful", "user_id": str(user["username"])}
         else:
