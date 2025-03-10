@@ -56,3 +56,16 @@ def login_user(username_or_email,password):
                 return {"error": "Incorrect Username or Password"}
     else:
         return {"error": "Incorrect Username or Password"}
+    
+
+def change_password(username_or_email,oldPassword,newPassword):
+     # Find the user by username or email
+    user = userLoginCollection.find_one({"$or": [{"username": username_or_email}, {"email": username_or_email}]})
+    if user:
+        if pwd_encrypt.verify(oldPassword, user["password"]):
+                user["password"]=newPassword
+                return {"message": "Password Change Successful", "user_id": str(user["username"])}
+        else:
+                return {"error": "Incorrect Password"}
+    else:
+        return {"error": "Incorrect Password"}

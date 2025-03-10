@@ -35,3 +35,43 @@ print(mChan.deleteItem("Dotdog",2))
 
 #print(mChan.deleteItem("Dotdog",1))
 #print(mChan.deleteItem("Dotdog",2))
+'''
+# Example 1: Add an item to the collection
+
+result = mChan.addItem( 
+    itemName="Hotdog", 
+    category="Not a sandwich", 
+    price=3.2, 
+    businessID=1,
+    freeItems={"bun": True, "ketchup": False, "mustard": False},
+    freeToggleItems=[{"type": "cheese", "name": "Swiss", "selected": True}],
+    paidItems=[{"name": "Reaper Hot Sauce", "price": 0.25, "selected": False}],
+    paidToggleItems=[{"type": "Hotdog Upgrade", "name": "Beef Dog", "price": 1.1, "selected": False}]
+)
+print(result)
+
+# Example 2: Update an existing item
+result = mChan.updateItem(
+    itemName="Hotdog", 
+    businessID=1, 
+    update_fields={"price": 4.5, "category": "Sandwich"}
+)
+print(result)
+
+# Example 3: Trying to update an item that doesn't exist
+result = mChan.updateItem(
+    itemName="NonExistentItem",
+    businessID=999,
+    update_fields={"price": 5.0}
+)
+print(result)
+
+# Example 4: Update an item without any changes (same price)
+result = mChan.updateItem(
+    itemName="Hotdog", 
+    businessID=1,
+    update_fields={"price": 4.5}  # No actual change
+)
+
+print(result)
+#'''
