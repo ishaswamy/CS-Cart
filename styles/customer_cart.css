@@ -1,0 +1,114 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.header-frame {
+    width: 100%;
+    height: auto;
+    border: none;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding-top: 30px;
+}
+
+.cart-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.cart-items {
+    flex: 0 0 65%; 
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+.item-details {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.item-name {
+    font-size: 18px;
+    margin-right: 20px;
+    flex: 2;
+}
+
+.item-image {
+    width: 100px;  
+    height: 100px;
+    object-fit: cover;
+    margin-left: 10px;
+    flex: 1;
+}
+
+.item-info {
+    text-align: right;
+    flex: 1;
+}
+
+.item-info p {
+    margin: 5px 0;
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 10px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.edit-btn:hover {
+    background-color: #0056b3;
+}
+
+.delete-btn {
+    background-color: red;
+}
+
+.delete-btn:hover {
+    background-color: darkred;
+}
+
+.totals {
+    flex: 0 0 30%;  
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: right;
+    max-width: 350px; 
+}
+
+.totals table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.totals td {
+    padding: 10px;
+}
