@@ -13,4 +13,3 @@ def mongoConnect(database,collection):
     database= client[database]
     collection= database[collection]
     return collection
-

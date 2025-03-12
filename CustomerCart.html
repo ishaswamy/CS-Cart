@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlexCart - Shopping Cart</title>
+    <link rel="stylesheet" type="text/css" href="styles/customer_cart.css">
+    
+    <script>
+    async function updateTax() {
+        const zipCode = 73301;  // hardcoded zipcode for now for testing purposes
+        try {
+            const response = await fetch("http://127.0.0.1:5000/get-tax?zipCode=" + zipCode);
+            const data = await response.json();
+
+            if (!data.taxRate || isNaN(data.taxRate)) {
+                console.error("Invalid tax rate:", data.taxRate);
+                return;
+            }
+
+            const taxRate = parseFloat(data.taxRate);
+
+            // calc subtotal
+            let subtotal = 0;
+            document.querySelectorAll(".item-info").forEach(item => {
+                const priceText = item.querySelector("p:nth-child(1)").innerText.replace("Price: $", "");
+                const quantityText = item.querySelector("p:nth-child(2)").innerText.replace("Quantity: ", "");
+                const price = parseFloat(priceText);
+                const quantity = parseInt(quantityText);
+                subtotal += price * quantity;
+            });
+            document.getElementById("subtotal-value").innerText = `$${subtotal.toFixed(2)}`;
+            const taxAmount = (subtotal * taxRate).toFixed(2);
+            const totalCost = (subtotal + parseFloat(taxAmount)).toFixed(2);
+
+            document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
+            document.getElementById("tax-value").innerText = `$${taxAmount}`;
+            document.getElementById("total-cost").innerText = `$${totalCost}`;
+
+        } catch (error) {
+            console.error("Error updating tax:", error);
+        }
+    }
+    window.onload = updateTax;
+    </script>
+
+</head>
+
+<body>
+    <iframe src="HeaderMenu.html" class="header-frame"></iframe>
+
+    <div class="container">
+        <div class="cart-content">
+            <div class="cart-items">
+                <div class="item">
+                    <div class="item-details">
+                        <p class="item-name">Burger</p>
+                        <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg" alt="Burger" class="item-image">
+                    </div>
+                    <div class="item-info">
+                        <p>Price: $20.00</p>
+                        <p>Quantity: 2</p>
+                        <button class="edit-btn" onclick="window.location.href='/ItemCustomizationPage.html'">Edit</button>
+                        <button class="delete-btn">Delete</button>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="item-details">
+                        <p class="item-name">Veggie Burger</p>
+                        <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg" alt="Veggie Burger" class="item-image">
+                    </div>
+                    <div class="item-info">
+                        <p>Price: $50.00</p>
+                        <p>Quantity: 1</p>
+                        <button class="edit-btn" onclick="window.location.href='ItemCustomizationPage.html'">Edit</button>
+                        <button class="delete-btn">Delete</button>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="item-details">
+                        <p class="item-name">Cheeseburger</p>
+                        <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg" alt="Cheeseburger" class="item-image">
+                    </div>
+                    <div class="item-info">
+                        <p>Price: $80.00</p>
+                        <p>Quantity: 1</p>
+                        <button class="edit-btn" onclick="window.location.href='ItemCustomizationPage.html'">Edit</button>
+                        <button class="delete-btn">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="totals">
+                <table>
+                    <tr>
+                        <td>Subtotal:</td>
+                        <td id="subtotal-value">$--</td>
+                    </tr>
+                    <tr>
+                        <td>Tax (<span id="tax-percentage">--</span>%):</td>
+                        <td id="tax-value">$--</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Cost:</strong></td>
+                        <td id="total-cost"><strong>$--</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
