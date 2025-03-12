@@ -35,7 +35,7 @@ print(mChan.deleteItem("Dotdog",2))
 
 #print(mChan.deleteItem("Dotdog",1))
 #print(mChan.deleteItem("Dotdog",2))
-'''
+
 # Example 1: Add an item to the collection
 
 result = mChan.addItem( 

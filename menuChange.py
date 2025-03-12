@@ -36,7 +36,8 @@ paidToggleItems = [
 ]
 
 '''
-def addItem(itemName,category,price,businessID,freeItems=None, freeToggleItems=None, paidItems=None, paidToggleItems=None):
+def addItem(itemName,category,price,businessID,freeItems=None, freeToggleItems=None,
+             paidItems=None, paidToggleItems=None):
     menu_data={
             "itemName": itemName,
 
@@ -77,9 +78,11 @@ update_data = {
 }
 
 '''
+
+
 def updateItem(itemName, businessID, update_fields):
    result= menuCollection.update_one(
-        {"itemName":itemName, "BusinessID":businessID}, #query
+        {"itemName":itemName, "businessID":businessID}, #query
         {"$set":update_fields}#Update fields here
     ) 
    
