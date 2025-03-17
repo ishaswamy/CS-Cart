@@ -2,7 +2,7 @@ import connectModule as cM
 import pymongo
 
 #Connecting to mongoDB collection
-menuCollection=cM.mongoConnect("Businesses","MenuItems")
+menuCollection=cM.mongoConnect("Businesses","menuItems")
 
 #Creating filter to prevent businesses from creating duplicates of the same item
 menuCollection.create_index( { "itemName": 1, "businessID": 1},unique= True  )

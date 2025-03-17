@@ -49,7 +49,7 @@ result = mChan.addItem(
     paidToggleItems=[{"type": "Hotdog Upgrade", "name": "Beef Dog", "price": 1.1, "selected": False}]
 )
 print(result)
-
+'''
 # Example 2: Update an existing item
 result = mChan.updateItem(
     itemName="Hotdog", 
@@ -74,4 +74,4 @@ result = mChan.updateItem(
 )
 
 print(result)
-#'''
+'''
