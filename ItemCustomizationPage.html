@@ -17,18 +17,18 @@
         </div>
         <div class="details-container">
             <h2>Customize Your Item</h2>
-            <p><strong>Item Name:</strong>  Hamburger</p>
-            <p><strong>Base Price:</strong> $8.00</p>
+            <p><strong>Item Name:</strong> <span id="itemName">Hamburger</span></p>
+            <p><strong>Base Price:</strong> $<span id="basePrice">8.00</span></p>
             
             <h3>Ingredients:</h3>
-            <button class="ingredient-btn" onclick="toggleIngredient(this)">Bun</button>
-            <button class="ingredient-btn" onclick="toggleIngredient(this)">Lettuce</button>
-            <button class="ingredient-btn" onclick="toggleIngredient(this)">Cheese</button>
-            <button class="ingredient-btn" onclick="toggleIngredient(this)">Tomato</button>
+            <button class="ingredient-btn" onclick="toggleIngredient(this)" data-name="Bun">Bun</button>
+            <button class="ingredient-btn" onclick="toggleIngredient(this)" data-name="Lettuce">Lettuce</button>
+            <button class="ingredient-btn" onclick="toggleIngredient(this)" data-name="Cheese">Cheese</button>
+            <button class="ingredient-btn" onclick="toggleIngredient(this)" data-name="Tomato">Tomato</button>
             
             <h3>Extras:</h3>
-            <button class="extra-btn" onclick="toggleExtra(this, 1)">Extra Cheese (+$1.00)</button>
-            <button class="extra-btn" onclick="toggleExtra(this, 2)">Bacon (+$2.00)</button>
+            <button class="extra-btn" onclick="toggleExtra(this, 1)" data-name="Extra Cheese" data-price="1.00">Extra Cheese (+$1.00)</button>
+            <button class="extra-btn" onclick="toggleExtra(this, 2)" data-name="Bacon" data-price="2.00">Bacon (+$2.00)</button>
             
             <br><label for="quantity">Quantity:</label>
             <input type="number" id="quantity" value="1" min="1" onchange="updatePrice()">
@@ -49,12 +49,11 @@
         }
 
         function updatePrice() {
-            let basePrice = 8.00;
+            let basePrice = parseFloat(document.getElementById("basePrice").innerText);
             let extraCost = 0;
             
             document.querySelectorAll(".extra-btn.selected").forEach(btn => {
-                if (btn.innerText.includes("Extra Cheese")) extraCost += 1;
-                if (btn.innerText.includes("Bacon")) extraCost += 2;
+                extraCost += parseFloat(btn.dataset.price);
             });
             
             let quantity = parseInt(document.getElementById("quantity").value);
@@ -63,8 +62,46 @@
             document.querySelector(".total-price").innerText = "Total Price: $" + totalPrice.toFixed(2);
         }
 
-        function addToCart() {
-            alert("Item added to cart!");
+        async function addToCart() {
+            let username = "testTemporaryUser"; //temporary hardcoded value
+            let itemName = document.getElementById("itemName").innerText;
+            let basePrice = parseFloat(document.getElementById("basePrice").innerText);
+            let quantity = parseInt(document.getElementById("quantity").value);
+            
+            let freeItems = {};
+            document.querySelectorAll(".ingredient-btn").forEach(btn => {
+                freeItems[btn.dataset.name] = !btn.classList.contains("removed");
+            });
+
+            let paidItems = [];
+            document.querySelectorAll(".extra-btn.selected").forEach(btn => {
+                paidItems.push({
+                    name: btn.dataset.name,
+                    price: parseFloat(btn.dataset.price),
+                    selected: true
+                });
+            });
+
+            let product = {
+                "itemName": itemName,
+                "category": "Burger",
+                "price": basePrice,
+                "quantity": quantity,
+                "freeItems": freeItems,
+                "paidItems": paidItems,
+                "businessID": "Protected"
+            };
+
+            let response = await fetch("http://localhost:5000/add-to-cart", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ product, username })
+            });
+
+            let result = await response.json();
+            alert(result.message);
         }
     </script>
 </body>
