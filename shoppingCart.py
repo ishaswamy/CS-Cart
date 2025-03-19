@@ -18,7 +18,7 @@ Example product input:
         'mustard': False
     },
     'freeToggleItems': [
-        {'type': 'cheese', 'name': 'swiss', 'selected': True},
+        {'type': 'cheese', 'name': 'swiss', 'selected': false},
         {'type': 'cheese', 'name': 'provolone', 'selected': True}
     ],
     'paidItems': [
@@ -35,13 +35,15 @@ cartCollection = cM.mongoConnect("accountInfo", "shoppingCart")
 orderCollection = cM.mongoConnect("accountInfo", "orderStatus")
 
 # Adds customized items to the cart. Ties items to an account via the username.
-def add_to_cart(product, username):
+def add_to_cart(product, username,quantity=None):
     # Creates a new unique ID for each product
     product.update({"username": username, "itemID": str(uuid4())})
-
-    # Insert the product into the cart collection
+    product.pop("_id",None)
+    if quantity==None or quantity<1:
+        quantity=1
+    product["quantity"]=quantity
     cartCollection.insert_one(product)
-    
+
     return {"message": "Item successfully added to cart"}
 
 # Marks items for checkout by giving them an orderID.
