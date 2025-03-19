@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Item Customization</title>
-    
+
     <link rel="stylesheet" href="styles/item_customization_style.css">
-    
+
 </head>
+
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
     <div class="container">
-        
+
         <div class="image-container">
-            <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg" alt="Product Image" style="width:100%;border-radius:5px;">
+            <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg"
+                alt="Product Image" style="width:100%;border-radius:5px;">
         </div>
         <div class="details-container">
             <h2>Customize Your Item</h2>
-            <p><strong>Item Name:</strong>  Hamburger</p>
+            <p><strong>Item Name:</strong> Hamburger</p>
             <p><strong>Base Price:</strong> $8.00</p>
-            
+
             <h3>Ingredients:</h3>
             <button class="ingredient-btn" onclick="toggleIngredient(this)">Bun</button>
             <button class="ingredient-btn" onclick="toggleIngredient(this)">Lettuce</button>
             <button class="ingredient-btn" onclick="toggleIngredient(this)">Cheese</button>
             <button class="ingredient-btn" onclick="toggleIngredient(this)">Tomato</button>
-            
+
             <h3>Extras:</h3>
             <button class="extra-btn" onclick="toggleExtra(this, 1)">Extra Cheese (+$1.00)</button>
             <button class="extra-btn" onclick="toggleExtra(this, 2)">Bacon (+$2.00)</button>
-            
+
             <br><label for="quantity">Quantity:</label>
             <input type="number" id="quantity" value="1" min="1" onchange="updatePrice()">
-            
+
             <p class="total-price">Total Price: $8.00</p>
             <button onclick="addToCart()">Add to Cart</button>
         </div>
@@ -51,21 +54,83 @@
         function updatePrice() {
             let basePrice = 8.00;
             let extraCost = 0;
-            
+
+            // Loop through extra items and update the cost
             document.querySelectorAll(".extra-btn.selected").forEach(btn => {
                 if (btn.innerText.includes("Extra Cheese")) extraCost += 1;
                 if (btn.innerText.includes("Bacon")) extraCost += 2;
             });
-            
+
+            // Get the quantity from the input field and calculate total price
             let quantity = parseInt(document.getElementById("quantity").value);
             let totalPrice = (basePrice + extraCost) * quantity;
-            
+
+    
             document.querySelector(".total-price").innerText = "Total Price: $" + totalPrice.toFixed(2);
         }
 
+  
         function addToCart() {
-            alert("Item added to cart!");
+            const ingredients = {
+                bun: false,
+                lettuce: false,
+                cheese: false,
+                tomato: false
+            };
+
+            document.querySelectorAll(".ingredient-btn").forEach(button => {
+                if (!button.classList.contains("removed")) {
+                    ingredients[button.innerText.toLowerCase()] = true; // Mark as true if item is selected
+                }
+            });
+            const extras = [];
+            document.querySelectorAll(".extra-btn.selected").forEach(button => {
+                const price = button.innerText.includes("Extra Cheese") ? 1 : 2;
+                extras.push({ name: button.innerText, price: price });
+            });
+
+            const quantity = parseInt(document.getElementById("quantity").value);
+            const totalPrice = document.querySelector(".total-price").innerText.replace('Total Price: $', '');
+
+            // Package the product data for the API request
+            const product = {
+                itemName: "Hamburger",
+                category: "Sandwiches",
+                price: 8.00,
+                freeItems: ingredients,  // Send the state of ingredients
+                freeToggleItems: [],
+                paidItems: extras,
+                paidToggleItems: [],
+                businessID: "Protected"
+            };
+
+            // Make the API call to add the product to the cart
+            const username = "myFavoriteUser";  // i will replace this with actual username after implementing sessions
+
+            fetch('http://localhost:5000/add-to-cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    product: product
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);  // Show success message
+                    } else {
+                        alert("Error adding item to cart.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("There was an error adding the item to the cart.");
+                });
         }
     </script>
 </body>
+
 </html>

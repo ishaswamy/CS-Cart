@@ -1,47 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlexCart - Shopping Cart</title>
     <link rel="stylesheet" type="text/css" href="styles/customer_cart.css">
-    
+
     <script>
-    async function updateTax() {
-        const zipCode = 73301;  // hardcoded zipcode for now for testing purposes
-        try {
-            const response = await fetch("http://127.0.0.1:5000/get-tax?zipCode=" + zipCode);
-            const data = await response.json();
+        async function updateTax() {
+    const zipCode = 73301; // Hardcoded ZIP code for now
+    try {
+        const response = await fetch("http://127.0.0.1:5000/get-tax?zipCode=" + zipCode);
+        const data = await response.json();
 
-            if (!data.taxRate || isNaN(data.taxRate)) {
-                console.error("Invalid tax rate:", data.taxRate);
-                return;
-            }
+        if (!data.taxRate || isNaN(data.taxRate)) {
+            console.error("Invalid tax rate:", data.taxRate);
+            return;
+        }
 
-            const taxRate = parseFloat(data.taxRate);
+        const taxRate = parseFloat(data.taxRate);
 
-            // calc subtotal
-            let subtotal = 0;
-            document.querySelectorAll(".item-info").forEach(item => {
-                const priceText = item.querySelector("p:nth-child(1)").innerText.replace("Price: $", "");
-                const quantityText = item.querySelector("p:nth-child(2)").innerText.replace("Quantity: ", "");
+        // Calculate subtotal
+        let subtotal = 0;
+        document.querySelectorAll(".item").forEach(item => {
+            const priceElement = item.querySelector(".item-info p:nth-child(1)");
+            const quantityElement = item.querySelector(".item-info p:nth-child(2)");
+
+            if (priceElement && quantityElement) {
+                const priceText = priceElement.innerText.replace("Price: $", "").trim();
+                const quantityText = quantityElement.innerText.replace("Quantity: ", "").trim();
+
                 const price = parseFloat(priceText);
                 const quantity = parseInt(quantityText);
-                subtotal += price * quantity;
-            });
-            document.getElementById("subtotal-value").innerText = `$${subtotal.toFixed(2)}`;
-            const taxAmount = (subtotal * taxRate).toFixed(2);
-            const totalCost = (subtotal + parseFloat(taxAmount)).toFixed(2);
 
-            document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
-            document.getElementById("tax-value").innerText = `$${taxAmount}`;
-            document.getElementById("total-cost").innerText = `$${totalCost}`;
+                if (!isNaN(price) && !isNaN(quantity)) {
+                    subtotal += price * quantity;
+                } else {
+                    console.error("Invalid price or quantity", price, quantity);
+                }
+            }
+        });
 
-        } catch (error) {
-            console.error("Error updating tax:", error);
-        }
+        document.getElementById("subtotal-value").innerText = `$${subtotal.toFixed(2)}`;
+
+        // Calculate tax and total cost
+        const taxAmount = (subtotal * taxRate).toFixed(2);
+        const totalCost = (subtotal + parseFloat(taxAmount)).toFixed(2);
+
+        document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
+        document.getElementById("tax-value").innerText = `$${taxAmount}`;
+        document.getElementById("total-cost").innerText = `$${totalCost}`;
+
+    } catch (error) {
+        console.error("Error updating tax:", error);
     }
-    window.onload = updateTax;
+}
+
+
+        // Fetch cart items when the page loads
+        async function fetchCart(username) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/get-cart?username=${"myFavoriteUser"}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error("Error fetching cart:", data.error);
+                } else {
+                    // Dynamically populate the cart items
+                    const cartItemsContainer = document.querySelector(".cart-items");
+                    cartItemsContainer.innerHTML = ""; // Clear the container 
+
+                    data.cartItems.forEach(item => {
+                        const itemDiv = document.createElement("div");
+                        itemDiv.classList.add("item");
+
+                        const itemDetails = document.createElement("div");
+                        itemDetails.classList.add("item-details");
+                        const itemName = document.createElement("p");
+                        itemName.classList.add("item-name");
+                        itemName.innerText = item.itemName;
+                        const itemImage = document.createElement("img");
+                        itemImage.src = item.imageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg"; 
+                        itemImage.alt = item.itemName;
+                        itemImage.classList.add("item-image");
+
+                        itemDetails.appendChild(itemName);
+                        itemDetails.appendChild(itemImage);
+
+                        const itemInfo = document.createElement("div");
+                        itemInfo.classList.add("item-info");
+                        const itemPrice = document.createElement("p");
+                        itemPrice.innerText = "Price: $" + item.price;
+                        const itemQuantity = document.createElement("p");
+                        itemQuantity.innerText = "Quantity: " + item.quantity;
+
+                        const editButton = document.createElement("button");
+                        editButton.classList.add("edit-btn");
+                        editButton.innerText = "Edit";
+                        editButton.onclick = () => window.location.href = '/ItemCustomizationPage.html';
+
+                        const deleteButton = document.createElement("button");
+                        deleteButton.classList.add("delete-btn");
+                        deleteButton.innerText = "Delete";
+                        deleteButton.onclick = () => deleteItem(username, item.itemID);
+
+                        itemInfo.appendChild(itemPrice);
+                        itemInfo.appendChild(itemQuantity);
+                        itemInfo.appendChild(editButton);
+                        itemInfo.appendChild(deleteButton);
+
+                        itemDiv.appendChild(itemDetails);
+                        itemDiv.appendChild(itemInfo);
+
+                        cartItemsContainer.appendChild(itemDiv);
+                    });
+
+                    // Update the tax and total costs
+                    updateTax();
+                }
+
+            } catch (error) {
+                console.error("Error fetching cart:", error);
+            }
+        }
+
+        // Delete an item from the cart
+        async function deleteItem(username, itemID) {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/delete-item", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        itemID: itemID
+                    })
+                });
+
+                const data = await response.json();
+                if (data.message) {
+                    console.log(data.message);
+                    fetchCart(username); // Reload the cart after deleting the item
+                } else {
+                    console.error("Error deleting item:", data.error);
+                }
+
+            } catch (error) {
+                console.error("Error deleting item:", error);
+            }
+        }
+
+        window.onload = () => {
+            const username = "myFavoriteUser"; // Set the username to the logged-in user (sessions not implemented yet)
+            fetchCart(username);
+        };
+
     </script>
 
 </head>
@@ -52,44 +167,6 @@
     <div class="container">
         <div class="cart-content">
             <div class="cart-items">
-                <div class="item">
-                    <div class="item-details">
-                        <p class="item-name">Burger</p>
-                        <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg" alt="Burger" class="item-image">
-                    </div>
-                    <div class="item-info">
-                        <p>Price: $20.00</p>
-                        <p>Quantity: 2</p>
-                        <button class="edit-btn" onclick="window.location.href='/ItemCustomizationPage.html'">Edit</button>
-                        <button class="delete-btn">Delete</button>
-                    </div>
-                </div>
-
-                <div class="item">
-                    <div class="item-details">
-                        <p class="item-name">Veggie Burger</p>
-                        <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg" alt="Veggie Burger" class="item-image">
-                    </div>
-                    <div class="item-info">
-                        <p>Price: $50.00</p>
-                        <p>Quantity: 1</p>
-                        <button class="edit-btn" onclick="window.location.href='ItemCustomizationPage.html'">Edit</button>
-                        <button class="delete-btn">Delete</button>
-                    </div>
-                </div>
-
-                <div class="item">
-                    <div class="item-details">
-                        <p class="item-name">Cheeseburger</p>
-                        <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg" alt="Cheeseburger" class="item-image">
-                    </div>
-                    <div class="item-info">
-                        <p>Price: $80.00</p>
-                        <p>Quantity: 1</p>
-                        <button class="edit-btn" onclick="window.location.href='ItemCustomizationPage.html'">Edit</button>
-                        <button class="delete-btn">Delete</button>
-                    </div>
-                </div>
             </div>
 
             <div class="totals">
@@ -111,4 +188,5 @@
         </div>
     </div>
 </body>
+
 </html>

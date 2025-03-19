@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from customerAcc import register_user, login_user  
+import shoppingCart as sc  
+from customerAcc import register_user, login_user
 import os
 import pandas as pd
 from dotenv import load_dotenv
 
-load_dotenv()  
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)  
@@ -27,18 +28,79 @@ def get_tax():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# API route to fetch all cart items for a user
+@app.route("/get-cart", methods=["GET"])
+def get_cart():
+    username = request.args.get("username", type=str)
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+
+    try:
+        cart_items = sc.get_cart_items(username)  # Fetch the cart items from the database
+        return jsonify({"cartItems": cart_items}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# API route to add an item to the cart
+@app.route("/add-to-cart", methods=["POST"])
+def add_to_cart():
+    data = request.json
+    username = data.get("username")
+    product = data.get("product")
+
+    if not username or not product:
+        return jsonify({"error": "Username and product data are required"}), 400
+
+    try:
+        result = sc.add_to_cart(product, username)  # Add the item to the cart
+        return jsonify(result), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# API route to delete an item from the cart
+@app.route("/delete-item", methods=["POST"])
+def delete_item():
+    data = request.json
+    username = data.get("username")
+    itemID = data.get("itemID")
+
+    if not username or not itemID:
+        return jsonify({"error": "Username and itemID are required"}), 400
+
+    try:
+        result = sc.delete_item(username, itemID)  # Delete the item from the cart
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# API route to checkout the cart and create an order
+@app.route("/checkout", methods=["POST"])
+def checkout():
+    data = request.json
+    username = data.get("username")
+
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+
+    try:
+        result = sc.checkout(username)  # Checkout and create an order
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# User registration route
 @app.route("/signup", methods=["POST", "OPTIONS"])
 def register():
     if request.method == "OPTIONS":
-        return "", 200 
+        return "", 200  
     
-    data = request.json  
+    data = request.json
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
-    fullName = data.get("name") 
-    birthday = data.get("birthday")  
-    businessID = data.get("restaurant")  
+    fullName = data.get("name")
+    birthday = data.get("birthday")
+    businessID = data.get("restaurant")
 
     result = register_user(username, email, password, fullName, birthday, businessID)
 
@@ -47,6 +109,7 @@ def register():
     else:
         return jsonify(result), 201  # User created successfully
 
+# User login route
 @app.route("/login", methods=["POST"])
 def login():
     data = request.json
@@ -61,5 +124,4 @@ def login():
         return jsonify(result), 200  # Success
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
+    app.run(debug=True)  
