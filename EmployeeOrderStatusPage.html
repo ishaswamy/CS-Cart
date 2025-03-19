@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Order Management</title>
+    <link rel="stylesheet" type="text/css" href="styles/customerhome_style.css">
+</head>
+<body>
+    <iframe src="HeaderMenu.html" class="header-frame"></iframe>
+
+    <h1>Order Management</h1>
+    <p>View and update the status of customer orders</p>
+    
+    <div class="menu-container" id="orders-container">
+        <div class="menu-item">
+            <h3>Order #12345</h3>
+            <p>User: john_doe</p>
+            <p>Item: Cheeseburger</p>
+            <p>Status: <span class="status">In Progress</span></p>
+            <select>
+                <option value="in_progress">In Progress</option>
+                <option value="complete">Complete</option>
+                <option value="incomplete">Incomplete</option>
+            </select>
+            <button onclick="updateStatus(12345, this)">Update</button>
+        </div>
+        
+        <div class="menu-item">
+            <h3>Order #12346</h3>
+            <p>User: jane_smith</p>
+            <p>Item: Chicken Tacos</p>
+            <p>Status: <span class="status">Incomplete</span></p>
+            <select>
+                <option value="in_progress">In Progress</option>
+                <option value="complete">Complete</option>
+                <option value="incomplete">Incomplete</option>
+            </select>
+            <button onclick="updateStatus(12346, this)">Update</button>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus(orderId, button) {
+            let statusElement = button.parentElement.querySelector(".status");
+            let newStatus = button.previousElementSibling.value;
+            statusElement.textContent = newStatus.replace("_", " ").toUpperCase();
+        }
+    </script>
+</body>
+</html>
