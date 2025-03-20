@@ -4,48 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Order Management</title>
-    <link rel="stylesheet" type="text/css" href="styles/customerhome_style.css">
+    <link rel="stylesheet" type="text/css" href="styles/status.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchOrders(); 
+        });
+
+        // Fetch orders from the backend
+        function fetchOrders() {
+            fetch("http://127.0.0.1:5000/get-order-status")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Received data:", data); // Debugging line
+                    const container = document.getElementById("ordersContainer");
+
+                    // Check if the 'orders' field exists and has items
+                    if (data.orders && data.orders.length > 0) {
+                        displayOrders(data.orders);  
+                    } else {
+                        container.innerHTML = "<p>No orders found.</p>";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching orders:", error);
+                    document.getElementById("ordersContainer").innerHTML = "<p>Failed to load orders.</p>";
+                });
+        }
+
+        // Display orders dynamically in HTML
+        function displayOrders(orders) {
+            const container = document.getElementById("ordersContainer");
+            container.innerHTML = ""; // Clear previous content
+
+            orders.forEach(order => {
+                const orderDiv = document.createElement("div");
+                orderDiv.innerHTML = `
+                    <h3>Order ID: ${order.orderID}</h3>
+                    <p>Item: ${order.itemName}</p>
+                    <p>Category: ${order.category}</p>
+                    <p>Price: $${order.price.toFixed(2)}</p>
+                    <p>Status: <span class="status">${order.orderStatus}</span></p>
+                    <select onchange="updateStatus(${order.orderID}, this)">
+                        <option value="in_progress" ${order.orderStatus === "in_progress" ? 'selected' : ''}>In Progress</option>
+                        <option value="completed" ${order.orderStatus === "completed" ? 'selected' : ''}>Complete</option>
+                        <option value="incomplete" ${order.orderStatus === "incomplete" ? 'selected' : ''}>Incomplete</option>
+                    </select>
+                    <hr>
+                `;
+                container.appendChild(orderDiv);
+            });
+        }
+
+        // Function to update the status of the order
+        function updateStatus(orderID, dropdown) {
+            const newStatus = dropdown.value; // Get the selected status from the dropdown
+            console.log(`Updating Order ${orderID} to ${newStatus}`);
+
+            fetch("http://127.0.0.1:5000/update-order-status", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    orderID: orderID,
+                    orderStatus: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(`Order ${orderID} has been updated.`);
+                    dropdown.parentElement.querySelector(".status").textContent = newStatus; // Update the status text
+                } else {
+                    alert(`Error updating order: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error("Error updating status:", error);
+                alert("Failed to update the order.");
+            });
+        }
+    </script>
 </head>
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
 
     <h1>Order Management</h1>
     <p>View and update the status of customer orders</p>
-    
-    <div class="menu-container" id="orders-container">
-        <div class="menu-item">
-            <h3>Order #12345</h3>
-            <p>User: john_doe</p>
-            <p>Item: Cheeseburger</p>
-            <p>Status: <span class="status">In Progress</span></p>
-            <select>
-                <option value="in_progress">In Progress</option>
-                <option value="complete">Complete</option>
-                <option value="incomplete">Incomplete</option>
-            </select>
-            <button onclick="updateStatus(12345, this)">Update</button>
-        </div>
-        
-        <div class="menu-item">
-            <h3>Order #12346</h3>
-            <p>User: jane_smith</p>
-            <p>Item: Chicken Tacos</p>
-            <p>Status: <span class="status">Incomplete</span></p>
-            <select>
-                <option value="in_progress">In Progress</option>
-                <option value="complete">Complete</option>
-                <option value="incomplete">Incomplete</option>
-            </select>
-            <button onclick="updateStatus(12346, this)">Update</button>
-        </div>
-    </div>
 
-    <script>
-        function updateStatus(orderId, button) {
-            let statusElement = button.parentElement.querySelector(".status");
-            let newStatus = button.previousElementSibling.value;
-            statusElement.textContent = newStatus.replace("_", " ").toUpperCase();
-        }
-    </script>
+    <div class="menu-container" id="ordersContainer">
+        <p>Loading orders...</p>
+    </div>
 </body>
 </html>

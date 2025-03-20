@@ -5,6 +5,7 @@ from customerAcc import register_user, login_user
 import os
 import pandas as pd
 from dotenv import load_dotenv
+import orderStatus as status
 
 load_dotenv()
 
@@ -122,6 +123,40 @@ def login():
         return jsonify(result), 400  # Bad request if credentials are wrong
     else:
         return jsonify(result), 200  # Success
+    
+@app.route("/get-order-status", methods=["GET"])
+def get_order_status():
+    try:
+        orders = status.get_all_orders()  # Get all orders from the database
+        return jsonify({"orders": orders}), 200  
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/update-order-status", methods=["POST"])
+def update_order_status():
+    try:
+        # Extract data from the request
+        data = request.json
+        orderID = data["orderID"]
+        newStatus = data["orderStatus"]
+
+        # Directly handle the status update using the specific functions
+        if newStatus == "completed":
+            result = status.markOrderCompleted(orderID)
+        elif newStatus == "incomplete":
+            result = status.markOrderIncomplete(orderID)
+        elif newStatus == "in_progress":
+            result = status.markOrderInProgress(orderID)
+        elif newStatus == "clear":
+            result = status.clearOrder(orderID)  
+        else:
+            return jsonify({"error": "Invalid order status provided."}), 400
+
+        return jsonify(result), 200 
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)  

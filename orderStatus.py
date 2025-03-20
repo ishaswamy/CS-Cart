@@ -1,4 +1,5 @@
 import connectModule as cM
+from flask import jsonify
 
 orderCollection=cM.mongoConnect("accountInfo","orderStatus")
 
@@ -30,13 +31,19 @@ def markItemIncomplete(itemID):
     )
     return {f"message":"Item {itemID} has been marked as incomplete."}
 
+#Marks item with given ID as in progress
+def markOrderInProgress(orderID):
+    orderCollection.update_one({"orderID":orderID}, #query
+        {"$set":{"orderStatus": "in_progress"}}#Update fields here
+    )
+    return {f"message":"Item {itemID} has been marked as in progress."}
+
 #Clears items in a given order from the order status collection.
 def clearOrder(orderID):
     orderCollection.delete_many({"orderID":orderID})
     return {f"message":"Orders with Order ID {orderID} have been cleared from order queue"}
 
 #Deletes specific items from the order status collection.
-
 def clearItem(itemID):
     orderCollection.delete_one({"itemID":itemID})
     return {f"message":"Item with Item ID {itemID} has been cleared from order queue"}
@@ -48,3 +55,7 @@ def getOrderID(itemID):
 def getItemID(username):
     itemDict=list(orderCollection.find({"username":username},{"_id":0,"itemID":1}))
     return itemDict[0]["itemID"]
+
+def get_all_orders():
+    orders = list(orderCollection.find({}, {"_id": 0})) 
+    return orders  # Return the list of orders

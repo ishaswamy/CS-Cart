@@ -4,58 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlexCart - Shopping Cart</title>
+    <title>CS-Cart - Shopping Cart</title>
     <link rel="stylesheet" type="text/css" href="styles/customer_cart.css">
 
     <script>
         async function updateTax() {
-    const zipCode = 73301; // Hardcoded ZIP code for now
-    try {
-        const response = await fetch("http://127.0.0.1:5000/get-tax?zipCode=" + zipCode);
-        const data = await response.json();
+            const zipCode = 73301; // Hardcoded ZIP code for now
+            try {
+                const response = await fetch("http://127.0.0.1:5000/get-tax?zipCode=" + zipCode);
+                const data = await response.json();
 
-        if (!data.taxRate || isNaN(data.taxRate)) {
-            console.error("Invalid tax rate:", data.taxRate);
-            return;
-        }
-
-        const taxRate = parseFloat(data.taxRate);
-
-        // Calculate subtotal
-        let subtotal = 0;
-        document.querySelectorAll(".item").forEach(item => {
-            const priceElement = item.querySelector(".item-info p:nth-child(1)");
-            const quantityElement = item.querySelector(".item-info p:nth-child(2)");
-
-            if (priceElement && quantityElement) {
-                const priceText = priceElement.innerText.replace("Price: $", "").trim();
-                const quantityText = quantityElement.innerText.replace("Quantity: ", "").trim();
-
-                const price = parseFloat(priceText);
-                const quantity = parseInt(quantityText);
-
-                if (!isNaN(price) && !isNaN(quantity)) {
-                    subtotal += price * quantity;
-                } else {
-                    console.error("Invalid price or quantity", price, quantity);
+                if (!data.taxRate || isNaN(data.taxRate)) {
+                    console.error("Invalid tax rate:", data.taxRate);
+                    return;
                 }
+
+                const taxRate = parseFloat(data.taxRate);
+
+                // Calculate subtotal
+                let subtotal = 0;
+                document.querySelectorAll(".item").forEach(item => {
+                    const priceElement = item.querySelector(".item-info p:nth-child(1)");
+                    const quantityElement = item.querySelector(".item-info p:nth-child(2)");
+
+                    if (priceElement && quantityElement) {
+                        const priceText = priceElement.innerText.replace("Price: $", "").trim();
+                        const quantityText = quantityElement.innerText.replace("Quantity: ", "").trim();
+
+                        const price = parseFloat(priceText);
+                        const quantity = parseInt(quantityText);
+
+                        if (!isNaN(price) && !isNaN(quantity)) {
+                            subtotal += price * quantity;
+                        } else {
+                            console.error("Invalid price or quantity", price, quantity);
+                        }
+                    }
+                });
+
+                document.getElementById("subtotal-value").innerText = `$${subtotal.toFixed(2)}`;
+
+                // Calculate tax and total cost
+                const taxAmount = (subtotal * taxRate).toFixed(2);
+                const totalCost = (subtotal + parseFloat(taxAmount)).toFixed(2);
+
+                document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
+                document.getElementById("tax-value").innerText = `$${taxAmount}`;
+                document.getElementById("total-cost").innerText = `$${totalCost}`;
+
+            } catch (error) {
+                console.error("Error updating tax:", error);
             }
-        });
-
-        document.getElementById("subtotal-value").innerText = `$${subtotal.toFixed(2)}`;
-
-        // Calculate tax and total cost
-        const taxAmount = (subtotal * taxRate).toFixed(2);
-        const totalCost = (subtotal + parseFloat(taxAmount)).toFixed(2);
-
-        document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
-        document.getElementById("tax-value").innerText = `$${taxAmount}`;
-        document.getElementById("total-cost").innerText = `$${totalCost}`;
-
-    } catch (error) {
-        console.error("Error updating tax:", error);
-    }
-}
+        }
 
 
         // Fetch cart items when the page loads
@@ -81,7 +81,7 @@
                         itemName.classList.add("item-name");
                         itemName.innerText = item.itemName;
                         const itemImage = document.createElement("img");
-                        itemImage.src = item.imageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg"; 
+                        itemImage.src = item.imageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
                         itemImage.alt = item.itemName;
                         itemImage.classList.add("item-image");
 

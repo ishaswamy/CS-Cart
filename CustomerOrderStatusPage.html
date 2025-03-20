@@ -4,35 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Status</title>
-    <link rel="stylesheet" type="text/css" href="styles/customerhome_style.css">
+    <link rel="stylesheet" type="text/css" href="styles/status.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchOrders(); // Now properly called
+
+        });
+
+
+        function fetchOrders() {
+    fetch("http://127.0.0.1:5000/get-order-status")
+        .then(response => response.json())
+        .then(data => {
+            console.log("Received data:", data); // Debugging line
+            const container = document.getElementById("ordersContainer"); // Corrected ID
+            
+            // Check if the 'orders' field exists and has items
+            if (data.orders && data.orders.length > 0) {
+                displayOrders(data.orders);  // Pass only the orders array
+            } else {
+                container.innerHTML = "<p>No orders found in your biz.</p>";
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching orders:", error);
+            document.getElementById("ordersContainer").innerHTML = "<p>Failed to load orders.</p>";
+        });
+}
+
+
+        function displayOrders(orders) {
+            const container = document.getElementById("ordersContainer");
+            container.innerHTML = ""; // Clear previous content
+
+            orders.forEach(order => {
+                const orderDiv = document.createElement("div");
+                orderDiv.innerHTML = `
+                    <h3>Order ID: ${order.orderID}</h3>
+                    <p>Item: ${order.itemName}</p>
+                    <p>Category: ${order.category}</p>
+                    <p>Price: $${order.price.toFixed(2)}</p>
+                    <p>Status: ${order.orderStatus}</p>
+                    <hr>
+                `;
+                container.appendChild(orderDiv);
+            });
+        }
+        window.onload = () => {
+            const username = "myFavoriteUser"; // Set the username to the logged-in user (sessions not implemented yet)
+            fetchOrders();
+           
+        };
+    </script>
 </head>
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
-    
-    <h1>Your Order Status</h1>
-    <p>Track your current order below</p>
-    
-    <div class="menu-container">
-        <div class="menu-item">
-            <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg" alt="Burger">
-            <h3>Bacon Cheeseburger</h3>
-            <p>Quantity: 2</p>
-            <p>Status: Preparing</p>
-        </div>
-        <div class="menu-item">
-            <img src="https://www.onceuponachef.com/images/2023/08/Beef-Tacos-760x570.jpg" alt="Tacos">
-            <h3>Beef Tacos</h3>
-            <p>Quantity: 3</p>
-            <p>Status: Cooking</p>
-        </div>
-        <div class="menu-item">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTjX70ZjPUAt_m3_vyAiFIriIgB9YkEdQVRA&s" alt="Dessert">
-            <h3>Chocolate Cake</h3>
-            <p>Quantity: 1</p>
-            <p>Status: Ready for Pickup</p>
-        </div>
+
+    <h1>Order Status</h1>
+    <p>Check the status of your recent orders.</p>
+
+    <div class="menu-container" id="ordersContainer">
+        <p>Loading orders...</p>
     </div>
-    
-    <h2>Total: $28.50</h2>
 </body>
 </html>
