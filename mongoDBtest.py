@@ -27,7 +27,7 @@ exampleProduct={
         {'type': 'cheese', 'name': 'provolone', 'selected': True}
     ],
     'paidItems': [
-        {'name': 'Reaper Hot Sauce', 'price': 0.25, 'selected': False}
+        {'name': 'Reaper Hot Sauce', 'price': 0.25, 'selected': True}
     ],
     'paidToggleItems': [
         {'type': 'Hotdog Upgrade', 'name': 'Beef Dog', 'price': 1.1, 'selected': False},
@@ -35,6 +35,7 @@ exampleProduct={
     ],
     'businessID': 'Protected'
 }
+
 '''
 print("Adding exampleProducts to cart:")
 print(sCart.add_to_cart(exampleProduct,"zivywivy"))

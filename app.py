@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 import shoppingCart as sc  
 from customerAcc import register_user, login_user
@@ -16,6 +16,29 @@ CORS(app)
 def taxCalculation(zipCode):
     df = pd.read_csv('/home/codespace/CS-Cart/Tax/taxes.csv')
     return df.loc[df['ZipCode'] == zipCode, 'EstimatedCombinedRate'].values[0]
+
+#Reads addons that are selected true for display under orders.
+def readAddons(product):
+    addonList=()
+    for item, available in product['freeItems'].items():
+        if available:
+            addonList.append(item)
+            
+    #Grabs free toggle items
+    for item in product['freeToggleItems']:
+        if item.get('selected',True):
+            addonList.append(item)
+
+    #Grabs paid toggle items
+    for item in product['paidToggleItems']:
+        if item.get('selected',True):
+            addonList.append(item)
+
+    #Grabs paid items
+    for item in product['paidItems']:
+        if item.get('selected',True):
+            addonList.append(item)
+    return addonList
 
 @app.route("/get-tax", methods=["GET"])
 def get_tax():
@@ -122,8 +145,24 @@ def login():
     if "error" in result:
         return jsonify(result), 400  # Bad request if credentials are wrong
     else:
+        session["user"]=result["user_id"]
         return jsonify(result), 200  # Success
     
+#User logout route
+@app.route("/logout",methods=["POST"])
+def logout():
+    session.pop("user", None)  # Remove user session
+    return {"message": "Logged out successfully"}
+
+#Checks which user is logged in
+@app.route("/account", methods=["GET"])
+def profile():
+    if "user" in session:
+        return {"message": f"User {session['user']} is logged in"},200
+    return {"error": "No user logged in"},401
+
+
+
 @app.route("/get-order-status", methods=["GET"])
 def get_order_status():
     try:
