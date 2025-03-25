@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Customization</title>
+    <link rel="stylesheet" href="styles/item_customization_style.css">
+</head>
+
+<body>
+    <iframe src="HeaderMenu.html" class="header-frame"></iframe>
+
+    <div class="container">
+        <div class="image-container">
+            <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg"
+                alt="Product Image" style="width:100%; border-radius:5px;">
+        </div>
+
+        <div class="details-container">
+            <h2>Edit Your Item</h2>
+
+            <label for="itemName">Item Name:</label>
+            <input type="text" id="itemName" value="Hamburger">
+
+            <label for="basePrice">Base Price ($):</label>
+            <input type="number" id="basePrice" value="8.00" min="0" step="0.01" onchange="updatePrice()">
+
+            <h3>Details:</h3>
+            <div id="detailsList">
+                <div class="detail-item">
+                    <span>Bun</span>
+                    <button onclick="removeDetail(this)">Remove</button>
+                </div>
+                <div class="detail-item">
+                    <span>Lettuce</span>
+                    <button onclick="removeDetail(this)">Remove</button>
+                </div>
+                <div class="detail-item">
+                    <span>Cheese</span>
+                    <button onclick="removeDetail(this)">Remove</button>
+                </div>
+            </div>
+            <input type="text" id="newDetail" placeholder="Enter new detail">
+            <button onclick="addDetail()">Add Detail</button>
+
+            <h3>Extras:</h3>
+            <div id="extrasList">
+                <div class="extra-item">
+                    <input type="text" value="Extra Cheese">
+                    <input type="number" value="1.00" min="0" step="0.01">
+                    <button onclick="removeExtra(this)">Remove</button>
+                </div>
+                <div class="extra-item">
+                    <input type="text" value="Bacon">
+                    <input type="number" value="2.00" min="0" step="0.01">
+                    <button onclick="removeExtra(this)">Remove</button>
+                </div>
+            </div>
+            <button onclick="addExtra()">Add Extra</button>
+
+            <p class="total-price">Total Price: $8.00</p>
+            <button onclick="saveChanges()">Save Changes</button>
+            <button class="delete-btn" onclick="deleteItem()">Delete Item</button>
+
+        </div>
+    </div>
+
+    <script>
+        function removeDetail(button) {
+            button.parentElement.remove();
+        }
+
+        function addDetail() {
+            const detailInput = document.getElementById("newDetail");
+            const detailText = detailInput.value.trim();
+            if (detailText === "") return;
+            const detailList = document.getElementById("detailsList");
+
+            const newDetail = document.createElement("div");
+            newDetail.classList.add("detail-item");
+            newDetail.innerHTML = `<span>${detailText}</span><button onclick="removeDetail(this)">Remove</button>`;
+            detailList.appendChild(newDetail);
+
+            detailInput.value = ""; // Clear input
+        }
+
+        function removeExtra(button) {
+            button.parentElement.remove();
+        }
+
+        function addExtra() {
+            const extraList = document.getElementById("extrasList");
+
+            const newExtra = document.createElement("div");
+            newExtra.classList.add("extra-item");
+            newExtra.innerHTML = `
+                <input type="text" placeholder="Extra name">
+                <input type="number" placeholder="Price ($)" min="0" step="0.01">
+                <button onclick="removeExtra(this)">Remove</button>
+            `;
+            extraList.appendChild(newExtra);
+        }
+
+        function updatePrice() {
+            let basePrice = parseFloat(document.getElementById("basePrice").value) || 0;
+            let extraCost = 0;
+
+            document.querySelectorAll("#extrasList .extra-item").forEach(extra => {
+                let price = parseFloat(extra.children[1].value) || 0;
+                extraCost += price;
+            });
+
+            let totalPrice = basePrice + extraCost;
+            document.querySelector(".total-price").innerText = "Total Price: $" + totalPrice.toFixed(2);
+        }
+
+        function saveChanges() {
+            const itemName = document.getElementById("itemName").value;
+            const basePrice = parseFloat(document.getElementById("basePrice").value) || 0;
+
+            const details = [];
+            document.querySelectorAll("#detailsList .detail-item span").forEach(span => {
+                details.push(span.innerText);
+            });
+
+            const extras = [];
+            document.querySelectorAll("#extrasList .extra-item").forEach(extra => {
+                let name = extra.children[0].value.trim();
+                let price = parseFloat(extra.children[1].value) || 0;
+                if (name) {
+                    extras.push({ name: name, price: price });
+                }
+            });
+
+            const updatedItem = {
+                itemName: itemName,
+                category: "Sandwiches",
+                price: basePrice,
+                details: details,
+                extras: extras,
+                businessID: "Protected"
+            };
+
+            fetch('http://localhost:5000/update-item', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedItem)
+            })
+                .then(response => response.json())
+                .then(data => alert(data.message))
+                .catch(error => alert("Error updating item."));
+        }
+    </script>
+
+</body>
+
+</html>
