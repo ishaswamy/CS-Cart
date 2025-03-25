@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>FlexCart Header</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS-Cart Header</title>
     <link rel="stylesheet" type="text/css" href="styles/header_style.css">
 </head>
+
 <body>
     <header>
         <div class="logo">
@@ -21,7 +23,32 @@
                 <img src="https://www.freeiconspng.com/thumbs/cart-icon/basket-cart-icon-27.png" alt="Cart">
             </a>
             <a href="OrderStatus.html" class="nav-button" target="_top">Order Status</a>
+            <a id="logout-link" href="#" class="nav-button" onclick="logout()">Logout</a>
         </nav>
     </header>
+
+    <script>
+        async function logout() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/logout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response.ok) {
+                    
+                    window.top.location.href = "LoginPage.html"; 
+                } else {
+                    alert("Logout failed. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error during logout:", error);
+                alert("Logout failed. Please try again.");
+            }
+        }
+    </script>
+
 </body>
 </html>

@@ -11,6 +11,8 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)  
+app.secret_key = os.getenv("secret_key")
+CORS(app, supports_credentials=True)
 
 # Function to calculate tax
 def taxCalculation(zipCode):
@@ -34,7 +36,7 @@ def readAddons(product):
         if item.get('selected',True):
             addonList.append(item)
 
-    #Grabs paid items
+    #Grabs paid items 
     for item in product['paidItems']:
         if item.get('selected',True):
             addonList.append(item)

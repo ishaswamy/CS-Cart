@@ -9,6 +9,12 @@ header {
     box-sizing: border-box;
     margin: 0;
 }
+ 
+.header-frame {
+    width: 100%;
+    height: auto; 
+    border: none;
+}
 
 
 header .logo img {
