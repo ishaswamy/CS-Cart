@@ -6,6 +6,7 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 import orderStatus as status
+from businessOwnerAcc import register_business_owner, register_employee
 
 load_dotenv()
 
@@ -198,6 +199,25 @@ def update_order_status():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+@app.route('/register_employee', methods=['POST'])
+def register_employee_route():
+    data = request.json
+    print("Received Data:", data)  # Debugging
+
+    if not all(k in data for k in ["username", "password", "fullName", "birthday", "businessID"]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    result = register_employee(
+        username=data["username"],
+        password=data["password"],
+        fullName=data["fullName"],
+        birthday=data["birthday"],
+        businessID=data["businessID"]
+    )
+
+    print("Database Response:", result)  # Debugging
+    return jsonify(result), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)  

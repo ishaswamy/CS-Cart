@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Sign Up</title>
+    <link rel="stylesheet" type="text/css" href="styles/signup_style.css">
+</head>
+
+<body>
+    <iframe src="HeaderMenu.html" class="header-frame"></iframe>
+    <div class="container">
+        <h2>CS-Cart Employee Sign Up</h2>
+        <form id="employeeSignupForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required placeholder="Enter employee username">
+            <br>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Enter employee password"
+                pattern="^(?=.*[A-Z])(?=.*[\W_]).{8,}$"
+                title="Password must be at least 8 characters long, include one uppercase letter and one special character (e.g., !, @, #, $, etc.)">
+            <br>
+
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required placeholder="Enter employee full name">
+            <br>
+
+            <label for="birthday">Birthday</label>
+            <input type="date" id="birthday" name="birthday" required>
+            <br>
+
+            <button type="submit">Create Employee Account</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("employeeSignupForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const formData = {
+                username: document.getElementById("username").value,
+                password: document.getElementById("password").value,
+                fullName: document.getElementById("name").value,
+                birthday: document.getElementById("birthday").value,
+                businessID: "1"  // Hardcoded for now
+
+
+                
+            };
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/register_employee", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Something went wrong. Please try again.");
+            }
+        });
+
+    </script>
+</body>
+
+</html>
