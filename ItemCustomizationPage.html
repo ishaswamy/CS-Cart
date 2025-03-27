@@ -68,9 +68,36 @@
     
             document.querySelector(".total-price").innerText = "Total Price: $" + totalPrice.toFixed(2);
         }
+       
+        async function fetchUser() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/account", {
+                    method: "GET",
+                    credentials: "include"  // Ensures cookies (session) are sent
+                });
 
-  
-        function addToCart() {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Print the response to debug
+                console.log("Server Response:");
+                console.log(JSON.stringify(data, null, 2)); // Pretty-print JSON response
+
+                // Extract username from the message
+                const username = data.message.split(' ')[1];  // Assuming the format is "User <username> is logged in"
+                return username;
+
+            } catch (error) {
+                console.error("Error during fetchUser request:", error);
+                alert("Failed to fetch user. Please try again.");
+            }
+        }
+        async function addToCart() {
+            const username = await fetchUser();
+    
             const ingredients = {
                 bun: false,
                 lettuce: false,
@@ -88,8 +115,8 @@
                 const price = button.innerText.includes("Extra Cheese") ? 1 : 2;
                 extras.push({ name: button.innerText, price: price });
             });
-
-            const quantity = parseInt(document.getElementById("quantity").value);
+            
+            let itemQuantity= parseInt(document.getElementById("quantity").value);
             const totalPrice = document.querySelector(".total-price").innerText.replace('Total Price: $', '');
 
             // Package the product data for the API request
@@ -101,12 +128,12 @@
                 freeToggleItems: [],
                 paidItems: extras,
                 paidToggleItems: [],
-                businessID: "Protected"
+                businessID: "Protected",
+                quantity: itemQuantity
             };
 
-            // Make the API call to add the product to the cart
-            const username = "myFavoriteUser";  // i will replace this with actual username after implementing sessions
-
+            
+     
             fetch('http://localhost:5000/add-to-cart', {
                 method: 'POST',
                 headers: {
@@ -130,6 +157,7 @@
                     alert("There was an error adding the item to the cart.");
                 });
         }
+        
     </script>
 </body>
 

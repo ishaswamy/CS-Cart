@@ -41,7 +41,7 @@ def add_to_cart(product, username,quantity=None):
     product.pop("_id",None)
     if quantity==None or quantity<1:
         quantity=1
-    product["quantity"]=quantity
+    
     cartCollection.insert_one(product)
 
     return {"message": "Item successfully added to cart"}
