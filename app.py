@@ -10,10 +10,13 @@ from businessOwnerAcc import register_business_owner, register_employee
 
 load_dotenv()
 
-app = Flask(__name__)
-CORS(app)  
+app = Flask(__name__) 
 app.secret_key = os.getenv("secret_key")
-CORS(app, supports_credentials=True)
+app.config["SESSION_COOKIE_HTTPONLY"] = False  # Allow JS access if needed
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # Needed for cross-origin requests
+app.config["SESSION_COOKIE_SECURE"] = False  # Set to True in production with HTTPS
+
+CORS(app, supports_credentials=True)  # Allow session cookies
 
 # Function to calculate tax
 def taxCalculation(zipCode):
@@ -159,9 +162,11 @@ def logout():
 
 #Checks which user is logged in
 @app.route("/account", methods=["GET"])
-def profile():
+def account():
     if "user" in session:
+        #print(f"Session user: {session['user']} is here")
         return {"message": f"User {session['user']} is logged in"},200
+    print("User lookup failed.")
     return {"error": "No user logged in"},401
 
 

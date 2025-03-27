@@ -56,12 +56,39 @@
                 console.error("Error updating tax:", error);
             }
         }
+        async function fetchUser() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/account", {
+                    method: "GET",
+                    credentials: "include"  // Ensures cookies (session) are sent
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Print the response to debug
+                console.log("Server Response:");
+                console.log(JSON.stringify(data, null, 2)); // Pretty-print JSON response
+
+                // Extract username from the message
+                const username = data.message.split(' ')[1];  // Assuming the format is "User <username> is logged in"
+                return username;
+
+            } catch (error) {
+                console.error("Error during fetchUser request:", error);
+                alert("Failed to fetch user. Please try again.");
+            }
+        }
 
 
+        
         // Fetch cart items when the page loads
         async function fetchCart(username) {
             try {
-                const response = await fetch(`http://127.0.0.1:5000/get-cart?username=${"myFavoriteUser"}`);
+                const response = await fetch(`http://127.0.0.1:5000/get-cart?username=${username}`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -152,9 +179,17 @@
             }
         }
 
-        window.onload = () => {
-            const username = "myFavoriteUser"; // Set the username to the logged-in user (sessions not implemented yet)
-            fetchCart(username);
+        window.onload = async () => {
+            // Await the result from fetchUser
+            const user = await fetchUser(); // Assuming it returns the username
+            // Check if a valid username is returned
+            if (user) {
+               //alert("User data: " + user);  // Display the username in the alert
+                // Now fetch the cart using the fetched username
+                fetchCart(user);  // Pass the username to fetchCart
+            } else {
+                alert("Failed to fetch user.");
+            }
         };
 
     </script>
