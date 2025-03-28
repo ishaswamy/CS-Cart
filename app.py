@@ -20,7 +20,7 @@ CORS(app, supports_credentials=True)  # Allow session cookies
 
 # Function to calculate tax
 def taxCalculation(zipCode):
-    df = pd.read_csv('/home/codespace/CS-Cart/Tax/taxes.csv')
+    df = pd.read_csv('Tax/taxes.csv')
     return df.loc[df['ZipCode'] == zipCode, 'EstimatedCombinedRate'].values[0]
 
 #Reads addons that are selected true for display under orders.
