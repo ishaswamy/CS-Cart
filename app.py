@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 import shoppingCart as sc  
+import menuChange as menu
 from customerAcc import register_user, login_user
 import os
 import pandas as pd
@@ -70,6 +71,37 @@ def get_cart():
         return jsonify({"cartItems": cart_items}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+# API route to fetch all menu items for a business
+@app.route("/get-menu", methods=["GET"])
+def get_menu():
+    username = request.args.get("username", type=str)
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+
+    try:
+        menu_items = menu.get_menu_items(username)  
+        return jsonify({"menuItems": menu_items}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/get-specific-items", methods=["GET"])
+def get_specific_items():
+    username = request.args.get("username", type=str)
+    category = request.args.get("category", type=str)
+
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+    if not category:
+        return jsonify({"error": "Category is required"}), 400
+
+    try:
+        menu_items = menu.get_specific_category_items(username, category)  
+        return jsonify({"menuItems": menu_items}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 # API route to add an item to the cart
 @app.route("/add-to-cart", methods=["POST"])
@@ -207,8 +239,6 @@ def update_order_status():
 @app.route('/register_employee', methods=['POST'])
 def register_employee_route():
     data = request.json
-    print("Received Data:", data)  # Debugging
-
     if not all(k in data for k in ["username", "password", "fullName", "birthday", "businessID"]):
         return jsonify({"error": "Missing required fields"}), 400
 
