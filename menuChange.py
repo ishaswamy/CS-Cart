@@ -111,15 +111,14 @@ def get_menu_items(username):
 
     return menu_items
 
-def get_specific_category_items(username,category):
-    businessID = int((userLoginCollection.find_one({"username": username}, {"businessID": 1})).get("businessID"))
+def get_specific_category_items(businessID, category):
     if not businessID:  
         return []  # Return an empty list if businessID is missing
     
-    menu_items = list(menuCollection.find({"businessID": businessID, "category": category}))
-
+    menu_items = list(menuCollection.find({"businessID": businessID, "category": category},{"_id":0}))
+    '''
     # Remove the "_id" field from each item for a cleaner response
     for item in menu_items:
         item.pop("_id", None)
-
+    '''
     return menu_items

@@ -35,13 +35,13 @@
             }
         }
 
-        async function fetchMenu(username) {
+        async function fetchMenu() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const category = urlParams.get('category');
                 console.log("Category selected: " + category);
 
-                const response = await fetch(`http://127.0.0.1:5000/get-specific-items?username=${username}&category=${category}`);
+                const response = await fetch(`http://127.0.0.1:5000/get-specific-items?category=${category}`);
 
                 const data = await response.json();
 

@@ -19,6 +19,13 @@ app.config["SESSION_COOKIE_SECURE"] = False  # Set to True in production with HT
 
 CORS(app, supports_credentials=True)  # Allow session cookies
 
+#Hardcoded businessID. Changing this changes what business is currently being accessed.
+BUSINESSID=1
+
+#Returns current businessID for use in python scripts.
+def getBusinessID():
+    return str(BUSINESSID)
+
 # Function to calculate tax
 def taxCalculation(zipCode):
     df = pd.read_csv('Tax/taxes.csv')
@@ -87,16 +94,16 @@ def get_menu():
 
 @app.route("/get-specific-items", methods=["GET"])
 def get_specific_items():
-    username = request.args.get("username", type=str)
+    businessID=BUSINESSID
     category = request.args.get("category", type=str)
 
-    if not username:
-        return jsonify({"error": "Username is required"}), 400
+    if not businessID:
+        return jsonify({"error": "Invalid BusinessID Configured"}), 400
     if not category:
         return jsonify({"error": "Category is required"}), 400
 
     try:
-        menu_items = menu.get_specific_category_items(username, category)  
+        menu_items = menu.get_specific_category_items(businessID,category)  
         return jsonify({"menuItems": menu_items}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -149,6 +156,7 @@ def checkout():
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 
 # User registration route
 @app.route("/signup", methods=["POST", "OPTIONS"])
@@ -201,6 +209,10 @@ def account():
     print("User lookup failed.")
     return {"error": "No user logged in"},401
 
+#Checks which user is logged in
+@app.route("/business", methods=["GET"])
+def businessIdNo():
+    return {"message": f"{BUSINESSID}"},200
 
 
 @app.route("/get-order-status", methods=["GET"])
