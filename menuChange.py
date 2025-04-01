@@ -4,8 +4,12 @@ import pymongo
 #Connecting to mongoDB collection
 menuCollection=cM.mongoConnect("Businesses","menuItems")
 
+userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
+
+
 #Creating filter to prevent businesses from creating duplicates of the same item
 menuCollection.create_index( { "itemName": 1, "businessID": 1},unique= True  )
+
 
 '''
 Add item features some optional parameters that can be left blank. If not in use, set the parameter to None, 0, or False.
@@ -95,3 +99,27 @@ def updateItem(itemName, businessID, update_fields):
             case _:
                 return {"message": "Item succsessfully updated"}
     
+# Retrieves all items in the cart for the specified username
+def get_menu_items(username):
+    
+    businessID = int((userLoginCollection.find_one({"username": username}, {"businessID": 1})).get("businessID"))
+    menu_items = list(menuCollection.find({"businessID": businessID}))  # Fetch menu items from MongoDB
+    
+    # Remove the "_id" field from each item to make the response cleaner
+    for item in menu_items:
+        item.pop("_id", None)
+
+    return menu_items
+
+def get_specific_category_items(username,category):
+    businessID = int((userLoginCollection.find_one({"username": username}, {"businessID": 1})).get("businessID"))
+    if not businessID:  
+        return []  # Return an empty list if businessID is missing
+    
+    menu_items = list(menuCollection.find({"businessID": businessID, "category": category}))
+
+    # Remove the "_id" field from each item for a cleaner response
+    for item in menu_items:
+        item.pop("_id", None)
+
+    return menu_items

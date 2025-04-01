@@ -1,34 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Home Screen</title>
-    <link rel="stylesheet" type="text/css" href="styles/specific_category_style.css">
+    <title>Business Menu</title>
+    <link rel="stylesheet" type="text/css" href="styles/customerhome_style.css">
 </head>
+
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
 
-    <h1>Welcome to Our Store</h1>
-    <p>Select a category to start shopping</p>
-    
-    <div class="menu-container">
-        <a href="ItemCustomizationPage.html" class="menu-item">
-            <img src="https://recipe-graphics.grocerywebsite.com/0_GraphicsRecipes/4589_4k.jpg" alt="Category 1">
-            <h3>Hamburger</h3>
-        </a>
-        <div class="menu-item">
-            <img src="https://www.seriouseats.com/thmb/ISKxF-Fjxy0P016o8MbRZH7Bhkg=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/20230921-SEA-the-best-lamb-burgers-recipe-hero-01-QiAi-15f8a6a146f4454686601a3bf417cbcd.jpg" alt="Category 2">
-            <h3>Lamb Burger</h3>
-        </div>
-        <div class="menu-item">
-            <img src="https://www.inspiredtaste.net/wp-content/uploads/2018/05/Homemade-Mushroom-Veggie-Burger-Recipe-1200.jpg" alt="Category 3">
-            <h3>Veggie Burger</h3>
-        </div>
-        <div class="menu-item">
-            <img src="https://leitesculinaria.com/wp-content/uploads/2020/02/classic-cheeseburger-1200.jpg" alt="Category 4">
-            <h3>Cheeseburger</h3>
-        </div>
-    </div>
+    <h1>Menu</h1>
+    <p>Select an item to customize</p>
+
+    <div class="menu-container"></div>
+
+    <script>
+        async function fetchUser() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/account", {
+                    method: "GET",
+                    credentials: "include"
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log("Server Response:", data);
+                return data.message.split(' ')[1];
+            } catch (error) {
+                console.error("Error fetching user:", error);
+                alert("Failed to fetch user.");
+            }
+        }
+
+        async function fetchMenu(username) {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const category = urlParams.get('category');
+                console.log("Category selected: " + category);
+
+                const response = await fetch(`http://127.0.0.1:5000/get-specific-items?username=${"akumar"}&category=${category}`);
+
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error("Error fetching menu:", data.error);
+                    return;
+                }
+
+                const menuContainer = document.querySelector(".menu-container");
+                menuContainer.innerHTML = ""; // Clear existing items
+
+                data.menuItems.forEach(item => {
+                    const itemDiv = document.createElement("div");
+                    itemDiv.classList.add("menu-item");
+
+                    const itemImage = document.createElement("img");
+                    itemImage.src = item.imageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
+                    itemImage.alt = item.itemName;
+
+                    const itemName = document.createElement("h3");
+                    itemName.innerText = item.itemName;
+
+
+
+                    itemDiv.appendChild(itemImage);
+                    itemDiv.appendChild(itemName);
+
+
+                    menuContainer.appendChild(itemDiv);
+                });
+            } catch (error) {
+                console.error("Error fetching menu:", error);
+            }
+        }
+
+        window.onload = async () => {
+            const user = await fetchUser();
+            if (user) {
+                fetchMenu(user);
+            } else {
+                alert("Failed to fetch user.");
+            }
+        };
+    </script>
 </body>
+
 </html>
