@@ -41,9 +41,13 @@ exampleProduct={
 
 print(getBusinessID())
 
-
+'''
 shoppingCart.add_to_cart(exampleProduct,"akumar")
 shoppingCart.checkout("akumar")
-
+#'''
+#'''
 itemID=orderStatus.getItemID("akumar")
+orderID=orderStatus.getOrderID(itemID)
 #orderStatus.clearItem(itemID)
+orderID=orderStatus.clearOrder(orderID)
+#'''

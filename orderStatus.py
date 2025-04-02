@@ -1,8 +1,8 @@
 import connectModule as cM
 from flask import jsonify
-
+from pymongo.errors import PyMongoError, OperationFailure
 orderCollection=cM.mongoConnect("accountInfo","orderStatus")
-historyCollection=cM.mongoConnect("businessInfo","orderHistory")
+historyCollection=cM.mongoConnect("Businesses","orderHistory")
 
 #Marks order with given orderID as completed. Allows for updating of status entire order at once
 def markOrderCompleted(orderID):
@@ -39,17 +39,28 @@ def markOrderInProgress(orderID):
     )
     return {f"message":"Item {itemID} has been marked as in progress."}
 
-#Clears items in a given order from the order status collection. Adds items in order to orderHistory collection.
+#Clears items in a given order from the order status collection. Adds items in the given order to orderHistory collection.
 def clearOrder(orderID):
-    historyCollection.insert_many(orderCollection.find({"orderID":orderID}))
-    orderCollection.delete_many({"orderID":orderID})
-    return {f"message":"Orders with Order ID {orderID} have been cleared from order queue"}
+    try:
+        historyCollection.insert_many(orderCollection.find({"orderID":orderID}))
+        orderCollection.delete_many({"orderID":orderID})
+    except (PyMongoError, OperationFailure) as e:
+        return {f"message":"Orders with Order ID {orderID} have been cleared from order queue"}
 
 #Deletes specific items from the order status collection. Adds item to orderHistory collection.
 def clearItem(itemID):
-    historyCollection.insert_one(orderCollection.find_one({"itemID":itemID}))
-    orderCollection.delete_one({"itemID":itemID})
-    return {f"message":"Item with Item ID {itemID} has been cleared from order queue"}
+    try:
+        item=orderCollection.find_one({"itemID":itemID})
+        item.pop("_id")
+        #Adds item to order history collection for archival purposes
+        historyCollection.insert_one(item)
+
+        #Deletes item from order status page
+        orderCollection.delete_one({"itemID":itemID})
+        return {f"message":"Item with Item ID {itemID} has been cleared from order queue"}
+    except (PyMongoError, OperationFailure) as e:
+        return(f"Insertion error: {e}")
+
 
 def getOrderID(itemID):
     orderDict=orderCollection.find_one({"itemID":itemID},{"_id":0,"orderID":1})
