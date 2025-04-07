@@ -14,9 +14,9 @@ def markOrderCompleted(orderID):
 #Marks order with given orderID as incomplete. Allows for updating of status entire order at once
 def markOrderIncomplete(orderID):
     orderCollection.update_many({"orderID":orderID}, #query
-        {"$set":{"orderStatus": "incomplete"}}#Update fields here
+        {"$set":{"orderStatus": "in progress"}}#Update fields here
     )
-    return {f"message":"Order {orderID} has been marked as incomplete."}
+    return {f"message":"Order {orderID} has been marked as in progress."}
 
 #Marks item with given ID as completed
 def markItemCompleted(itemID):
@@ -30,7 +30,7 @@ def markItemIncomplete(itemID):
     orderCollection.update_one({"itemID":itemID}, #query
         {"$set":{"orderStatus": "incomplete"}}#Update fields here
     )
-    return {f"message":"Item {itemID} has been marked as incomplete."}
+    return {f"message":"Item {itemID} has been marked as in progress."}
 
 #Marks item with given ID as in progress
 def markOrderInProgress(orderID):
