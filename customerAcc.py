@@ -13,6 +13,7 @@ userLoginCollection.create_index(["username","email"], unique=True)
 
 #Encrypts passwords in database
 pwd_encrypt= CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 def register_user(username, email, password, fullName, birthday, businessID):
 
     #password encryption object called
@@ -51,8 +52,9 @@ def register_user(username, email, password, fullName, birthday, businessID):
         return {"error": "Username or email already exists"}
     
 def login_user(username_or_email,password):
+    from app import getBusinessID
      # Find the user by username or email
-    user = userLoginCollection.find_one({"$or": [{"username": username_or_email}, {"email": username_or_email}]})
+    user = userLoginCollection.find_one({"$or": [{"username": username_or_email}, {"email": username_or_email}],"businessID":getBusinessID()})
     if user:
         #Checks encrypted password
         if pwd_encrypt.verify(password, user["password"]):

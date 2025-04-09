@@ -10,7 +10,6 @@ userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
 #Creating filter to prevent businesses from creating duplicates of the same item
 menuCollection.create_index( { "itemName": 1, "businessID": 1},unique= True  )
 
-
 '''
 Add item features some optional parameters that can be left blank. If not in use, set the parameter to None, 0, or False.
 
@@ -83,7 +82,6 @@ update_data = {
 
 '''
 
-
 def updateItem(itemID, update_fields):
     """Updates a menu item in the database with the given fields."""
     
@@ -111,7 +109,6 @@ def updateItem(itemID, update_fields):
         return {"message": "No changes were made. Item might already have the same values."}
     
     return {"message": "Item successfully updated."}
-
 
     
 # Retrieves all items in the cart for the specified username
