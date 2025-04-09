@@ -8,59 +8,42 @@
     <link rel="stylesheet" type="text/css" href="styles/customer_cart.css">
 
     <script>
-        async function updateTax() {
-            const zipCode = 73301; // Hardcoded ZIP code for now
+        
+
+        // Function to update quantity and re-fetch the cart
+        async function updateQuantity(username, itemID, quantity) {
             try {
-                const response = await fetch("http://127.0.0.1:5000/get-tax?zipCode=" + zipCode);
-                const data = await response.json();
-
-                if (!data.taxRate || isNaN(data.taxRate)) {
-                    console.error("Invalid tax rate:", data.taxRate);
-                    return;
-                }
-
-                const taxRate = parseFloat(data.taxRate);
-
-                // Calculate subtotal
-                let subtotal = 0;
-                document.querySelectorAll(".item").forEach(item => {
-                    const priceElement = item.querySelector(".item-info p:nth-child(1)");
-                    const quantityElement = item.querySelector(".item-info p:nth-child(2)");
-
-                    if (priceElement && quantityElement) {
-                        const priceText = priceElement.innerText.replace("Price: $", "").trim();
-                        const quantityText = quantityElement.innerText.replace("Quantity: ", "").trim();
-
-                        const price = parseFloat(priceText);
-                        const quantity = parseInt(quantityText);
-
-                        if (!isNaN(price) && !isNaN(quantity)) {
-                            subtotal += price * quantity;
-                        } else {
-                            console.error("Invalid price or quantity", price, quantity);
-                        }
-                    }
+                const response = await fetch("http://127.0.0.1:5000/update-cart-item", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        itemID: itemID,
+                        updateFields: { quantity: quantity }
+                    })
                 });
 
-                document.getElementById("subtotal-value").innerText = `$${subtotal.toFixed(2)}`;
-
-                // Calculate tax and total cost
-                const taxAmount = (subtotal * taxRate).toFixed(2);
-                const totalCost = (subtotal + parseFloat(taxAmount)).toFixed(2);
-
-                document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
-                document.getElementById("tax-value").innerText = `$${taxAmount}`;
-                document.getElementById("total-cost").innerText = `$${totalCost}`;
-
+                const data = await response.json();
+                updateTax(); // Recalculate tax and totals after update
+                if (data.message) {
+                    console.log(data.message);
+                    fetchCart(username); // Reload the cart after updating the quantity
+                } else {
+                    console.error("Error updating quantity:", data.error);
+                }
             } catch (error) {
-                console.error("Error updating tax:", error);
+                console.error("Error updating quantity:", error);
             }
         }
+
+        // Fetch the logged-in user's username
         async function fetchUser() {
             try {
                 const response = await fetch("http://127.0.0.1:5000/account", {
                     method: "GET",
-                    credentials: "include"  // Ensures cookies (session) are sent
+                    credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -68,13 +51,7 @@
                 }
 
                 const data = await response.json();
-                
-                // Print the response to debug
-                console.log("Server Response:");
-                console.log(JSON.stringify(data, null, 2)); // Pretty-print JSON response
-
-                // Extract username from the message
-                const username = data.message.split(' ')[1];  // Assuming the format is "User <username> is logged in"
+                const username = data.message.split(' ')[1];
                 return username;
 
             } catch (error) {
@@ -83,9 +60,7 @@
             }
         }
 
-
-        
-        // Fetch cart items when the page loads
+        // Fetch the user's cart items from the server
         async function fetchCart(username) {
             try {
                 const response = await fetch(`http://127.0.0.1:5000/get-cart?username=${username}`);
@@ -94,59 +69,84 @@
                 if (data.error) {
                     console.error("Error fetching cart:", data.error);
                 } else {
-                    // Dynamically populate the cart items
                     const cartItemsContainer = document.querySelector(".cart-items");
-                    cartItemsContainer.innerHTML = ""; // Clear the container 
+                    cartItemsContainer.innerHTML = ""; // Clear the container
 
-                    data.cartItems.forEach(item => {
-                        const itemDiv = document.createElement("div");
-                        itemDiv.classList.add("item");
+                    if (data.cartItems && data.cartItems.length > 0) {
+                        data.cartItems.forEach(item => {
+                            const itemDiv = document.createElement("div");
+                            itemDiv.classList.add("item");
 
-                        const itemDetails = document.createElement("div");
-                        itemDetails.classList.add("item-details");
-                        const itemName = document.createElement("p");
-                        itemName.classList.add("item-name");
-                        itemName.innerText = item.itemName;
-                        const itemImage = document.createElement("img");
-                        itemImage.src = item.imageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
-                        itemImage.alt = item.itemName;
-                        itemImage.classList.add("item-image");
+                            const itemDetails = document.createElement("div");
+                            itemDetails.classList.add("item-details");
+                            const itemName = document.createElement("p");
+                            itemName.classList.add("item-name");
+                            itemName.innerText = item.itemName;
+                            const itemImage = document.createElement("img");
+                            itemImage.src = item.imageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
+                            itemImage.alt = item.itemName;
+                            itemImage.classList.add("item-image");
 
-                        itemDetails.appendChild(itemName);
-                        itemDetails.appendChild(itemImage);
+                            itemDetails.appendChild(itemName);
+                            itemDetails.appendChild(itemImage);
 
-                        const itemInfo = document.createElement("div");
-                        itemInfo.classList.add("item-info");
-                        const itemPrice = document.createElement("p");
-                        itemPrice.innerText = "Price: $" + item.price;
-                        const itemQuantity = document.createElement("p");
-                        itemQuantity.innerText = "Quantity: " + item.quantity;
+                            const itemInfo = document.createElement("div");
+                            itemInfo.classList.add("item-info");
+                            const itemPrice = document.createElement("p");
+                            itemPrice.innerText = "Price: $" + item.price;
+                            const itemQuantity = document.createElement("p");
+                            itemQuantity.innerText = "Quantity: " + item.quantity;
 
-                        const editButton = document.createElement("button");
-                        editButton.classList.add("edit-btn");
-                        editButton.innerText = "Edit";
-                        editButton.onclick = () => window.location.href = '/ItemCustomizationPage.html';
+                            // Quantity Controls (Increase/Decrease)
+                            const quantityControls = document.createElement("div");
+                            quantityControls.classList.add("quantity-controls");
 
-                        const deleteButton = document.createElement("button");
-                        deleteButton.classList.add("delete-btn");
-                        deleteButton.innerText = "Delete";
-                        deleteButton.onclick = () => deleteItem(username, item.itemID);
+                            const decreaseButton = document.createElement("button");
+                            decreaseButton.innerText = "-";
+                            decreaseButton.onclick = () => {
+                                if (item.quantity > 1) {
+                                    item.quantity--;
+                                    updateQuantity(username, item.itemID, item.quantity);
+                                }
+                            };
 
-                        itemInfo.appendChild(itemPrice);
-                        itemInfo.appendChild(itemQuantity);
-                        itemInfo.appendChild(editButton);
-                        itemInfo.appendChild(deleteButton);
+                            const quantityDisplay = document.createElement("span");
+                            quantityDisplay.innerText = item.quantity;
 
-                        itemDiv.appendChild(itemDetails);
-                        itemDiv.appendChild(itemInfo);
+                            const increaseButton = document.createElement("button");
+                            increaseButton.innerText = "+";
+                            increaseButton.onclick = () => {
+                                item.quantity++;
+                                updateQuantity(username, item.itemID, item.quantity);
+                            };
 
-                        cartItemsContainer.appendChild(itemDiv);
-                    });
+                            quantityControls.appendChild(decreaseButton);
+                            quantityControls.appendChild(quantityDisplay);
+                            quantityControls.appendChild(increaseButton);
 
-                    // Update the tax and total costs
-                    updateTax();
+                            // Append controls to item info
+                            itemInfo.appendChild(itemPrice);
+                            itemInfo.appendChild(quantityControls);
+
+                            const deleteButton = document.createElement("button");
+                            deleteButton.classList.add("delete-btn");
+                            deleteButton.innerText = "Delete";
+                            deleteButton.onclick = () => deleteItem(username, item.itemID);
+
+                            itemInfo.appendChild(deleteButton);
+
+                            itemDiv.appendChild(itemDetails);
+                            itemDiv.appendChild(itemInfo);
+
+                            cartItemsContainer.appendChild(itemDiv);
+                        });
+
+                        // Update the tax and total costs
+                        updateTax();
+                    } else {
+                        cartItemsContainer.innerHTML = "<p>Your cart is empty.</p>";
+                    }
                 }
-
             } catch (error) {
                 console.error("Error fetching cart:", error);
             }
@@ -180,19 +180,69 @@
         }
 
         window.onload = async () => {
-            // Await the result from fetchUser
-            const user = await fetchUser(); // Assuming it returns the username
-            // Check if a valid username is returned
+            const user = await fetchUser(); // Fetch the logged-in user
             if (user) {
-               //alert("User data: " + user);  // Display the username in the alert
-                // Now fetch the cart using the fetched username
-                fetchCart(user);  // Pass the username to fetchCart
+                fetchCart(user); // Fetch the cart for the logged-in user
             } else {
                 alert("Failed to fetch user.");
             }
         };
+        async function updateTax() {
+    const zipCode = 73301; // Hardcoded ZIP code for now
+    try {
+        // First, fetch the tax rate based on the ZIP code
+        const response = await fetch("http://127.0.0.1:5000/get-tax?zipCode=" + zipCode);
+        const taxData = await response.json();
+
+        if (!taxData.taxRate || isNaN(taxData.taxRate)) {
+            console.error("Invalid tax rate:", taxData.taxRate);
+            return;
+        }
+
+        const taxRate = parseFloat(taxData.taxRate);
+
+        // Now, fetch the cart data for the logged-in user
+        const username = await fetchUser(); // Fetch logged-in username
+        const cartResponse = await fetch(`http://127.0.0.1:5000/get-cart?username=${username}`);
+        const cartData = await cartResponse.json();
+
+        if (cartData.error) {
+            console.error("Error fetching cart:", cartData.error);
+            return;
+        }
+
+        // Calculate the subtotal using the fetched cart data
+        let subtotal = 0;
+        cartData.cartItems.forEach(item => {
+            const price = parseFloat(item.price);
+            const quantity = parseInt(item.quantity);
+
+            if (!isNaN(price) && !isNaN(quantity)) {
+                subtotal += price * quantity;
+            } else {
+                console.error("Invalid price or quantity:", price, quantity);
+            }
+        });
+
+        // Update the display of subtotal
+        document.getElementById("subtotal-value").innerText = `$${subtotal.toFixed(2)}`;
+
+        // Calculate the tax and total cost
+        const taxAmount = (subtotal * taxRate).toFixed(2);
+        const totalCost = (subtotal + parseFloat(taxAmount)).toFixed(2);
+
+        document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
+        document.getElementById("tax-value").innerText = `$${taxAmount}`;
+        document.getElementById("total-cost").innerText = `$${totalCost}`;
+
+    } catch (error) {
+        console.error("Error updating tax:", error);
+    }
+}
+
 
     </script>
+
 
 </head>
 
@@ -201,8 +251,7 @@
 
     <div class="container">
         <div class="cart-content">
-            <div class="cart-items">
-            </div>
+            <div class="cart-items"></div>
 
             <div class="totals">
                 <table>

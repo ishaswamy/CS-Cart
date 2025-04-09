@@ -84,20 +84,35 @@ update_data = {
 '''
 
 
-def updateItem(itemName, businessID, update_fields):
-   result= menuCollection.update_one(
-        {"itemName":itemName, "businessID":businessID}, #query
-        {"$set":update_fields}#Update fields here
-    ) 
-   
-   if result.matched_count==0:
-        return {"message": "Item Not Found"}
-   else:
-        match result.modified_count:
-            case 0:
-                return {"message":"No changes made"}
-            case _:
-                return {"message": "Item succsessfully updated"}
+def updateItem(itemID, update_fields):
+    """Updates a menu item in the database with the given fields."""
+    
+    if not update_fields:
+        return {"message": "No fields provided for update."}
+
+    # Define valid fields that should be updated
+    valid_fields = ["itemName", "category", "price", "freeItems", "freeToggleItems", "paidItems", "paidToggleItems"]
+
+    # Filter update_fields to remove any invalid keys
+    update_data = {key: value for key, value in update_fields.items() if key in valid_fields}
+
+    if not update_data:
+        return {"message": "No valid fields provided for update."}
+
+    result = menuCollection.update_one(
+        {"itemID": itemID},  # Query using itemID
+        {"$set": update_data}  # Update fields
+    )
+
+    if result.matched_count == 0:
+        return {"message": "Item not found."}
+    
+    if result.modified_count == 0:
+        return {"message": "No changes were made. Item might already have the same values."}
+    
+    return {"message": "Item successfully updated."}
+
+
     
 # Retrieves all items in the cart for the specified username
 def get_menu_items(username):
@@ -123,3 +138,17 @@ def get_specific_category_items(username,category):
         item.pop("_id", None)
 
     return menu_items
+
+def get_menu_item(itemID):
+    try:
+        itemID = int(itemID)  # Ensure itemID is an integer
+    except ValueError:
+        return {}  # Return empty if conversion fails
+
+    item = menuCollection.find_one({"itemID": itemID})  # Ensure matching integer ID
+
+    if item:
+        item["_id"] = str(item["_id"])  # Convert ObjectId to string
+        return item  
+
+    return {}  # Return empty if no match

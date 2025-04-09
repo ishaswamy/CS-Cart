@@ -81,3 +81,39 @@ def delete_item(username, itemID):
         return {"message": "Item successfully deleted from the cart."}
     else:
         return {"error": "Item not found or failed to delete."} 
+import connectModule as cM
+
+# Connect to the shopping cart collection
+cartCollection = cM.mongoConnect("accountInfo", "shoppingCart")
+
+def update_cart_item(username, itemID, updateFields):
+    """
+    Updates specific fields of a cart item for a given user.
+
+    :param username: The username tied to the cart.
+    :param itemID: The unique ID of the item in the cart.
+    :param updateFields: A dictionary of fields to update (e.g., {'quantity': 2}).
+    :return: A response dictionary with a success or error message.
+    """
+
+    # Ensure the updateFields dictionary is not empty
+    if not updateFields:
+        return {"error": "No valid fields provided for update."}
+
+    # Ensure quantity is at least 1 if it's being updated
+    if "quantity" in updateFields and updateFields["quantity"] < 1:
+        return {"error": "Quantity must be at least 1."}
+
+    # Perform the update in MongoDB
+    result = cartCollection.update_one(
+        {"username": username, "itemID": itemID},
+        {"$set": updateFields}
+    )
+
+    # Check if the update was successful
+    if result.matched_count == 0:
+        return {"error": "Item not found or user mismatch."}
+    elif result.modified_count == 0:
+        return {"message": "No changes made."}
+    else:
+        return {"message": "Cart item updated successfully."}

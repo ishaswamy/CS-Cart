@@ -4,157 +4,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Item Customization</title>
-    <link rel="stylesheet" href="styles/item_customization_style.css">
+    <title>Customize Menu Item</title>
+    <link rel="stylesheet" type="text/css" href="styles/business_item_customization.css">
 </head>
 
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
 
     <div class="container">
-        <div class="image-container">
-            <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg"
-                alt="Product Image" style="width:100%; border-radius:5px;">
+        <h1><input type="text" id="item-name" value="Loading..."></h1>
+        <img id="item-image" src="" alt="Item Image">
+        <p>Price: $<input type="number" id="item-price" step="0.01"></p>
+
+        <div class="item-section">
+            <h2>Included Items</h2>
+            <div id="free-items"></div>
         </div>
 
-        <div class="details-container">
-            <h2>Edit Your Item</h2>
-
-            <label for="itemName">Item Name:</label>
-            <input type="text" id="itemName" value="Hamburger">
-
-            <label for="basePrice">Base Price ($):</label>
-            <input type="number" id="basePrice" value="8.00" min="0" step="0.01" onchange="updatePrice()">
-
-            <h3>Details:</h3>
-            <div id="detailsList">
-                <div class="detail-item">
-                    <span>Bun</span>
-                    <button onclick="removeDetail(this)">Remove</button>
-                </div>
-                <div class="detail-item">
-                    <span>Lettuce</span>
-                    <button onclick="removeDetail(this)">Remove</button>
-                </div>
-                <div class="detail-item">
-                    <span>Cheese</span>
-                    <button onclick="removeDetail(this)">Remove</button>
-                </div>
-            </div>
-            <input type="text" id="newDetail" placeholder="Enter new detail">
-            <button onclick="addDetail()">Add Detail</button>
-
-            <h3>Extras:</h3>
-            <div id="extrasList">
-                <div class="extra-item">
-                    <input type="text" value="Extra Cheese">
-                    <input type="number" value="1.00" min="0" step="0.01">
-                    <button onclick="removeExtra(this)">Remove</button>
-                </div>
-                <div class="extra-item">
-                    <input type="text" value="Bacon">
-                    <input type="number" value="2.00" min="0" step="0.01">
-                    <button onclick="removeExtra(this)">Remove</button>
-                </div>
-            </div>
-            <button onclick="addExtra()">Add Extra</button>
-
-            <p class="total-price">Total Price: $8.00</p>
-            <button onclick="saveChanges()">Save Changes</button>
-            <button class="delete-btn" onclick="deleteItem()">Delete Item</button>
-
+        <div class="item-section">
+            <h2>Free Toggle Items</h2>
+            <div id="free-toggle-items"></div>
         </div>
+
+        <div class="item-section">
+            <h2>Paid Extras</h2>
+            <div id="paid-items"></div>
+        </div>
+
+        <div class="item-section">
+            <h2>Paid Toggle Extras</h2>
+            <div id="paid-toggle-items"></div>
+        </div>
+
+        <button onclick="updateItem()">Update Item</button>
     </div>
 
     <script>
-        function removeDetail(button) {
-            button.parentElement.remove();
-        }
 
-        function addDetail() {
-            const detailInput = document.getElementById("newDetail");
-            const detailText = detailInput.value.trim();
-            if (detailText === "") return;
-            const detailList = document.getElementById("detailsList");
+        async function fetchItemDetails(itemID) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/get-item?itemID=${itemID}`);
 
-            const newDetail = document.createElement("div");
-            newDetail.classList.add("detail-item");
-            newDetail.innerHTML = `<span>${detailText}</span><button onclick="removeDetail(this)">Remove</button>`;
-            detailList.appendChild(newDetail);
-
-            detailInput.value = ""; // Clear input
-        }
-
-        function removeExtra(button) {
-            button.parentElement.remove();
-        }
-
-        function addExtra() {
-            const extraList = document.getElementById("extrasList");
-
-            const newExtra = document.createElement("div");
-            newExtra.classList.add("extra-item");
-            newExtra.innerHTML = `
-                <input type="text" placeholder="Extra name">
-                <input type="number" placeholder="Price ($)" min="0" step="0.01">
-                <button onclick="removeExtra(this)">Remove</button>
-            `;
-            extraList.appendChild(newExtra);
-        }
-
-        function updatePrice() {
-            let basePrice = parseFloat(document.getElementById("basePrice").value) || 0;
-            let extraCost = 0;
-
-            document.querySelectorAll("#extrasList .extra-item").forEach(extra => {
-                let price = parseFloat(extra.children[1].value) || 0;
-                extraCost += price;
-            });
-
-            let totalPrice = basePrice + extraCost;
-            document.querySelector(".total-price").innerText = "Total Price: $" + totalPrice.toFixed(2);
-        }
-
-        function saveChanges() {
-            const itemName = document.getElementById("itemName").value;
-            const basePrice = parseFloat(document.getElementById("basePrice").value) || 0;
-
-            const details = [];
-            document.querySelectorAll("#detailsList .detail-item span").forEach(span => {
-                details.push(span.innerText);
-            });
-
-            const extras = [];
-            document.querySelectorAll("#extrasList .extra-item").forEach(extra => {
-                let name = extra.children[0].value.trim();
-                let price = parseFloat(extra.children[1].value) || 0;
-                if (name) {
-                    extras.push({ name: name, price: price });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-            });
 
-            const updatedItem = {
-                itemName: itemName,
-                category: "Sandwiches",
-                price: basePrice,
-                details: details,
-                extras: extras,
-                businessID: "Protected"
+                const item = await response.json();
+
+                if (!item || Object.keys(item).length === 0) {
+                    alert("Item not found.");
+                    return;
+                }
+
+                document.getElementById("item-name").value = item.itemName;
+                document.getElementById("item-price").value = item.price.toFixed(2);
+                document.getElementById("item-image").src = item.itemImageUrl || "default-image.jpg";
+
+                populateItems("free-items", item.freeItems, true);
+                populateToggleItems("free-toggle-items", item.freeToggleItems, true);
+                populateItems("paid-items", item.paidItems, false);
+                populateToggleItems("paid-toggle-items", item.paidToggleItems, false);
+
+            } catch (error) {
+                console.error("Error fetching item details:", error);
+                alert("Failed to load item details.");
+            }
+        }
+
+        function populateItems(containerId, items, isFree) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+            if (items) {
+                Object.entries(items).forEach(([name, included]) => {
+                    const div = document.createElement("div");
+                    div.innerHTML = `
+                        <label>${name}: </label>
+                        <input type="checkbox" ${included ? "checked" : ""} data-name="${name}">
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function populateToggleItems(containerId, toggleItems, isFree) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+            (toggleItems || []).forEach(toggle => {
+                const div = document.createElement("div");
+                div.innerHTML = `
+                    <label>${toggle.name} (${toggle.type}): </label>
+                    <input type="checkbox" ${toggle.selected ? "checked" : ""} data-name="${toggle.name}" data-type="${toggle.type}">
+                    ${isFree ? "" : `<input type="number" value="${toggle.price.toFixed(2)}" step="0.01">`}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function updateItem() {
+            const params = new URLSearchParams(window.location.search);
+            const itemID = params.get("itemID"); // Get itemID dynamically
+
+            if (!itemID || isNaN(itemID)) {
+                alert("Invalid Item ID.");
+                return;
+            }
+
+            const updatedData = {
+                itemName: document.getElementById("item-name").value,
+                price: parseFloat(document.getElementById("item-price").value),
+                freeItems: getUpdatedItems("free-items"),
+                freeToggleItems: getUpdatedToggleItems("free-toggle-items"),
+                paidItems: getUpdatedItems("paid-items"),
+                paidToggleItems: getUpdatedToggleItems("paid-toggle-items")
             };
 
-            fetch('http://localhost:5000/update-item', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedItem)
-            })
-                .then(response => response.json())
-                .then(data => alert(data.message))
-                .catch(error => alert("Error updating item."));
-        }
-    </script>
 
+            try {
+                const response = await fetch("http://127.0.0.1:5000/update-item", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        itemID: parseInt(itemID),  // Use dynamic itemID
+                        update_fields: updatedData
+                    })
+                });
+
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                console.error("Error updating item:", error);
+                alert("Failed to update item.");
+            }
+        }
+
+
+        function getUpdatedItems(containerId) {
+            const items = {};
+            document.getElementById(containerId).querySelectorAll("input[type='checkbox']").forEach(input => {
+                items[input.getAttribute("data-name")] = input.checked;
+            });
+            return items;
+        }
+
+        function getUpdatedToggleItems(containerId) {
+            const toggleItems = [];
+            document.getElementById(containerId).querySelectorAll("div").forEach(div => {
+                const name = div.querySelector("input[type='checkbox']").getAttribute("data-name");
+                const type = div.querySelector("input[type='checkbox']").getAttribute("data-type");
+                const selected = div.querySelector("input[type='checkbox']").checked;
+                const priceInput = div.querySelector("input[type='number']");
+                const price = priceInput ? parseFloat(priceInput.value) : 0;
+
+                toggleItems.push({ name, type, selected, price });
+            });
+            return toggleItems;
+        }
+
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const itemID = params.get("itemID"); // Get itemID from URL
+
+            if (itemID && !isNaN(itemID)) {
+                fetchItemDetails(itemID); // Call function with correct itemID
+            } else {
+                console.error("Invalid Item ID:", itemID);
+                alert("Invalid Item ID.");
+            }
+        };
+
+    </script>
 </body>
 
 </html>

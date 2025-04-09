@@ -7,6 +7,7 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 import orderStatus as status
+from menuChange import get_menu_item
 from businessOwnerAcc import register_business_owner, register_employee
 
 load_dotenv()
@@ -100,6 +101,24 @@ def get_specific_items():
         return jsonify({"menuItems": menu_items}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/get-item', methods=['GET'])
+def get_item():
+    try:
+        item_id = int(request.args.get("itemID", 0))  
+    except ValueError:
+        return jsonify({"message": "Invalid itemID format"}), 400
+
+    if not item_id:
+        return jsonify({"message": "Missing itemID"}), 400
+
+    item = menu.get_menu_item(item_id)
+
+    if not item:
+        return jsonify({"message": "Item not found"}), 404
+
+    return jsonify(item), 200
+
 
 
 
@@ -249,9 +268,40 @@ def register_employee_route():
         birthday=data["birthday"],
         businessID=data["businessID"]
     )
-
-    print("Database Response:", result)  # Debugging
     return jsonify(result), 200
+
+
+@app.route('/update-item', methods=['POST'])
+def update_item():
+    data = request.json
+    try:
+        item_id = int(data.get("itemID", 0))  # Convert to int
+    except ValueError:
+        return jsonify({"message": "Invalid itemID format"}), 400
+
+    if not item_id:
+        return jsonify({"message": "Missing required field: itemID"}), 400
+
+    update_fields = data.get("update_fields", {})
+    if not update_fields:
+        return jsonify({"message": "No fields provided for update."}), 400
+    response = menu.updateItem(item_id, update_fields)
+    return jsonify(response)
+
+
+@app.route('/update-cart-item', methods=['POST'])
+def update_cart_item_route():
+    data = request.json
+    username = data.get("username")
+    itemID = data.get("itemID")
+    updateFields = data.get("updateFields", {})
+
+    response = sc.update_cart_item(username, itemID, updateFields)
+    return jsonify(response)
+
+
+
+
 
 
 if __name__ == "__main__":

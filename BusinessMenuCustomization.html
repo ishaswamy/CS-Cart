@@ -27,7 +27,6 @@
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const data = await response.json();
-                console.log("Server Response:", data);
                 return data.message.split(' ')[1];
             } catch (error) {
                 console.error("Error fetching user:", error);
@@ -36,43 +35,47 @@
         }
 
         async function fetchMenu(username) {
-            try {
-                const response = await fetch(`http://127.0.0.1:5000/get-menu?username=${username}`);
-                const data = await response.json();
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/get-menu?username=${username}`);
+        const data = await response.json();
 
-                if (data.error) {
-                    console.error("Error fetching menu:", data.error);
-                    return;
-                }
-
-                const menuContainer = document.querySelector(".menu-container");
-                menuContainer.innerHTML = ""; // Clear existing items
-
-                data.menuItems.forEach(item => {
-                    const itemDiv = document.createElement("div");
-                    itemDiv.classList.add("menu-item");
-
-                    const itemImage = document.createElement("img");
-                    itemImage.src = item.imageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
-                    itemImage.alt = item.itemName;
-
-                    const itemName = document.createElement("h3");
-                    itemName.innerText = item.itemName;
-
-                    const editButton = document.createElement("button");
-                    editButton.innerText = "Edit";
-                    editButton.onclick = () => window.location.href = `/ItemCustomizationPage.html?itemID=${item.itemID}`;
-
-                    itemDiv.appendChild(itemImage);
-                    itemDiv.appendChild(itemName);
-                    itemDiv.appendChild(editButton);
-
-                    menuContainer.appendChild(itemDiv);
-                });
-            } catch (error) {
-                console.error("Error fetching menu:", error);
-            }
+        if (data.error) {
+            console.error("Error fetching menu:", data.error);
+            return;
         }
+
+        const menuContainer = document.querySelector(".menu-container");
+        menuContainer.innerHTML = ""; // Clear existing items
+
+        data.menuItems.forEach(item => {
+            const itemDiv = document.createElement("div");
+            itemDiv.classList.add("menu-item");
+
+            const itemImage = document.createElement("img");
+            itemImage.src = item.itemImageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
+            itemImage.alt = item.itemName;
+
+            const itemName = document.createElement("h3");
+            itemName.innerText = item.itemName;
+
+            const editButton = document.createElement("button");
+            editButton.innerText = "Edit";
+
+            editButton.onclick = () => {
+                window.location.href = `/BusinessItemCustomization.html?itemID=${item.itemID}`;
+            };
+
+            itemDiv.appendChild(itemImage);
+            itemDiv.appendChild(itemName);
+            itemDiv.appendChild(editButton);
+
+            menuContainer.appendChild(itemDiv);
+        });
+
+    } catch (error) {
+        console.error("Error fetching menu:", error);
+    }
+}
 
         window.onload = async () => {
             const user = await fetchUser();
@@ -82,6 +85,7 @@
                 alert("Failed to fetch user.");
             }
         };
+
     </script>
 </body>
 

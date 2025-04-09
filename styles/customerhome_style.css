@@ -63,10 +63,6 @@ nav button:hover {
     transform: scale(1.05);
 }
 
-.menu-item img {
-    width: 100%;
-    border-radius: 10px;
-}
 
 .menu-item h3 {
     margin: 10px 0;

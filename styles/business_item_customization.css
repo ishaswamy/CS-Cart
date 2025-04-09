@@ -3,6 +3,7 @@
     height: auto; 
     border: none;
 }
+
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
@@ -23,7 +24,20 @@ body {
 .image-container {
     text-align: center;
     margin-bottom: 15px;
+    
 }
+#item-image {
+    display: block;
+    max-width: 100%; /* Ensures it doesn't exceed the container */
+    height: auto; /* Maintains aspect ratio */
+    max-height: 300px; /* Limits height for better fit */
+    margin: 20px auto; /* Centers the image */
+    border-radius: 10px; /* Adds rounded corners for a modern look */
+    object-fit: cover; /* Ensures proper scaling without distortion */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Adds a subtle shadow */
+}
+
+
 
 .details-container {
     width: 100%;
@@ -65,6 +79,7 @@ input[type="number"] {
     margin-right: 8px;
 }
 
+/* General Button Styles */
 button {
     padding: 8px 12px;
     font-size: 0.9em;
@@ -76,29 +91,33 @@ button {
     white-space: nowrap;
 }
 
-/* Red Remove Buttons */
-button.remove-btn {
+/* Remove Buttons */
+button.remove-detail-btn,
+button.remove-extra-btn {
     background-color: #dc3545;
     color: white;
 }
 
-button.remove-btn:hover {
+button.remove-detail-btn:hover,
+button.remove-extra-btn:hover {
     background-color: #b02a37;
 }
 
-/* Green Add Buttons */
-button.add-btn {
+/* Add Buttons */
+button.add-detail-btn,
+button.add-extra-btn {
     background-color: #28a745;
     color: white;
     width: auto;
 }
 
-button.add-btn:hover {
+button.add-detail-btn:hover,
+button.add-extra-btn:hover {
     background-color: #218838;
 }
 
 /* Save Button */
-button.save-btn {
+button.save-item-btn {
     display: block;
     width: 100%;
     background-color: #007bff;
@@ -106,18 +125,12 @@ button.save-btn {
     margin-top: 15px;
 }
 
-button.save-btn:hover {
+button.save-item-btn:hover {
     background-color: #0056b3;
 }
 
-/* Centered Total Price */
-.total-price {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-top: 10px;
-    text-align: center;
-}
-button.delete-btn {
+/* Delete Item Button */
+button.delete-item-btn {
     background-color: #dc3545;
     color: white;
     width: 100%;
@@ -130,6 +143,14 @@ button.delete-btn {
     margin-top: 20px;
 }
 
-button.delete-btn:hover {
+button.delete-item-btn:hover {
     background-color: #b02a37;
+}
+
+/* Centered Total Price */
+.total-price {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
 }
