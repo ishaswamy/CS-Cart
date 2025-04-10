@@ -84,9 +84,9 @@ update_data = {
 '''
 
 
-def updateItem(itemName, businessID, update_fields):
+def updateItem(item_id, update_fields):
    result= menuCollection.update_one(
-        {"itemName":itemName, "businessID":businessID}, #query
+        {"itemID":item_id}, #query
         {"$set":update_fields}#Update fields here
     ) 
    
@@ -100,9 +100,8 @@ def updateItem(itemName, businessID, update_fields):
                 return {"message": "Item succsessfully updated"}
     
 # Retrieves all items in the cart for the specified username
-def get_menu_items(username):
+def get_menu_items(businessID):
     
-    businessID = int((userLoginCollection.find_one({"username": username}, {"businessID": 1})).get("businessID"))
     menu_items = list(menuCollection.find({"businessID": businessID}))  # Fetch menu items from MongoDB
     
     # Remove the "_id" field from each item to make the response cleaner
@@ -121,3 +120,7 @@ def get_specific_category_items(businessID, category):
         item.pop("_id", None)
     
     return menu_items
+
+def get_item(item_id):
+    item = menuCollection.find_one({"itemID": (item_id)})
+    return item

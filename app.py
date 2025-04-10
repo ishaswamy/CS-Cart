@@ -83,12 +83,9 @@ def get_cart():
 # API route to fetch all menu items for a business
 @app.route("/get-menu", methods=["GET"])
 def get_menu():
-    username = request.args.get("username", type=str)
-    if not username:
-        return jsonify({"error": "Username is required"}), 400
 
     try:
-        menu_items = menu.get_menu_items(username)  
+        menu_items = menu.get_menu_items(BUSINESSID)  
         return jsonify({"menuItems": menu_items}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -115,17 +112,19 @@ def get_specific_items():
 def get_item():
     try:
         item_id = int(request.args.get("itemID", 0))  
+        
     except ValueError:
         return jsonify({"message": "Invalid itemID format"}), 400
 
     if not item_id:
         return jsonify({"message": "Missing itemID"}), 400
 
-    item = menu.get_menu_items(item_id)
+    item = menu.get_item(item_id)
 
     if not item:
         return jsonify({"message": "Item not found"}), 404
-
+    if '_id' in item:
+        item['_id'] = str(item['_id'])
     return jsonify(item), 200
 
 
