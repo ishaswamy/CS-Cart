@@ -27,10 +27,6 @@
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const data = await response.json();
-<<<<<<< HEAD
-=======
-                console.log("Server Response:", data);
->>>>>>> f211d3836b8448f6ac5cffd35efb27afde30e078
                 return data.message.split(' ')[1];
             } catch (error) {
                 console.error("Error fetching user:", error);
@@ -39,7 +35,6 @@
         }
 
         async function fetchMenu(username) {
-<<<<<<< HEAD
     try {
         const response = await fetch(`http://127.0.0.1:5000/get-menu?username=${username}`);
         const data = await response.json();
@@ -82,46 +77,6 @@
     }
 }
 
-=======
-            try {
-                const response = await fetch(`http://127.0.0.1:5000/get-menu?username=${username}`);
-                const data = await response.json();
-
-                if (data.error) {
-                    console.error("Error fetching menu:", data.error);
-                    return;
-                }
-
-                const menuContainer = document.querySelector(".menu-container");
-                menuContainer.innerHTML = ""; // Clear existing items
-
-                data.menuItems.forEach(item => {
-                    const itemDiv = document.createElement("div");
-                    itemDiv.classList.add("menu-item");
-
-                    const itemImage = document.createElement("img");
-                    itemImage.src = item.imageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
-                    itemImage.alt = item.itemName;
-
-                    const itemName = document.createElement("h3");
-                    itemName.innerText = item.itemName;
-
-                    const editButton = document.createElement("button");
-                    editButton.innerText = "Edit";
-                    editButton.onclick = () => window.location.href = `/ItemCustomizationPage.html?itemID=${item.itemID}`;
-
-                    itemDiv.appendChild(itemImage);
-                    itemDiv.appendChild(itemName);
-                    itemDiv.appendChild(editButton);
-
-                    menuContainer.appendChild(itemDiv);
-                });
-            } catch (error) {
-                console.error("Error fetching menu:", error);
-            }
-        }
-
->>>>>>> f211d3836b8448f6ac5cffd35efb27afde30e078
         window.onload = async () => {
             const user = await fetchUser();
             if (user) {
@@ -130,15 +85,8 @@
                 alert("Failed to fetch user.");
             }
         };
-<<<<<<< HEAD
 
     </script>
 </body>
 
 </html>
-=======
-    </script>
-</body>
-
-</html>
->>>>>>> f211d3836b8448f6ac5cffd35efb27afde30e078

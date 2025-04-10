@@ -7,12 +7,13 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 import orderStatus as status
-from menuChange import get_menu_item
 from businessOwnerAcc import register_business_owner, register_employee
 
 load_dotenv()
 
 app = Flask(__name__) 
+
+
 app.secret_key = os.getenv("secret_key")
 app.config["SESSION_COOKIE_HTTPONLY"] = False  # Allow JS access if needed
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # Needed for cross-origin requests
@@ -26,7 +27,6 @@ BUSINESSID=1
 #Returns current businessID for use in python scripts.
 def getBusinessID():
     return str(BUSINESSID)
-
 # Function to calculate tax
 def taxCalculation(zipCode):
     df = pd.read_csv('Tax/taxes.csv')
@@ -79,6 +79,57 @@ def get_cart():
         return jsonify({"cartItems": cart_items}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+# API route to fetch all menu items for a business
+@app.route("/get-menu", methods=["GET"])
+def get_menu():
+    username = request.args.get("username", type=str)
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+
+    try:
+        menu_items = menu.get_menu_items(username)  
+        return jsonify({"menuItems": menu_items}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/get-specific-items", methods=["GET"])
+def get_specific_items():
+    businessID=BUSINESSID
+    category = request.args.get("category", type=str)
+    if not businessID:
+        return jsonify({"error": "Invalid BusinessID Configured"}), 400
+    if not category:
+        return jsonify({"error": "Category is required"}), 400
+
+    try:
+        menu_items = menu.get_specific_category_items(businessID,category)  
+        
+        return jsonify({"menuItems": menu_items}), 200
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/get-item', methods=['GET'])
+def get_item():
+    try:
+        item_id = int(request.args.get("itemID", 0))  
+    except ValueError:
+        return jsonify({"message": "Invalid itemID format"}), 400
+
+    if not item_id:
+        return jsonify({"message": "Missing itemID"}), 400
+
+    item = menu.get_menu_items(item_id)
+
+    if not item:
+        return jsonify({"message": "Item not found"}), 404
+
+    return jsonify(item), 200
+
+
+
 
 # API route to add an item to the cart
 @app.route("/add-to-cart", methods=["POST"])
@@ -126,7 +177,6 @@ def checkout():
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
 
 # User registration route
 @app.route("/signup", methods=["POST", "OPTIONS"])
@@ -179,10 +229,6 @@ def account():
     print("User lookup failed.")
     return {"error": "No user logged in"},401
 
-#Checks which user is logged in
-@app.route("/business", methods=["GET"])
-def businessIdNo():
-    return {"message": f"{BUSINESSID}"},200
 
 
 @app.route("/get-order-status", methods=["GET"])
