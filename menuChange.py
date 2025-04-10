@@ -3,13 +3,12 @@ import pymongo
 
 #Connecting to mongoDB collection
 menuCollection=cM.mongoConnect("Businesses","menuItems")
-
 userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
-
+categoryCollection=cM.mongoConnect("Businesses","menuCategories")
 
 #Creating filter to prevent businesses from creating duplicates of the same item
 menuCollection.create_index( { "itemName": 1, "businessID": 1},unique= True  )
-
+categoryCollection.create_index({ "category": 1, "businessID": 1},unique= True  )
 
 '''
 Add item features some optional parameters that can be left blank. If not in use, set the parameter to None, 0, or False.
@@ -40,7 +39,21 @@ paidToggleItems = [
 ]
 
 '''
-def addItem(itemName,category,price,businessID,freeItems=None, freeToggleItems=None,
+def addCategory(categoryName,businessID,categoryImageURL):
+    category_data={
+        "category":categoryName,
+        "businessID":businessID,
+        "categoryImageURL":categoryImageURL
+    }
+    try:
+
+        categoryCollection.insert_one(category_data)
+
+        return{"message": "added "+categoryName+" to the category."}
+    except pymongo.errors.DuplicateKeyError:
+        return{"message":"Item "+categoryName+" already exists in the menu."}
+
+def addItem(itemName,category,price,businessID,itemImageURL,freeItems=None, freeToggleItems=None,
              paidItems=None, paidToggleItems=None):
     menu_data={
             "itemName": itemName,
@@ -51,6 +64,8 @@ def addItem(itemName,category,price,businessID,freeItems=None, freeToggleItems=N
 
             "businessID":businessID,
 
+            "imageURL":itemImageURL,
+
             "freeItems": freeItems if freeItems else {},
 
             "freeToggleItems":freeToggleItems if freeToggleItems else {},
@@ -59,14 +74,17 @@ def addItem(itemName,category,price,businessID,freeItems=None, freeToggleItems=N
 
             "paidToggleItems": paidToggleItems if paidToggleItems else{}
     }
+    if (categoryCollection.find_one({"category",category}))!=None:
 
-    try:
+        try:
 
-        menuCollection.insert_one(menu_data)
+            menuCollection.insert_one(menu_data)
 
-        return{"message": "added "+itemName+" to the menu."}
-    except pymongo.errors.DuplicateKeyError:
-        return{"message":"Item "+itemName+" already exists in the menu."}
+            return{"message": "added "+itemName+" to the menu."}
+        except pymongo.errors.DuplicateKeyError:
+            return{"message":"Item "+itemName+" already exists in the menu."}
+    else:
+        return {f"message":"Category:{category} does not exist."}
 
 def deleteItem(itemName,businessID):
 
