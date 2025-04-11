@@ -11,7 +11,7 @@
 <body>
     <header>
         <div class="logo">
-            <img src="https://st2.depositphotos.com/4035913/6124/i/950/depositphotos_61243733-stock-illustration-business-company-logo.jpg" alt="Business Logo">
+            <img id="business-logo" src="https://st2.depositphotos.com/4035913/6124/i/950/depositphotos_61243733-stock-illustration-business-company-logo.jpg" alt="Business Logo">
         </div>
         <div class="business-info">
             <p>1031 My Road, Goodtown, Place, 99939</p>
@@ -28,6 +28,34 @@
     </header>
 
     <script>
+        window.onload = async () => {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/getBusinessHeaderInformation", {
+                    method: "GET"
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch business header info");
+                }
+                const data = await response.json();
+                console.log("Received business header data:", data);
+
+                // Update the logo image
+                document.getElementById("business-logo").src = data.logoURL;
+
+                // Update the address paragraph inside .business-info
+                const addressElement = document.querySelector(".business-info p");
+                if (addressElement) {
+                    addressElement.innerText = data.address; // Set the new address
+                }
+
+                // Update the business name
+                //document.getElementById("business-name").innerText = data.businessName;
+            } catch (error) {
+                console.error("Error fetching header info:", error);
+            }
+        };
+        
         async function logout() {
             try {
                 const response = await fetch("http://127.0.0.1:5000/logout", {
@@ -48,6 +76,7 @@
                 alert("Logout failed. Please try again.");
             }
         }
+
     </script>
 
 </body>
