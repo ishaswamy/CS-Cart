@@ -40,36 +40,15 @@ paidToggleItems = [
 ]
 
 '''
-def addItem(itemName,category,price,businessID,freeItems=None, freeToggleItems=None,
-             paidItems=None, paidToggleItems=None):
-    menu_data={
-            "itemName": itemName,
 
-            "category": category,
-
-            "price": float(price),
-
-            "businessID":businessID,
-
-            "freeItems": freeItems if freeItems else {},
-
-            "freeToggleItems":freeToggleItems if freeToggleItems else {},
-
-            "paidItems": paidItems if paidItems else {},
-
-            "paidToggleItems": paidToggleItems if paidToggleItems else{}
-    }
-
+def addItem(update_fields):
+    menu_data=update_fields
     try:
-
         menuCollection.insert_one(menu_data)
-
-        return{"message": "added "+itemName+" to the menu."}
     except pymongo.errors.DuplicateKeyError:
-        return{"message":"Item "+itemName+" already exists in the menu."}
+        return{"message":"Item already exists in the menu."}
 
 def deleteItem(itemName,businessID):
-
     menuCollection.delete_one({"itemName":itemName,"businessID":businessID})
     return{"message":"Menu Item "+itemName+" successfully deleted."}
 
@@ -124,3 +103,15 @@ def get_specific_category_items(businessID, category):
 def get_item(item_id):
     item = menuCollection.find_one({"itemID": (item_id)})
     return item
+
+def get_categories(businessID):
+    if not businessID:
+        return []
+
+    category_collection = cM.mongoConnect("Businesses", "menuCategories")
+    categories = list(category_collection.find({"businessID": str(businessID)}))
+
+    for category in categories:
+        category.pop("_id", None)
+
+    return categories

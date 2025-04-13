@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Menu</title>
-    <link rel="stylesheet" type="text/css" href="styles/customerhome_style.css">
+    <link rel="stylesheet" type="text/css" href="styles/specific_category_style.css">
 </head>
 
 <body>
@@ -59,7 +59,7 @@
                     itemDiv.classList.add("menu-item");
 
                     const itemImage = document.createElement("img");
-                    itemImage.src = item.imageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
+                    itemImage.src = item.itemImageUrl;
                     itemImage.alt = item.itemName;
 
                     const itemName = document.createElement("h3");

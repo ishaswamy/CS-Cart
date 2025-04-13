@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Customer Home Screen</title>
-    <link rel="stylesheet" type="text/css" href="styles/customerhome_style.css">
+    <link rel="stylesheet" type="text/css" href="styles/customerhome_style.css" />
 </head>
 
 <body>
@@ -14,28 +14,42 @@
     <h1>Welcome to Our Store</h1>
     <p>Select a category to start shopping</p>
 
-    <div class="menu-container">
-        <!--Note 4/1/25 The code below is not yet connected to the database so I have entered the categories manually but they DO redirect the user to the correct category once selected  -->
-        <a href="SpecificCategoryPage.html?category=Hotdog" class="menu-item">
-            <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg" alt="Category 1">
-            <h3>Hotdog</h3>
-        </a>
-        <a href="SpecificCategoryPage.html?category=Sandwich" class="menu-item">
-            <img src="https://www.onceuponachef.com/images/2023/08/Beef-Tacos-760x570.jpg" alt="Category 2">
-            <h3>Sandwich</h3>
-        </a>
-        <a href="SpecificCategoryPage.html?category=Dessert" class="menu-item">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTjX70ZjPUAt_m3_vyAiFIriIgB9YkEdQVRA&s"
-                alt="Category 3">
-            <h3>Dessert</h3>
-        </a>
-        <a href="SpecificCategoryPage.html?category=Drinks" class="menu-item">
-            <img src="https://www.beanilla.com/wp/wp-content/uploads/2022/06/RefreshingDrinks.jpg" alt="Category 4">
-            <h3>Drinks</h3>
-        </a>
-
+    <div id="category-container" class="menu-container">
+        <p>Loading categories...</p>
     </div>
 
+    <script>
+        window.onload = async () => {
+            const container = document.getElementById("category-container");
+            container.innerHTML = "";
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/get-categories");
+                const categories = await response.json();
+
+                if (!Array.isArray(categories) || categories.length === 0) {
+                    container.innerHTML = "<p>No categories found.</p>";
+                    return;
+                }
+
+                categories.forEach(cat => {
+                    const link = document.createElement("a");
+                    link.href = `SpecificCategoryPage.html?category=${encodeURIComponent(cat.category)}`;
+                    link.className = "menu-item";
+
+                    link.innerHTML = `
+                        <img src="${cat.categoryImageURL}" alt="${cat.category}">
+                        <h3>${cat.category}</h3>
+                    `;
+
+                    container.appendChild(link);
+                });
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+                container.innerHTML = "<p>Unable to load categories. Please try again later.</p>";
+            }
+        };
+    </script>
 </body>
 
 </html>

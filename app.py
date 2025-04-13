@@ -1,3 +1,4 @@
+from uuid import uuid4
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 import shoppingCart as sc  
@@ -22,7 +23,7 @@ app.config["SESSION_COOKIE_SECURE"] = False  # Set to True in production with HT
 CORS(app, supports_credentials=True)  # Allow session cookies
 
 #Hardcoded businessID. Changing this changes what business is currently being accessed.
-BUSINESSID=1
+BUSINESSID=2
 
 #Returns current businessID for use in python scripts.
 def getBusinessID():
@@ -309,7 +310,25 @@ def update_cart_item_route():
 
 
 
+@app.route('/add-item', methods=['POST'])
+def add_item_route():
+    data = request.get_json()
+    update_fields = data.get("update_fields")
+    
 
+    update_fields["businessID"] = BUSINESSID
+    update_fields["itemID"] =  str(uuid4())
+
+    if not update_fields["businessID"]:
+        return jsonify({"message": "Business ID not found"}), 400
+
+    result = menu.addItem(update_fields)
+    return jsonify(result)
+
+@app.route('/get-categories', methods=['GET'])
+def get_categories_route():
+    response = menu.get_categories(BUSINESSID)
+    return jsonify(response)
 
 
 if __name__ == "__main__":
