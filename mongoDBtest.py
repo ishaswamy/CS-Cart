@@ -9,8 +9,8 @@ import shoppingCart as sCart
 from bson import ObjectId'''
 from app import getBusinessID
 from bson.objectid import ObjectId
-import shoppingCart
-import orderStatus
+#import shoppingCart
+#import orderStatus
 
 def n():
     print()
@@ -39,15 +39,24 @@ exampleProduct={
     'businessID': 'Protected'
 }
 
-print(getBusinessID())
+#print(getBusinessID())
 
 '''
 shoppingCart.add_to_cart(exampleProduct,"akumar")
 shoppingCart.checkout("akumar")
 #'''
-#'''
+'''
 itemID=orderStatus.getItemID("akumar")
 orderID=orderStatus.getOrderID(itemID)
 #orderStatus.clearItem(itemID)
 orderID=orderStatus.clearOrder(orderID)
 #'''
+
+
+from connectModule import mongoConnect
+businessInfo=mongoConnect("Businesses","businessInfo")
+    #Queries mongodb for the address and zipcode
+address=businessInfo.find_one({"businessID":getBusinessID()},
+                                  {"_id":0,"address":1,"zipCode":1})
+addressSTR=(f"{address["address"]+", "+address["zipCode"]}")
+print(addressSTR)

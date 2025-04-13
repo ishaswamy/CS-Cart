@@ -3,13 +3,12 @@ import pymongo
 
 #Connecting to mongoDB collection
 menuCollection=cM.mongoConnect("Businesses","menuItems")
-
 userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
-
+categoryCollection=cM.mongoConnect("Businesses","menuCategories")
 
 #Creating filter to prevent businesses from creating duplicates of the same item
 menuCollection.create_index( { "itemName": 1, "businessID": 1},unique= True  )
-
+categoryCollection.create_index({ "category": 1, "businessID": 1},unique= True  )
 
 '''
 Add item features some optional parameters that can be left blank. If not in use, set the parameter to None, 0, or False.
@@ -115,3 +114,16 @@ def get_categories(businessID):
         category.pop("_id", None)
 
     return categories
+def addCategory(categoryName,businessID,categoryImageURL):
+    category_data={
+        "category":categoryName,
+        "businessID":businessID,
+        "categoryImageURL":categoryImageURL
+    }
+    try:
+
+        categoryCollection.insert_one(category_data)
+
+        return{"message": "added "+categoryName+" to the category."}
+    except pymongo.errors.DuplicateKeyError:
+        return{"message":"Item "+categoryName+" already exists in the menu."}

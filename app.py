@@ -308,9 +308,23 @@ def update_cart_item_route():
     response = sc.update_cart_item(username, itemID, updateFields)
     return jsonify(response)
 
-
-
-@app.route('/add-item', methods=['POST'])
+#Gets address to show on Header
+@app.route('/getBusinessHeaderInformation',methods=['GET'])
+def getBusinessHeaderInformation():
+    from connectModule import mongoConnect
+    businessInfo=mongoConnect("Businesses","businessInfo")
+    #Queries mongodb for the address and zipcode
+    businessHeaderDisplay=businessInfo.find_one({"businessID":getBusinessID()},
+                                  {"_id":0,"address":1,"zipCode":1,"businessLogoURL":1,"businessName":1})
+    if businessHeaderDisplay:
+        response = {
+            "address": f"{businessHeaderDisplay['address']}, {businessHeaderDisplay['zipCode']}",
+            "logoURL": businessHeaderDisplay["businessLogoURL"],
+            "businessName": businessHeaderDisplay["businessName"]
+        }
+        return jsonify(response), 200
+    else:
+        return jsonify({"error": "Business not found"}), 404@app.route('/add-item', methods=['POST'])
 def add_item_route():
     data = request.get_json()
     update_fields = data.get("update_fields")
