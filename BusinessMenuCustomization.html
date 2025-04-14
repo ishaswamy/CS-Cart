@@ -6,14 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Menu</title>
     <link rel="stylesheet" type="text/css" href="styles/customerhome_style.css">
+    
 </head>
 
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
 
     <h1>Manage Your Menu</h1>
-    <p>Select an item to edit</p>
 
+    <h2>Add a New Category</h2>
+    <div class="category-form">
+        <input type="text" id="category-name" placeholder="Category name">
+        <input type="url" id="category-image-url" placeholder="Category image URL">
+        <button onclick="addCategory()">Add Category</button>
+    </div>
+
+    <h2>Your Categories</h2>
+    <div class="category-container"></div>
+
+    <a href="BusinessItemCreation.html" class="nav-button" target="_top">Add Item</a>
+    <p>Select an item to edit</p>
     <div class="menu-container"></div>
 
     <script>
@@ -23,9 +35,7 @@
                     method: "GET",
                     credentials: "include"
                 });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
                 const data = await response.json();
                 return data.message.split(' ')[1];
             } catch (error) {
@@ -35,57 +45,129 @@
         }
 
         async function fetchMenu(username) {
-    try {
-        const response = await fetch(`http://127.0.0.1:5000/get-menu?username=${username}`);
-        const data = await response.json();
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/get-menu?username=${username}`);
+                const data = await response.json();
 
-        if (data.error) {
-            console.error("Error fetching menu:", data.error);
-            return;
+                if (data.error) {
+                    console.error("Error fetching menu:", data.error);
+                    return;
+                }
+
+                const menuContainer = document.querySelector(".menu-container");
+                menuContainer.innerHTML = "";
+
+                data.menuItems.forEach(item => {
+                    const itemDiv = document.createElement("div");
+                    itemDiv.classList.add("menu-item");
+
+                    const itemImage = document.createElement("img");
+                    itemImage.src = item.itemImageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
+                    itemImage.alt = item.itemName;
+
+                    const itemName = document.createElement("h3");
+                    itemName.innerText = item.itemName;
+
+                    const editButton = document.createElement("button");
+                    editButton.innerText = "Edit";
+                    editButton.onclick = () => {
+                        window.location.href = `/BusinessItemCustomization.html?itemID=${item.itemID}`;
+                    };
+
+                    itemDiv.appendChild(itemImage);
+                    itemDiv.appendChild(itemName);
+                    itemDiv.appendChild(editButton);
+
+                    menuContainer.appendChild(itemDiv);
+                });
+            } catch (error) {
+                console.error("Error fetching menu:", error);
+            }
         }
 
-        const menuContainer = document.querySelector(".menu-container");
-        menuContainer.innerHTML = ""; // Clear existing items
+        async function addCategory() {
+            const name = document.getElementById("category-name").value.trim();
+            const imageURL = document.getElementById("category-image-url").value.trim();
 
-        data.menuItems.forEach(item => {
-            const itemDiv = document.createElement("div");
-            itemDiv.classList.add("menu-item");
+            if (!name || !imageURL) {
+                alert("Please enter both a category name and image URL.");
+                return;
+            }
 
-            const itemImage = document.createElement("img");
-            itemImage.src = item.itemImageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
-            itemImage.alt = item.itemName;
+            const username = await fetchUser();
+            if (!username) {
+                alert("Failed to fetch username.");
+                return;
+            }
 
-            const itemName = document.createElement("h3");
-            itemName.innerText = item.itemName;
+            try {
+                const response = await fetch("http://127.0.0.1:5000/add-category", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        businessID: username,
+                        category: name,
+                        categoryImageURL: imageURL
+                    })
+                });
 
-            const editButton = document.createElement("button");
-            editButton.innerText = "Edit";
+                const result = await response.json();
+                alert(result.message || "Category added.");
 
-            editButton.onclick = () => {
-                window.location.href = `/BusinessItemCustomization.html?itemID=${item.itemID}`;
-            };
+                // refresh categories
+                fetchCategories(username);
 
-            itemDiv.appendChild(itemImage);
-            itemDiv.appendChild(itemName);
-            itemDiv.appendChild(editButton);
+                // clear inputs
+                document.getElementById("category-name").value = "";
+                document.getElementById("category-image-url").value = "";
+            } catch (error) {
+                console.error("Error adding category:", error);
+                alert("Failed to add category.");
+            }
+        }
 
-            menuContainer.appendChild(itemDiv);
-        });
+        async function fetchCategories() {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/get-categories`);
+                const data = await response.json();
 
-    } catch (error) {
-        console.error("Error fetching menu:", error);
-    }
-}
+                const container = document.querySelector(".category-container");
+                container.innerHTML = "";
+
+                data.categories.forEach(cat => {
+                    const div = document.createElement("div");
+                    div.classList.add("menu-item");
+
+                    const img = document.createElement("img");
+                    img.src = cat.categoryImageURL;
+                    img.alt = cat.category;
+                    img.title = cat.category;
+
+                    const label = document.createElement("h3");
+                    label.textContent = cat.category;
+
+                    div.appendChild(img);
+                    div.appendChild(label);
+                    container.appendChild(div);
+                });
+
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        }
+
 
         window.onload = async () => {
             const user = await fetchUser();
             if (user) {
                 fetchMenu(user);
+                fetchCategories();
             } else {
                 alert("Failed to fetch user.");
             }
         };
-
     </script>
 </body>
 

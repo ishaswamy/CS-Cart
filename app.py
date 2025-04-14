@@ -23,7 +23,7 @@ app.config["SESSION_COOKIE_SECURE"] = False  # Set to True in production with HT
 CORS(app, supports_credentials=True)  # Allow session cookies
 
 #Hardcoded businessID. Changing this changes what business is currently being accessed.
-BUSINESSID=2
+BUSINESSID="1"
 
 #Returns current businessID for use in python scripts.
 def getBusinessID():
@@ -324,7 +324,8 @@ def getBusinessHeaderInformation():
         }
         return jsonify(response), 200
     else:
-        return jsonify({"error": "Business not found"}), 404@app.route('/add-item', methods=['POST'])
+        return jsonify({"error": "Business not found"}), 404
+@app.route('/add-item', methods=['POST'])
 def add_item_route():
     data = request.get_json()
     update_fields = data.get("update_fields")
@@ -341,8 +342,22 @@ def add_item_route():
 
 @app.route('/get-categories', methods=['GET'])
 def get_categories_route():
-    response = menu.get_categories(BUSINESSID)
-    return jsonify(response)
+    businessID = getBusinessID() 
+    response = menu.get_categories(businessID)
+    return jsonify({"categories": response})
+
+
+@app.route('/add-category', methods=['POST'])
+def add_category():
+    data = request.get_json()
+    category = data.get("category")
+    categoryImageURL = data.get("categoryImageURL")
+    businessID = getBusinessID()
+    if not businessID or not category or not categoryImageURL:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    result = menu.addCategory(category, businessID, categoryImageURL)  
+    return jsonify(result), 201
 
 
 if __name__ == "__main__":

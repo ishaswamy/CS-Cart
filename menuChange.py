@@ -124,6 +124,6 @@ def addCategory(categoryName,businessID,categoryImageURL):
 
         categoryCollection.insert_one(category_data)
 
-        return{"message": "added "+categoryName+" to the category."}
+        return{"message": "The category "+categoryName+" was added."}
     except pymongo.errors.DuplicateKeyError:
         return{"message":"Item "+categoryName+" already exists in the menu."}
