@@ -100,11 +100,12 @@
             });
         }
 
+
         async function updateItem() {
             const params = new URLSearchParams(window.location.search);
-            const itemID = params.get("itemID"); // Get itemID dynamically
+            const itemID = params.get("itemID");  
 
-            if (!itemID || isNaN(itemID)) {
+            if (!itemID) {                     
                 alert("Invalid Item ID.");
                 return;
             }
@@ -118,27 +119,23 @@
                 paidToggleItems: getUpdatedToggleItems("paid-toggle-items")
             };
 
-
             try {
-                const response = await fetch("http://127.0.0.1:5000/update-item", {
+                const res = await fetch("http://127.0.0.1:5000/update-item", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        itemID: parseInt(itemID),  // Use dynamic itemID
+                        itemID: itemID,          
                         update_fields: updatedData
                     })
                 });
-
-                const result = await response.json();
-                alert(result.message);
-            } catch (error) {
-                console.error("Error updating item:", error);
+                alert((await res.json()).message);
+            } catch (err) {
+                console.error("Update failed:", err);
                 alert("Failed to update item.");
             }
         }
 
+       
 
         function getUpdatedItems(containerId) {
             const items = {};
@@ -162,16 +159,13 @@
             return toggleItems;
         }
 
+     
+
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
-            const itemID = params.get("itemID"); // Get itemID from URL
-
-            if (itemID && !isNaN(itemID)) {
-                fetchItemDetails(itemID); // Call function with correct itemID
-            } else {
-                console.error("Invalid Item ID:", itemID);
-                alert("Invalid Item ID.");
-            }
+            const itemID = params.get("itemID");  
+            if (itemID) fetchItemDetails(itemID);
+            else alert("Invalid Item ID.");
         };
 
     </script>

@@ -109,24 +109,32 @@ def get_specific_items():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/get-item', methods=['GET'])
+@app.route('/get-item')
 def get_item():
-    try:
-        item_id = int(request.args.get("itemID", 0))  
-        
-    except ValueError:
-        return jsonify({"message": "Invalid itemID format"}), 400
-
+    item_id = request.args.get("itemID")        # UUID string
     if not item_id:
         return jsonify({"message": "Missing itemID"}), 400
 
-    item = menu.get_item(item_id)
-
+    item = menu.get_item(item_id)               # query by string key
     if not item:
         return jsonify({"message": "Item not found"}), 404
-    if '_id' in item:
-        item['_id'] = str(item['_id'])
+    item.pop("_id", None)
     return jsonify(item), 200
+
+
+@app.route('/update-item', methods=['POST'])
+def update_item():
+    data = request.json
+    item_id = data.get("itemID")              
+    if not item_id:
+        return jsonify({"message": "Missing itemID"}), 400
+
+    update_fields = data.get("update_fields", {})
+    if not update_fields:
+        return jsonify({"message": "No fields provided"}), 400
+
+    result = menu.updateItem(item_id, update_fields)  
+    return jsonify(result), 200
 
 
 
@@ -279,23 +287,6 @@ def register_employee_route():
     )
     return jsonify(result), 200
 
-
-@app.route('/update-item', methods=['POST'])
-def update_item():
-    data = request.json
-    try:
-        item_id = int(data.get("itemID", 0))  # Convert to int
-    except ValueError:
-        return jsonify({"message": "Invalid itemID format"}), 400
-
-    if not item_id:
-        return jsonify({"message": "Missing required field: itemID"}), 400
-
-    update_fields = data.get("update_fields", {})
-    if not update_fields:
-        return jsonify({"message": "No fields provided for update."}), 400
-    response = menu.updateItem(item_id, update_fields)
-    return jsonify(response)
 
 
 @app.route('/update-cart-item', methods=['POST'])

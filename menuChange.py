@@ -75,7 +75,7 @@ def updateItem(item_id, update_fields):
             case 0:
                 return {"message":"No changes made"}
             case _:
-                return {"message": "Item succsessfully updated"}
+                return {"message": "Item successfully updated"}
     
 # Retrieves all items in the cart for the specified username
 def get_menu_items(businessID):
