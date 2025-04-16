@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Customer Home Screen</title>
     <link rel="stylesheet" type="text/css" href="styles/customerhome_style.css" />
 </head>
@@ -24,26 +24,29 @@
             container.innerHTML = "";
 
             try {
-                const response = await fetch("http://127.0.0.1:5000/get-categories");
-                const categories = await response.json();
 
-                if (!Array.isArray(categories) || categories.length === 0) {
+                const response = await fetch(`http://127.0.0.1:5000/get-categories`);
+                const data = await response.json();
+                const categoryList = data.categories;
+
+                if (!Array.isArray(categoryList) || categoryList.length === 0) {
                     container.innerHTML = "<p>No categories found.</p>";
                     return;
                 }
 
-                categories.forEach(cat => {
+                categoryList.forEach(cat => {
                     const link = document.createElement("a");
                     link.href = `SpecificCategoryPage.html?category=${encodeURIComponent(cat.category)}`;
                     link.className = "menu-item";
 
                     link.innerHTML = `
-                        <img src="${cat.categoryImageURL}" alt="${cat.category}">
-                        <h3>${cat.category}</h3>
-                    `;
+        <img src="${cat.categoryImageURL}" alt="${cat.category}">
+        <h3>${cat.category}</h3>
+    `;
 
                     container.appendChild(link);
                 });
+
             } catch (error) {
                 console.error("Error fetching categories:", error);
                 container.innerHTML = "<p>Unable to load categories. Please try again later.</p>";

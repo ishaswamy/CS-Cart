@@ -33,7 +33,7 @@ def register_user(username, email, password, fullName, birthday, businessID):
 
         "birthday": birthday,
 
-        "businessId":businessID,
+        "businessID":businessID,
 
         "accountType":"customer"
 
