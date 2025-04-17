@@ -11,7 +11,26 @@
 
         });
 
+        async function fetchUser() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/account", {
+                    method: "GET",
+                    credentials: "include"
+                });
 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const username = data.message.split(' ')[1];
+                return username;
+
+            } catch (error) {
+                console.error("Error during fetchUser request:", error);
+                alert("Failed to fetch user. Please try again.");
+            }
+        }
         function fetchOrders() {
     fetch("http://127.0.0.1:5000/get-order-status")
         .then(response => response.json())
@@ -51,7 +70,7 @@
             });
         }
         window.onload = () => {
-            const username = "myFavoriteUser"; // Set the username to the logged-in user (sessions not implemented yet)
+            const username = fetchUser() ; // Set the username to the logged-in user (sessions not implemented yet)
             fetchOrders();
            
         };

@@ -17,13 +17,31 @@
             <p>1031 My Road, Goodtown, Place, 99939</p>
         </div>
         <nav>
+            
             <a href="CustomerHomepage.html" class="nav-button" target="_top">Home</a>
-            <a href="LoginPage.html" class="nav-button" target="_top">Login</a>
-            <a href="CustomerCart.html" class="nav-button" target="_top">
+            <span id="login" style="display: inline-block;">
+                <a href="LoginPage.html" class="nav-button" target="_top">Login</a>
+            </span>
+            <span id="cart-button" style="display: none;">
+                <a href="CustomerCart.html" class="nav-button" target="_top">
                 <img src="https://www.freeiconspng.com/thumbs/cart-icon/basket-cart-icon-27.png" alt="Cart">
-            </a>
-            <a href="EmployeeOrderStatusPage.html" class="nav-button" target="_top">Order Status</a>
-            <a id="logout-link" href="#" class="nav-button" onclick="logout()">Logout</a>
+                </a>
+            </span>
+            <span id="employee-order-status" style="display: none;">
+                <a href="EmployeeOrderStatusPage.html" class="nav-button" target="_top">Customer Orders</a>
+            </span>
+            <span id="customer-order-status" style="display: none;">
+                <a href="CustomerOrderStatusPage.html" class="nav-button" target="_top">Order Status</a>
+            </span>
+            <span id="Customize Categories" style="display:none;">
+                <a href="" class ="nav-button" target="_top"></a>
+            </span>
+            <span id="" style="display:none;">
+                <a href="" class ="nav-button" target="_top"></a>
+            </span>
+            <span id="logout-button" style="display:none;">
+                <a id="logout-link" href="#" class="nav-button" onclick="logout()">Logout</a>
+            </span>
         </nav>
     </header>
 

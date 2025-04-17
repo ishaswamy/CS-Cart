@@ -56,7 +56,6 @@
 
             } catch (error) {
                 console.error("Error during fetchUser request:", error);
-                alert("Failed to fetch user. Please try again.");
             }
         }
 
@@ -184,7 +183,7 @@
             if (user) {
                 fetchCart(user); // Fetch the cart for the logged-in user
             } else {
-                alert("Failed to fetch user.");
+                alert("Failed to fetch user. Please log in first.");
             }
         };
         async function updateTax() {

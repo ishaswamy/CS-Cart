@@ -40,7 +40,6 @@
                 return data.message.split(' ')[1];
             } catch (error) {
                 console.error("Error fetching user:", error);
-                alert("Failed to fetch user.");
             }
         }
 
@@ -165,7 +164,7 @@
                 fetchMenu(user);
                 fetchCategories();
             } else {
-                alert("Failed to fetch user.");
+                alert("Failed to fetch user. Please log in first.");
             }
         };
     </script>
