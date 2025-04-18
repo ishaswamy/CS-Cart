@@ -41,8 +41,6 @@
                 console.log("Category selected: " + category);
 
                 const response = await fetch(`http://127.0.0.1:5000/get-specific-items?category=${category}`);
-                
-
                 const data = await response.json();
 
                 if (data.error) {
@@ -54,8 +52,9 @@
                 menuContainer.innerHTML = ""; // Clear existing items
 
                 data.menuItems.forEach(item => {
-                    const itemDiv = document.createElement("div");
-                    itemDiv.classList.add("menu-item");
+                    const link = document.createElement("a");
+                    link.href = `ItemCustomizationPage.html?itemID=${item.itemID}`;
+                    link.classList.add("menu-item");
 
                     const itemImage = document.createElement("img");
                     itemImage.src = item.itemImageUrl;
@@ -64,18 +63,15 @@
                     const itemName = document.createElement("h3");
                     itemName.innerText = item.itemName;
 
-
-
-                    itemDiv.appendChild(itemImage);
-                    itemDiv.appendChild(itemName);
-
-
-                    menuContainer.appendChild(itemDiv);
+                    link.appendChild(itemImage);
+                    link.appendChild(itemName);
+                    menuContainer.appendChild(link);
                 });
             } catch (error) {
                 console.error("Error fetching menu:", error);
             }
         }
+
 
         window.onload = async () => {
             const user = await fetchUser();

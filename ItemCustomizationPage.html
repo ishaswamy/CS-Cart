@@ -2,162 +2,228 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Item Customization</title>
-
-    <link rel="stylesheet" href="styles/item_customization_style.css">
-
+    <link rel="stylesheet" href="styles/item_customization_style.css" />
 </head>
 
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
-    <div class="container">
 
+    <div class="container">
+   
         <div class="image-container">
-            <img src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg"
-                alt="Product Image" style="width:100%;border-radius:5px;">
+            <img id="item-img"
+                src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?auto=compress&cs=tinysrgb&w=600"
+                alt="Product Image" style="width:100%;border-radius:5px;" />
         </div>
+
+      
         <div class="details-container">
             <h2>Customize Your Item</h2>
-            <p><strong>Item Name:</strong> Hamburger</p>
-            <p><strong>Base Price:</strong> $8.00</p>
+
+            <p><strong>Item Name:</strong> <span id="item-name">Loading…</span></p>
+            <p><strong>Base Price:</strong> $<span id="base-price">0.00</span></p>
 
             <h3>Ingredients:</h3>
-            <button class="ingredient-btn" onclick="toggleIngredient(this)">Bun</button>
-            <button class="ingredient-btn" onclick="toggleIngredient(this)">Lettuce</button>
-            <button class="ingredient-btn" onclick="toggleIngredient(this)">Cheese</button>
-            <button class="ingredient-btn" onclick="toggleIngredient(this)">Tomato</button>
+            <div id="ingredient-btns"></div>
 
             <h3>Extras:</h3>
-            <button class="extra-btn" onclick="toggleExtra(this, 1)">Extra Cheese (+$1.00)</button>
-            <button class="extra-btn" onclick="toggleExtra(this, 2)">Bacon (+$2.00)</button>
+            <div id="extra-btns"></div>
 
-            <br><label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" value="1" min="1" onchange="updatePrice()">
+            <h3>Toggle (choose one per group):</h3>
+            <div id="free-toggle-box"></div>
 
-            <p class="total-price">Total Price: $8.00</p>
+            <h3>Paid Toggle (choose one per group):</h3>
+            <div id="paid-toggle-box"></div>
+
+
+            <br />
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" value="1" min="1" onchange="updatePrice()" />
+
+            <p class="total-price">Total Price: $0.00</p>
             <button onclick="addToCart()">Add to Cart</button>
         </div>
     </div>
 
     <script>
-        function toggleIngredient(button) {
-            button.classList.toggle("removed");
+ 
+        const priceToString = p => parseFloat(p).toFixed(2);
+        const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+       
+        function buildFreeItems(free) {
+            const box = document.getElementById('ingredient-btns');
+            box.innerHTML = '';
+            Object.entries(free).forEach(([name, included]) => {
+                const btn = document.createElement('button');
+                btn.className = 'ingredient-btn';
+                btn.textContent = capitalize(name);
+                if (!included) btn.classList.add('removed');
+                btn.onclick = () => { btn.classList.toggle('removed'); updatePrice(); };
+                box.appendChild(btn);
+            });
         }
 
-        function toggleExtra(button, price) {
-            button.classList.toggle("selected");
-            updatePrice();
+        function buildFreeToggle(freeToggle) {
+            const box = document.getElementById('free-toggle-box');
+            box.innerHTML = '';
+            const grouped = groupByType(freeToggle);
+            Object.entries(grouped).forEach(([type, items]) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'toggle-group';
+                wrap.innerHTML = `<strong>${capitalize(type)}:</strong><br>`;
+                items.forEach(item => {
+                    const id = `free-${type}-${item.name}`;
+                    wrap.innerHTML += `
+        <label>
+          <input type="radio" name="free-${type}" id="${id}" data-type="${type}"
+                 ${item.selected ? 'checked' : ''} onchange="updatePrice()">
+          ${item.name}
+        </label><br>`;
+                });
+                box.appendChild(wrap);
+            });
+        }
+
+        function buildPaidToggle(paidToggle) {
+            const box = document.getElementById('paid-toggle-box');
+            box.innerHTML = '';
+            const grouped = groupByType(paidToggle);
+            Object.entries(grouped).forEach(([type, items]) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'toggle-group';
+                wrap.innerHTML = `<strong>${capitalize(type)} (extra):</strong><br>`;
+                items.forEach(item => {
+                    const id = `paid-${type}-${item.name}`;
+                    wrap.innerHTML += `
+        <label>
+          <input type="radio" name="paid-${type}" id="${id}" data-type="${type}" data-price="${item.price}"
+                 ${item.selected ? 'checked' : ''} onchange="updatePrice()">
+          ${item.name} (+$${priceToString(item.price)})
+        </label><br>`;
+                });
+                box.appendChild(wrap);
+            });
+        }
+
+        function buildPaidExtras(paid) {
+            const box = document.getElementById('extra-btns');
+            box.innerHTML = '';
+            paid.forEach(pi => {
+                const btn = document.createElement('button');
+                btn.className = 'extra-btn';
+                btn.textContent = `${pi.name} (+$${priceToString(pi.price)})`;
+                if (pi.selected) btn.classList.add('selected');
+                btn.dataset.price = pi.price;
+                btn.onclick = () => { btn.classList.toggle('selected'); updatePrice(); };
+                box.appendChild(btn);
+            });
+        }
+
+        function groupByType(arr) {
+            const obj = {};
+            (arr || []).forEach(i => {
+                obj[i.type] = obj[i.type] || [];
+                obj[i.type].push(i);
+            });
+            return obj;
         }
 
         function updatePrice() {
-            let basePrice = 8.00;
-            let extraCost = 0;
+            const base = parseFloat(document.getElementById('base-price').textContent);
 
-            // Loop through extra items and update the cost
-            document.querySelectorAll(".extra-btn.selected").forEach(btn => {
-                if (btn.innerText.includes("Extra Cheese")) extraCost += 1;
-                if (btn.innerText.includes("Bacon")) extraCost += 2;
-            });
+            let extras = 0;
 
-            // Get the quantity from the input field and calculate total price
-            let quantity = parseInt(document.getElementById("quantity").value);
-            let totalPrice = (basePrice + extraCost) * quantity;
+            document.querySelectorAll('.extra-btn.selected')
+                .forEach(b => extras += parseFloat(b.dataset.price));
 
-    
-            document.querySelector(".total-price").innerText = "Total Price: $" + totalPrice.toFixed(2);
+ 
+            document.querySelectorAll('#paid-toggle-box input[type="radio"]:checked')
+                .forEach(r => extras += parseFloat(r.dataset.price));
+
+            const qty = parseInt(document.getElementById('quantity').value);
+            const total = (base + extras) * qty;
+            document.querySelector('.total-price').textContent =
+                `Total Price: $${priceToString(total)}`;
         }
-       
+
+
+        async function fetchItem() {
+            const id = new URLSearchParams(location.search).get('itemID');
+            if (!id) { alert('Missing itemID'); return; }
+
+            const item = await (await fetch(`http://127.0.0.1:5000/get-item?itemID=${id}`)).json();
+
+            document.getElementById('item-name').textContent = item.itemName;
+            document.getElementById('base-price').textContent = priceToString(item.price);
+            document.getElementById('item-img').src = item.itemImageUrl || document.getElementById('item-img').src;
+
+            buildFreeItems(item.freeItems);
+            buildFreeToggle(item.freeToggleItems);
+            buildPaidToggle(item.paidToggleItems);
+            buildPaidExtras(item.paidItems);
+
+            updatePrice();
+            window.__itemData = item;
+        }
+
         async function fetchUser() {
-            try {
-                const response = await fetch("http://127.0.0.1:5000/account", {
-                    method: "GET",
-                    credentials: "include"  // Ensures cookies (session) are sent
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                
-                // Print the response to debug
-                console.log("Server Response:");
-                console.log(JSON.stringify(data, null, 2)); // Pretty-print JSON response
-
-                // Extract username from the message
-                const username = data.message.split(' ')[1];  // Assuming the format is "User <username> is logged in"
-                return username;
-
-            } catch (error) {
-                console.error("Error during fetchUser request:", error);
-                alert("Failed to fetch user. Please try again.");
-            }
+            const d = await (await fetch('http://127.0.0.1:5000/account', { credentials: 'include' })).json();
+            return d.message.split(' ')[1];
         }
+
         async function addToCart() {
             const username = await fetchUser();
-    
-            const ingredients = {
-                bun: false,
-                lettuce: false,
-                cheese: false,
-                tomato: false
-            };
+            if (!username) { alert('Login required'); return; }
 
-            document.querySelectorAll(".ingredient-btn").forEach(button => {
-                if (!button.classList.contains("removed")) {
-                    ingredients[button.innerText.toLowerCase()] = true; // Mark as true if item is selected
-                }
-            });
-            const extras = [];
-            document.querySelectorAll(".extra-btn.selected").forEach(button => {
-                const price = button.innerText.includes("Extra Cheese") ? 1 : 2;
-                extras.push({ name: button.innerText, price: price });
-            });
-            
-            let itemQuantity= parseInt(document.getElementById("quantity").value);
-            const totalPrice = document.querySelector(".total-price").innerText.replace('Total Price: $', '');
 
-            // Package the product data for the API request
+            const freeItems = {};
+            document.querySelectorAll('.ingredient-btn').forEach(b =>
+                freeItems[b.textContent.toLowerCase()] = !b.classList.contains('removed'));
+
+            const freeToggleSel = [];
+            document.querySelectorAll('#free-toggle-box input[type="radio"]:checked').forEach(r =>
+                freeToggleSel.push({ name: r.nextSibling.textContent.trim(), type: r.dataset.type, selected: true }));
+
+            const paidToggleSel = [];
+            document.querySelectorAll('#paid-toggle-box input[type="radio"]:checked').forEach(r =>
+                paidToggleSel.push({
+                    name: r.nextSibling.textContent.split(' (+')[0], type: r.dataset.type,
+                    price: parseFloat(r.dataset.price), selected: true
+                }));
+
+            const paidExtrasSel = [];
+            document.querySelectorAll('.extra-btn.selected').forEach(b =>
+                paidExtrasSel.push({
+                    name: b.textContent.split(' (+')[0],
+                    price: parseFloat(b.dataset.price), selected: true
+                }));
+
+            const qty = parseInt(document.getElementById('quantity').value);
+
             const product = {
-                itemName: "Hamburger",
-                category: "Sandwiches",
-                price: 8.00,
-                freeItems: ingredients,  // Send the state of ingredients
-                freeToggleItems: [],
-                paidItems: extras,
-                paidToggleItems: [],
-                businessID: "Protected",
-                quantity: itemQuantity
+                ...window.__itemData,
+                freeItems,
+                freeToggleItems: freeToggleSel,
+                paidToggleItems: paidToggleSel,
+                paidItems: paidExtrasSel,
+                quantity: qty
             };
 
-            
-     
-            fetch('http://localhost:5000/add-to-cart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: username,
-                    product: product
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
-                        alert(data.message);  // Show success message
-                    } else {
-                        alert("Error adding item to cart.");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("There was an error adding the item to the cart.");
-                });
+            const res = await fetch('http://127.0.0.1:5000/add-to-cart', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, product })
+            });
+            alert((await res.json()).message || 'Added!');
         }
-        
+
+
+        window.onload = fetchItem;
+
+
     </script>
 </body>
 
