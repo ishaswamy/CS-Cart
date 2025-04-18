@@ -9,6 +9,7 @@ import shoppingCart as sCart
 from bson import ObjectId'''
 from app import getBusinessID
 from bson.objectid import ObjectId
+from customerAcc import get_accountType
 #import shoppingCart
 #import orderStatus
 
@@ -60,3 +61,5 @@ address=businessInfo.find_one({"businessID":getBusinessID()},
                                   {"_id":0,"address":1,"zipCode":1})
 addressSTR=(f"{address["address"]+", "+address["zipCode"]}")
 print(addressSTR)
+
+get_accountType("akumar")

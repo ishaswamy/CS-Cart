@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 import shoppingCart as sc  
 import menuChange as menu
-from customerAcc import register_user, login_user
+from customerAcc import register_user, login_user, get_accountType
 import os
 import pandas as pd
 from dotenv import load_dotenv
@@ -237,8 +237,14 @@ def account():
     print("User lookup failed.")
     return {"error": "No user logged in"},401
 
-
-
+@app.route("/accountType", methods=["GET"])
+def accountType():
+    if "user" in session:
+        account_type = get_accountType(session["user"])  # <- use session user
+        return jsonify({"accountType": account_type}), 200
+    else:
+        return jsonify({"accountType": None}), 200
+    
 @app.route("/get-order-status", methods=["GET"])
 def get_order_status():
     try:

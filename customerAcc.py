@@ -58,12 +58,15 @@ def login_user(username_or_email,password):
     if user:
         #Checks encrypted password
         if pwd_encrypt.verify(password, user["password"]):
-                return {"message": "Login successful", "user_id": str(user["username"])}
+                return {"message": "Login successful", "user_id": str(user["username"]),"accountType":str(user["accountType"])}
         else:
                 return {"error": "Incorrect Username or Password"}
     else:
         return {"error": "Incorrect Username or Password"}
     
+def get_accountType(username):
+    user= userLoginCollection.find_one({"username":username})
+    return user["accountType"]
 
 def change_password(username_or_email,oldPassword,newPassword):
      # Find the user by username or email
