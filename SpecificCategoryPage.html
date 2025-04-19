@@ -27,7 +27,6 @@
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const data = await response.json();
-                console.log("Server Response:", data);
                 return data.message.split(' ')[1];
             } catch (error) {
                 console.error("Error fetching user:", error);
@@ -38,8 +37,6 @@
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const category = urlParams.get('category');
-                console.log("Category selected: " + category);
-
                 const response = await fetch(`http://127.0.0.1:5000/get-specific-items?category=${category}`);
                 const data = await response.json();
 

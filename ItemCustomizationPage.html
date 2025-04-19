@@ -12,14 +12,14 @@
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
 
     <div class="container">
-   
+
         <div class="image-container">
             <img id="item-img"
                 src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?auto=compress&cs=tinysrgb&w=600"
                 alt="Product Image" style="width:100%;border-radius:5px;" />
         </div>
 
-      
+
         <div class="details-container">
             <h2>Customize Your Item</h2>
 
@@ -49,11 +49,11 @@
     </div>
 
     <script>
- 
+
         const priceToString = p => parseFloat(p).toFixed(2);
         const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
 
-       
+
         function buildFreeItems(free) {
             const box = document.getElementById('ingredient-btns');
             box.innerHTML = '';
@@ -140,7 +140,7 @@
             document.querySelectorAll('.extra-btn.selected')
                 .forEach(b => extras += parseFloat(b.dataset.price));
 
- 
+
             document.querySelectorAll('#paid-toggle-box input[type="radio"]:checked')
                 .forEach(r => extras += parseFloat(r.dataset.price));
 
@@ -201,11 +201,17 @@
                     name: b.textContent.split(' (+')[0],
                     price: parseFloat(b.dataset.price), selected: true
                 }));
+              
 
             const qty = parseInt(document.getElementById('quantity').value);
+            const price = parseFloat(document.getElementById('base-price').textContent);
+            const name = (document.getElementById('item-name').textContent);
 
+           
             const product = {
-                ...window.__itemData,
+
+                itemName: name,
+                price: price,
                 freeItems,
                 freeToggleItems: freeToggleSel,
                 paidToggleItems: paidToggleSel,

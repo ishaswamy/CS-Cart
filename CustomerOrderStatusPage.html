@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="styles/status.css">
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            fetchOrders(); // Now properly called
+            fetchOrders(); 
 
         });
 
@@ -35,12 +35,10 @@
     fetch("http://127.0.0.1:5000/get-order-status")
         .then(response => response.json())
         .then(data => {
-            console.log("Received data:", data); // Debugging line
-            const container = document.getElementById("ordersContainer"); // Corrected ID
             
-            // Check if the 'orders' field exists and has items
+            const container = document.getElementById("ordersContainer"); 
             if (data.orders && data.orders.length > 0) {
-                displayOrders(data.orders);  // Pass only the orders array
+                displayOrders(data.orders);  
             } else {
                 container.innerHTML = "<p>No orders found in your biz.</p>";
             }
@@ -70,7 +68,7 @@
             });
         }
         window.onload = () => {
-            const username = fetchUser() ; // Set the username to the logged-in user (sessions not implemented yet)
+            const username = fetchUser() ; 
             fetchOrders();
            
         };

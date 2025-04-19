@@ -145,7 +145,8 @@ def add_to_cart():
     data = request.json
     username = data.get("username")
     product = data.get("product")
-
+    businessID = BUSINESSID
+    product["businessID"] = businessID 
     if not username or not product:
         return jsonify({"error": "Username and product data are required"}), 400
 
@@ -254,30 +255,40 @@ def get_order_status():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/update-order-status", methods=["POST"])
-def update_order_status():
+@app.route("/update-item-status", methods=["POST"])
+def update_item_status():
+    data = request.json
+    itemID   = data["itemID"]
+    newStatus = data["itemStatus"]
+
+    if newStatus == "completed":
+        result = status.markItemCompleted(itemID)
+    elif newStatus == "in_progress":
+        result = status.markItemInProgress(itemID)
+    elif newStatus == "incomplete":
+        result = status.markItemIncomplete(itemID)
+    else:
+        return jsonify({"error": "Invalid status"}), 400
+
+    return jsonify(result), 200
+
+@app.route("/clear-order", methods=["POST"])
+def clear_order():
     try:
-        # Extract data from the request
         data = request.json
-        orderID = data["orderID"]
-        newStatus = data["orderStatus"]
+        orderID = data.get("orderID")
+        if not orderID:
+            return jsonify({"error": "Missing orderID"}), 400
 
-        # Directly handle the status update using the specific functions
-        if newStatus == "completed":
-            result = status.markOrderCompleted(orderID)
-        elif newStatus == "incomplete":
-            result = status.markOrderIncomplete(orderID)
-        elif newStatus == "in_progress":
-            result = status.markOrderInProgress(orderID)
-        elif newStatus == "clear":
-            result = status.clearOrder(orderID)  
+        result = status.clearOrder(orderID)
+        if "message" in result:
+            return jsonify(result), 200
         else:
-            return jsonify({"error": "Invalid order status provided."}), 400
-
-        return jsonify(result), 200 
-
+            return jsonify({"error": result.get("error","Unknown error")}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 @app.route('/register_employee', methods=['POST'])
 def register_employee_route():
     data = request.json

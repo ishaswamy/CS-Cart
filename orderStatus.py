@@ -1,9 +1,12 @@
 import connectModule as cM
 from flask import jsonify
 from pymongo.errors import PyMongoError, OperationFailure
+
 orderCollection=cM.mongoConnect("accountInfo","orderStatus")
 historyCollection=cM.mongoConnect("Businesses","orderHistory")
 
+''' 
+note from isha 4/19/25, i believe these functions in this comment are unnecessary for the scope of our project but I left them in for now 
 #Marks order with given orderID as completed. Allows for updating of status entire order at once
 def markOrderCompleted(orderID):
     orderCollection.update_many({"orderID":orderID}, #query
@@ -18,19 +21,6 @@ def markOrderIncomplete(orderID):
     )
     return {f"message":"Order {orderID} has been marked as in progress."}
 
-#Marks item with given ID as completed
-def markItemCompleted(itemID):
-    orderCollection.update_one({"itemID":itemID}, #query
-        {"$set":{"orderStatus": "completed"}}#Update fields here
-    )
-    return {f"message":"Item {itemID} has been marked as completed."}
-
-#Marks item with given ID as incomplete
-def markItemIncomplete(itemID):
-    orderCollection.update_one({"itemID":itemID}, #query
-        {"$set":{"orderStatus": "incomplete"}}#Update fields here
-    )
-    return {f"message":"Item {itemID} has been marked as in progress."}
 
 #Marks item with given ID as in progress
 def markOrderInProgress(orderID):
@@ -39,13 +29,7 @@ def markOrderInProgress(orderID):
     )
     return {f"message":"Item {itemID} has been marked as in progress."}
 
-#Clears items in a given order from the order status collection. Adds items in the given order to orderHistory collection.
-def clearOrder(orderID):
-    try:
-        historyCollection.insert_many(orderCollection.find({"orderID":orderID}))
-        orderCollection.delete_many({"orderID":orderID})
-    except (PyMongoError, OperationFailure) as e:
-        return {f"message":"Orders with Order ID {orderID} have been cleared from order queue"}
+
 
 #Deletes specific items from the order status collection. Adds item to orderHistory collection.
 def clearItem(itemID):
@@ -62,6 +46,45 @@ def clearItem(itemID):
         return(f"Insertion error: {e}")
 
 
+
+
+
+
+'''
+# Marks item with given itemID as completed
+def markItemCompleted(itemID):
+    orderCollection.update_one({"itemID": itemID}, 
+        {"$set": {"itemStatus": "completed"}} 
+    )
+    return {f"message": f"Item {itemID} has been marked as completed."}
+
+# Marks item with given itemID as in progress
+def markItemInProgress(itemID):
+    orderCollection.update_one({"itemID": itemID}, 
+        {"$set": {"itemStatus": "in_progress"}} 
+    )
+    return {f"message": f"Item {itemID} has been marked as in progress."}
+
+# Marks item with given itemID as incomplete
+def markItemIncomplete(itemID):
+    orderCollection.update_one({"itemID": itemID}, 
+        {"$set": {"itemStatus": "incomplete"}}  
+    )
+    return {f"message": f"Item {itemID} has been marked as incomplete."}
+
+def clearOrder(orderID):
+    
+    try:
+        docs = list(orderCollection.find({"orderID": orderID}))
+        if docs:
+            historyCollection.insert_many(docs)
+            orderCollection.delete_many({"orderID": orderID})
+            return {"message": f"Orders with Order ID {orderID} have been cleared from order queue"}
+        else:
+            return {"message": f"No orders found with Order ID {orderID}"}
+    except (PyMongoError, OperationFailure) as e:
+        return {"error": f"Failed to clear order: {str(e)}"}
+
 def getOrderID(itemID):
     orderDict=orderCollection.find_one({"itemID":itemID},{"_id":0,"orderID":1})
     return orderDict["orderID"]
@@ -69,7 +92,7 @@ def getOrderID(itemID):
 def getItemID(username):
     itemDict=list(orderCollection.find({"username":username},{"_id":0,"itemID":1}))
     return itemDict[0]["itemID"]
-
 def get_all_orders():
-    orders = list(orderCollection.find({}, {"_id": 0})) 
-    return orders  # Return the list of orders
+    # Return all orders with their items and itemStatus 
+    orders = list(orderCollection.find({}, {"_id": 0, "itemID": 1, "itemStatus": 1, "itemName": 1, "category": 1, "price": 1, "orderID": 1}))
+    return orders
