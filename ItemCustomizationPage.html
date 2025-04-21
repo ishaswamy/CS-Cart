@@ -206,8 +206,9 @@
             const qty = parseInt(document.getElementById('quantity').value);
             const price = parseFloat(document.getElementById('base-price').textContent);
             const name = (document.getElementById('item-name').textContent);
+            const image =  document.getElementById('item-img').src
 
-           
+
             const product = {
 
                 itemName: name,
@@ -216,7 +217,8 @@
                 freeToggleItems: freeToggleSel,
                 paidToggleItems: paidToggleSel,
                 paidItems: paidExtrasSel,
-                quantity: qty
+                quantity: qty,
+                itemImageUrl: image
             };
 
             const res = await fetch('http://127.0.0.1:5000/add-to-cart', {
