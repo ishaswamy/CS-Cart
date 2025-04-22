@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="styles/customer_cart.css">
 
     <script>
-        
+
 
         // Function to update quantity and re-fetch the cart
         async function updateQuantity(username, itemID, quantity) {
@@ -187,58 +187,47 @@
             }
         };
         async function updateTax() {
-    const zipCode = 73301; // Hardcoded ZIP code for now
-    try {
-        // First, fetch the tax rate based on the ZIP code
-        const response = await fetch("http://127.0.0.1:5000/get-tax?zipCode=" + zipCode);
-        const taxData = await response.json();
+  try {
 
-        if (!taxData.taxRate || isNaN(taxData.taxRate)) {
-            console.error("Invalid tax rate:", taxData.taxRate);
-            return;
-        }
-
-        const taxRate = parseFloat(taxData.taxRate);
-
-        // Now, fetch the cart data for the logged-in user
-        const username = await fetchUser(); // Fetch logged-in username
-        const cartResponse = await fetch(`http://127.0.0.1:5000/get-cart?username=${username}`);
-        const cartData = await cartResponse.json();
-
-        if (cartData.error) {
-            console.error("Error fetching cart:", cartData.error);
-            return;
-        }
-
-        // Calculate the subtotal using the fetched cart data
-        let subtotal = 0;
-        cartData.cartItems.forEach(item => {
-            const price = parseFloat(item.totalPrice);
-            const quantity = parseInt(item.quantity);
-
-            if (!isNaN(price) && !isNaN(quantity)) {
-                subtotal += price * quantity;
-            } else {
-                console.error("Invalid price or quantity:", price, quantity);
-            }
-        });
-
-        // Update the display of subtotal
-        document.getElementById("subtotal-value").innerText = `$${subtotal.toFixed(2)}`;
-
-        // Calculate the tax and total cost
-        const taxAmount = (subtotal * taxRate).toFixed(2);
-        const totalCost = (subtotal + parseFloat(taxAmount)).toFixed(2);
-
-        document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
-        document.getElementById("tax-value").innerText = `$${taxAmount}`;
-        document.getElementById("total-cost").innerText = `$${totalCost}`;
-
-    } catch (error) {
-        console.error("Error updating tax:", error);
+    const taxResp = await fetch("http://127.0.0.1:5000/get-tax", {
+      credentials: "include"
+    });
+    const taxData = await taxResp.json();
+    if (!taxResp.ok || isNaN(taxData.taxRate)) {
+      console.error("Failed to get tax rate:", taxData);
+      return;
     }
-}
+    const taxRate = parseFloat(taxData.taxRate);
+    //fetch cart again
+    const username = await fetchUser();
+    const cartResp = await fetch(`http://127.0.0.1:5000/get-cart?username=${username}`, {
+      credentials: "include"
+    });
+    const cartData = await cartResp.json();
+    if (cartData.error) {
+      console.error("Error fetching cart:", cartData.error);
+      return;
+    }
 
+    //compute subtotal
+    let subtotal = 0;
+    cartData.cartItems.forEach(item => {
+      const price = parseFloat(item.totalPrice);
+      const qty   = parseInt(item.quantity, 10);
+      if (!isNaN(price) && !isNaN(qty)) subtotal += price * qty;
+    });
+
+    // update view
+    document.getElementById("subtotal-value").innerText = `$${subtotal.toFixed(2)}`;
+    const taxAmount = (subtotal * taxRate).toFixed(2);
+    document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
+    document.getElementById("tax-value").innerText      = `$${taxAmount}`;
+    document.getElementById("total-cost").innerText      = `$${(subtotal + +taxAmount).toFixed(2)}`;
+  }
+  catch (err) {
+    console.error("updateTax error:", err);
+  }
+}
 
     </script>
 

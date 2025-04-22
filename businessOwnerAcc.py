@@ -4,6 +4,7 @@ import pymongo
 load_dotenv()  # This line brings all environment variables from .env into os.environ
 import connectModule as cM
 from passlib.context import CryptContext
+import pandas as pd
 
 #Handles mongo DB connection to accountInfo & businessInfo collection
 userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
@@ -52,6 +53,25 @@ def register_business_owner(username, password, fullName, birthday, businessID):
     except pymongo.errors.DuplicateKeyError:
 
         return {"error": "Username or email already exists"}
+    
+def get_business_zip(businessID):
+
+    business = businessInfoCollection.find_one(
+        {"businessID": businessID},
+        {"_id": 0, "zipCode": 1}
+    )
+    if business and "zipCode" in business:
+        return business["zipCode"]
+    return None
+
+# Function to calculate tax
+def taxCalculation(zipCode):
+    df = pd.read_csv(
+        'Tax/taxes.csv',
+        dtype={'ZipCode': str}
+    )
+    return df.loc[df['ZipCode'] == zipCode, 'EstimatedCombinedRate'].values[0]
+
 
 def register_employee(username, password, fullName, birthday, businessID):
     #businessName = businessInfoCollection.find_one({"businessID": businessID},{"businessName":1,"_id":0})["businessName"]

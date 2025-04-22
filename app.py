@@ -5,10 +5,10 @@ import shoppingCart as sc
 import menuChange as menu
 from customerAcc import register_user, login_user, get_accountType
 import os
-import pandas as pd
 from dotenv import load_dotenv
 import orderStatus as status
-from businessOwnerAcc import register_business_owner, register_employee
+from businessOwnerAcc import register_business_owner, register_employee, taxCalculation, get_business_zip
+
 
 load_dotenv()
 
@@ -28,10 +28,7 @@ BUSINESSID="1"
 #Returns current businessID for use in python scripts.
 def getBusinessID():
     return str(BUSINESSID)
-# Function to calculate tax
-def taxCalculation(zipCode):
-    df = pd.read_csv('Tax/taxes.csv')
-    return df.loc[df['ZipCode'] == zipCode, 'EstimatedCombinedRate'].values[0]
+
 
 #Reads addons that are selected true for display under orders.
 def readAddons(product):
@@ -58,7 +55,7 @@ def readAddons(product):
 
 @app.route("/get-tax", methods=["GET"])
 def get_tax():
-    zip_code = request.args.get("zipCode", type=int)
+    zip_code = get_business_zip(getBusinessID())
     if not zip_code:
         return jsonify({"error": "Zip code is required"}), 400
 
