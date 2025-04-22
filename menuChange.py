@@ -127,3 +127,12 @@ def addCategory(categoryName,businessID,categoryImageURL):
         return{"message": "The category "+categoryName+" was added."}
     except pymongo.errors.DuplicateKeyError:
         return{"message":"Item "+categoryName+" already exists in the menu."}
+
+def deleteCategory(categoryName, businessID):
+    result = categoryCollection.delete_one({
+        "category": categoryName,
+        "businessID": businessID
+    })
+    if result.deleted_count == 1:
+        return {"message": f"Category {categoryName} successfully deleted"}
+    return {"error": f"Category {categoryName} not found"}

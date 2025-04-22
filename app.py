@@ -367,6 +367,20 @@ def add_category():
     result = menu.addCategory(category, businessID, categoryImageURL)  
     return jsonify(result), 201
 
+@app.route('/delete-category', methods=['POST'])
+def delete_category():
+    data = request.get_json()
+    category = data.get("category")
+    businessID = getBusinessID()
+
+    if not category:
+        return jsonify({"error": "Missing category name"}), 400
+
+    result = menu.deleteCategory(category, businessID)
+    if "error" in result:
+        return jsonify(result), 404
+    return jsonify(result), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)  
