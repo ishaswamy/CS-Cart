@@ -2,237 +2,240 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Item Customization</title>
-    <link rel="stylesheet" href="styles/item_customization_style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Item Customization</title>
+  <link rel="stylesheet" href="styles/item_customization_style.css" />
 </head>
 
 <body>
-    <iframe src="HeaderMenu.html" class="header-frame"></iframe>
+  <iframe src="HeaderMenu.html" class="header-frame"></iframe>
 
-    <div class="container">
+  <div class="container">
 
-        <div class="image-container">
-            <img id="item-img"
-                src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="Product Image" style="width:100%;border-radius:5px;" />
-        </div>
-
-
-        <div class="details-container">
-            <h2>Customize Your Item</h2>
-
-            <p><strong>Item Name:</strong> <span id="item-name">Loading…</span></p>
-            <p><strong>Base Price:</strong> $<span id="base-price">0.00</span></p>
-
-            <h3>Ingredients:</h3>
-            <div id="ingredient-btns"></div>
-
-            <h3>Extras:</h3>
-            <div id="extra-btns"></div>
-
-            <h3>Toggle (choose one per group):</h3>
-            <div id="free-toggle-box"></div>
-
-            <h3>Paid Toggle (choose one per group):</h3>
-            <div id="paid-toggle-box"></div>
-
-
-            <br />
-            <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" value="1" min="1" onchange="updatePrice()" />
-
-            <p class="total-price">Total Price: $0.00</p>
-            <button onclick="addToCart()">Add to Cart</button>
-        </div>
+    <div class="image-container">
+      <img id="item-img"
+           src="https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?auto=compress&cs=tinysrgb&w=600"
+           alt="Product Image" style="width:100%;border-radius:5px;" />
     </div>
 
-    <script>
+    <div class="details-container">
+      <h2>Customize Your Item</h2>
 
-        const priceToString = p => parseFloat(p).toFixed(2);
-        const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
+      <p><strong>Item Name:</strong> <span id="item-name">Loading…</span></p>
+      <p><strong>Base Price:</strong> $<span id="base-price">0.00</span></p>
 
+      <div id="ingredients-section">
+        <h3>Ingredients:</h3>
+        <div id="ingredient-btns"></div>
+      </div>
 
-        function buildFreeItems(free) {
-            const box = document.getElementById('ingredient-btns');
-            box.innerHTML = '';
-            Object.entries(free).forEach(([name, included]) => {
-                const btn = document.createElement('button');
-                btn.className = 'ingredient-btn';
-                btn.textContent = capitalize(name);
-                if (!included) btn.classList.add('removed');
-                btn.onclick = () => { btn.classList.toggle('removed'); updatePrice(); };
-                box.appendChild(btn);
-            });
+      <div id="extras-section">
+        <h3>Extras:</h3>
+        <div id="extra-btns"></div>
+      </div>
+
+      <div id="toggle-section">
+        <h3>Options (choose one per group):</h3>
+        <div id="toggle-box"></div>
+      </div>
+
+      <br />
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity" value="1" min="1" onchange="updatePrice()" />
+
+      <p class="total-price">Total Price: $0.00</p>
+      <button onclick="addToCart()">Add to Cart</button>
+    </div>
+  </div>
+
+  <script>
+    const priceToString = p => parseFloat(p).toFixed(2);
+    const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+    function buildFreeItems(free) {
+      const box = document.getElementById('ingredient-btns');
+      box.innerHTML = '';
+      Object.entries(free).forEach(([name, included]) => {
+        const btn = document.createElement('button');
+        btn.className = 'ingredient-btn';
+        btn.textContent = capitalize(name);
+        if (!included) btn.classList.add('removed');
+        btn.onclick = () => { btn.classList.toggle('removed'); updatePrice(); };
+        box.appendChild(btn);
+      });
+    }
+
+    function buildToggles(allToggles) {
+      const box = document.getElementById('toggle-box');
+      box.innerHTML = '';
+      // group by type
+      const byType = {};
+      allToggles.forEach(item => {
+        if (!byType[item.type]) byType[item.type] = [];
+        byType[item.type].push(item);
+      });
+      Object.entries(byType).forEach(([type, items]) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'toggle-group';
+        wrap.innerHTML = `<strong>${capitalize(type)}:</strong><br>`;
+        items.forEach(item => {
+          const id = `toggle-${type}-${item.name}`;
+          const priceLabel = item.price > 0
+            ? ` (+$${priceToString(item.price)})`
+            : '';
+          wrap.innerHTML += `
+            <label>
+              <input type="radio"
+                     name="toggle-${type}"
+                     id="${id}"
+                     data-type="${type}"
+                     data-price="${item.price}"
+                     ${item.selected ? 'checked' : ''} onchange="updatePrice()">
+              ${item.name}${priceLabel}
+            </label><br>`;
+        });
+        box.appendChild(wrap);
+      });
+    }
+
+    function buildPaidExtras(paid) {
+      const box = document.getElementById('extra-btns');
+      box.innerHTML = '';
+      paid.forEach(pi => {
+        const btn = document.createElement('button');
+        btn.className = 'extra-btn';
+        btn.textContent = `${pi.name} (+$${priceToString(pi.price)})`;
+        if (pi.selected) btn.classList.add('selected');
+        btn.dataset.price = pi.price;
+        btn.onclick = () => { btn.classList.toggle('selected'); updatePrice(); };
+        box.appendChild(btn);
+      });
+    }
+
+    function updatePrice() {
+      const base = parseFloat(document.getElementById('base-price').textContent);
+      let extras = 0;
+      document.querySelectorAll('.extra-btn.selected')
+        .forEach(b => extras += parseFloat(b.dataset.price));
+      document.querySelectorAll('#toggle-box input[type="radio"]:checked')
+        .forEach(r => extras += parseFloat(r.dataset.price));
+      const qty = parseInt(document.getElementById('quantity').value);
+      const total = (base + extras) * qty;
+      document.querySelector('.total-price').textContent =
+        `Total Price: $${priceToString(total)}`;
+    }
+
+    async function fetchItem() {
+      const id = new URLSearchParams(location.search).get('itemID');
+      if (!id) { alert('Missing itemID'); return; }
+
+      const item = await (await fetch(`http://127.0.0.1:5000/get-item?itemID=${id}`)).json();
+
+      document.getElementById('item-name').textContent  = item.itemName;
+      document.getElementById('base-price').textContent = priceToString(item.price);
+      document.getElementById('item-img').src          = item.itemImageUrl || '';
+
+      // Ingredients
+      const ingSec = document.getElementById('ingredients-section');
+      if (item.freeItems && Object.keys(item.freeItems).length) {
+        ingSec.style.display = '';
+        buildFreeItems(item.freeItems);
+      } else ingSec.style.display = 'none';
+
+      // Extras
+      const extraSec = document.getElementById('extras-section');
+      const paidArr = Array.isArray(item.paidItems)
+        ? item.paidItems
+        : (item.paidItems && typeof item.paidItems === 'object'
+            ? Object.values(item.paidItems)
+            : []);
+      if (paidArr.length) {
+        extraSec.style.display = '';
+        buildPaidExtras(paidArr);
+      } else extraSec.style.display = 'none';
+
+      // Toggles: combine freeToggleItems + paidToggleItems
+      const combinedToggles = [
+        ...(item.freeToggleItems||[]),
+        ...(item.paidToggleItems||[])
+      ];
+      const togSec = document.getElementById('toggle-section');
+      if (combinedToggles.length) {
+        togSec.style.display = '';
+        buildToggles(combinedToggles);
+      } else {
+        togSec.style.display = 'none';
+      }
+
+      updatePrice();
+      window.__itemData = item;
+    }
+
+    async function fetchUser() {
+      const d = await (await fetch('http://127.0.0.1:5000/account', { credentials: 'include' })).json();
+      return d.message ? d.message.split(' ')[1] : null;
+    }
+
+    async function addToCart() {
+      const username = await fetchUser();
+      if (!username) { alert('Login required'); return; }
+
+      const freeItems = {};
+      document.querySelectorAll('.ingredient-btn').forEach(b =>
+        freeItems[b.textContent.toLowerCase()] = !b.classList.contains('removed'));
+
+      const paidExtrasSel = [];
+      document.querySelectorAll('.extra-btn.selected').forEach(b =>
+        paidExtrasSel.push({
+          name: b.textContent.split(' (+')[0],
+          price: parseFloat(b.dataset.price),
+          selected: true
+        }));
+
+      const toggles = [];
+      document.querySelectorAll('#toggle-box .toggle-group').forEach(group => {
+        const checked = group.querySelector('input[type="radio"]:checked');
+        if (checked) {
+          toggles.push({
+            name: checked.nextSibling.textContent.trim(),
+            type: checked.dataset.type,
+            price: parseFloat(checked.dataset.price),
+            selected: true
+          });
         }
+      });
 
-        function buildFreeToggle(freeToggle) {
-            const box = document.getElementById('free-toggle-box');
-            box.innerHTML = '';
-            const grouped = groupByType(freeToggle);
-            Object.entries(grouped).forEach(([type, items]) => {
-                const wrap = document.createElement('div');
-                wrap.className = 'toggle-group';
-                wrap.innerHTML = `<strong>${capitalize(type)}:</strong><br>`;
-                items.forEach(item => {
-                    const id = `free-${type}-${item.name}`;
-                    wrap.innerHTML += `
-        <label>
-          <input type="radio" name="free-${type}" id="${id}" data-type="${type}"
-                 ${item.selected ? 'checked' : ''} onchange="updatePrice()">
-          ${item.name}
-        </label><br>`;
-                });
-                box.appendChild(wrap);
-            });
-        }
+      const base = parseFloat(document.getElementById('base-price').textContent);
+      let extrasCost = 0;
+      paidExtrasSel.forEach(e => extrasCost += e.price);
+      toggles.forEach(t => extrasCost += t.price);
+      const qty = parseInt(document.getElementById('quantity').value);
+      const totalPrice = (base + extrasCost) * qty;
 
-        function buildPaidToggle(paidToggle) {
-            const box = document.getElementById('paid-toggle-box');
-            box.innerHTML = '';
-            const grouped = groupByType(paidToggle);
-            Object.entries(grouped).forEach(([type, items]) => {
-                const wrap = document.createElement('div');
-                wrap.className = 'toggle-group';
-                wrap.innerHTML = `<strong>${capitalize(type)} (extra):</strong><br>`;
-                items.forEach(item => {
-                    const id = `paid-${type}-${item.name}`;
-                    wrap.innerHTML += `
-        <label>
-          <input type="radio" name="paid-${type}" id="${id}" data-type="${type}" data-price="${item.price}"
-                 ${item.selected ? 'checked' : ''} onchange="updatePrice()">
-          ${item.name} (+$${priceToString(item.price)})
-        </label><br>`;
-                });
-                box.appendChild(wrap);
-            });
-        }
+      const product = {
+        itemName:         document.getElementById('item-name').textContent,
+        price:            base,
+        totalPrice,
+        freeItems,
+        freeToggleItems:   toggles.filter(t => t.price === 0),
+        paidToggleItems:   toggles.filter(t => t.price > 0),
+        paidItems:        paidExtrasSel,
+        quantity:         qty,
+        itemImageUrl:     document.getElementById('item-img').src
+      };
 
-        function buildPaidExtras(paid) {
-            const box = document.getElementById('extra-btns');
-            box.innerHTML = '';
-            paid.forEach(pi => {
-                const btn = document.createElement('button');
-                btn.className = 'extra-btn';
-                btn.textContent = `${pi.name} (+$${priceToString(pi.price)})`;
-                if (pi.selected) btn.classList.add('selected');
-                btn.dataset.price = pi.price;
-                btn.onclick = () => { btn.classList.toggle('selected'); updatePrice(); };
-                box.appendChild(btn);
-            });
-        }
+      const res = await fetch('http://127.0.0.1:5000/add-to-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, product })
+      });
+      const result = await res.json();
+      alert(result.message || 'Added!');
+    }
 
-        function groupByType(arr) {
-            const obj = {};
-            (arr || []).forEach(i => {
-                obj[i.type] = obj[i.type] || [];
-                obj[i.type].push(i);
-            });
-            return obj;
-        }
-
-        function updatePrice() {
-            const base = parseFloat(document.getElementById('base-price').textContent);
-
-            let extras = 0;
-
-            document.querySelectorAll('.extra-btn.selected')
-                .forEach(b => extras += parseFloat(b.dataset.price));
-
-
-            document.querySelectorAll('#paid-toggle-box input[type="radio"]:checked')
-                .forEach(r => extras += parseFloat(r.dataset.price));
-
-            const qty = parseInt(document.getElementById('quantity').value);
-            const total = (base + extras) * qty;
-            document.querySelector('.total-price').textContent =
-                `Total Price: $${priceToString(total)}`;
-        }
-
-
-        async function fetchItem() {
-            const id = new URLSearchParams(location.search).get('itemID');
-            if (!id) { alert('Missing itemID'); return; }
-
-            const item = await (await fetch(`http://127.0.0.1:5000/get-item?itemID=${id}`)).json();
-
-            document.getElementById('item-name').textContent = item.itemName;
-            document.getElementById('base-price').textContent = priceToString(item.price);
-            document.getElementById('item-img').src = item.itemImageUrl || document.getElementById('item-img').src;
-
-            buildFreeItems(item.freeItems);
-            buildFreeToggle(item.freeToggleItems);
-            buildPaidToggle(item.paidToggleItems);
-            buildPaidExtras(item.paidItems);
-
-            updatePrice();
-            window.__itemData = item;
-        }
-
-        async function fetchUser() {
-            const d = await (await fetch('http://127.0.0.1:5000/account', { credentials: 'include' })).json();
-            return d.message.split(' ')[1];
-        }
-
-        async function addToCart() {
-            const username = await fetchUser();
-            if (!username) { alert('Login required'); return; }
-
-
-            const freeItems = {};
-            document.querySelectorAll('.ingredient-btn').forEach(b =>
-                freeItems[b.textContent.toLowerCase()] = !b.classList.contains('removed'));
-
-            const freeToggleSel = [];
-            document.querySelectorAll('#free-toggle-box input[type="radio"]:checked').forEach(r =>
-                freeToggleSel.push({ name: r.nextSibling.textContent.trim(), type: r.dataset.type, selected: true }));
-
-            const paidToggleSel = [];
-            document.querySelectorAll('#paid-toggle-box input[type="radio"]:checked').forEach(r =>
-                paidToggleSel.push({
-                    name: r.nextSibling.textContent.split(' (+')[0], type: r.dataset.type,
-                    price: parseFloat(r.dataset.price), selected: true
-                }));
-
-            const paidExtrasSel = [];
-            document.querySelectorAll('.extra-btn.selected').forEach(b =>
-                paidExtrasSel.push({
-                    name: b.textContent.split(' (+')[0],
-                    price: parseFloat(b.dataset.price), selected: true
-                }));
-              
-
-            const qty = parseInt(document.getElementById('quantity').value);
-            const price = parseFloat(document.getElementById('base-price').textContent);
-            const name = (document.getElementById('item-name').textContent);
-            const image =  document.getElementById('item-img').src
-
-
-            const product = {
-
-                itemName: name,
-                price: price,
-                freeItems,
-                freeToggleItems: freeToggleSel,
-                paidToggleItems: paidToggleSel,
-                paidItems: paidExtrasSel,
-                quantity: qty,
-                itemImageUrl: image
-            };
-
-            const res = await fetch('http://127.0.0.1:5000/add-to-cart', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, product })
-            });
-            alert((await res.json()).message || 'Added!');
-        }
-
-
-        window.onload = fetchItem;
-
-
-    </script>
+    window.onload = fetchItem;
+  </script>
 </body>
 
 </html>

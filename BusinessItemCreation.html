@@ -2,210 +2,190 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customize Menu Item</title>
-    <link rel="stylesheet" type="text/css" href="styles/business_item_customization.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customize Menu Item</title>
+  <link rel="stylesheet" href="styles/business_item_customization.css">
 </head>
 
 <body>
-    <iframe src="HeaderMenu.html" class="header-frame"></iframe>
+  <iframe src="HeaderMenu.html" class="header-frame"></iframe>
 
-    <div class="container">
-        <h1><input type="text" id="item-name" value="New Item"></h1>
-        <p>Category: <input type="text" id="category" placeholder="Category"></p>
-        <p>Price: $<input type="number" id="item-price" step="0.01"></p>
-        <p>Item Image URL: <input type="url" id="item-image-url" placeholder="Image url"></p>
+  <div class="container">
+    <h1><input type="text" id="item-name" placeholder="Item Name" value="New Item"></h1>
+    <p>Category: <input type="text" id="category" placeholder="Category"></p>
+    <p>Base Price: $<input type="number" id="item-price" step="0.01" placeholder="0.00"></p>
+    <p>Item Image URL: <input type="url" id="item-image-url" placeholder="Image URL"></p>
 
-        <div class="item-section">
-            <h2>Included Items</h2>
-            <input type="text" id="new-free-item-name" placeholder="Item name">
-            <button onclick="addFreeItem()">Add</button>
-            <div id="free-items"></div>
-        </div>
-
-        <div class="item-section">
-            <h2>Free Toggle Items</h2>
-            <input type="text" id="new-free-toggle-name" placeholder="Item name">
-            <button onclick="addFreeToggleItem()">Add</button>
-            <div id="free-toggle-items"></div>
-        </div>
-
-        <div class="item-section">
-            <h2>Paid Items</h2>
-            <input type="text" id="new-paid-item-name" placeholder="Item name">
-            <input type="number" id="new-paid-item-price" placeholder="Price" step="0.01">
-            <button onclick="addPaidItem()">Add</button>
-            <div id="paid-items"></div>
-        </div>
-
-        <div class="item-section">
-            <h2>Paid Toggle Extras</h2>
-            <input type="text" id="new-paid-toggle-name" placeholder="Item name">
-            <input type="number" id="new-paid-toggle-price" placeholder="Price" step="0.01">
-            <button onclick="addPaidToggleItem()">Add</button>
-            <div id="paid-toggle-items"></div>
-        </div>
-
-        <button onclick="addItem()">Add Item</button>
+    <div class="item-section">
+      <h2>Included Items</h2>
+      <input type="text" id="new-free-item-name" placeholder="Item name">
+      <button onclick="addFreeItem()">Add</button>
+      <div id="free-items"></div>
     </div>
 
-    <script>
-        // Add an Included Item with a delete button
-        function addFreeItem() {
-            const container = document.getElementById("free-items");
-            const name = document.getElementById("new-free-item-name").value.trim();
-            if (!name) return;
+    <div class="item-section">
+      <h2>Toggle Items (one per type)</h2>
+      <input type="text" id="new-toggle-type" placeholder="Type (e.g. bun)">
+      <input type="text" id="new-toggle-name" placeholder="Item name">
+      <input type="number" id="new-toggle-price" placeholder="Price (0 = free)" step="0.01">
+      <button onclick="addToggleItem()">Add</button>
+      <div id="toggle-items"></div>
+    </div>
 
-            const itemDiv = document.createElement("div");
-            itemDiv.classList.add("item");
+    <div class="item-section">
+      <h2>Extras (multiple selectable)</h2>
+      <input type="text" id="new-paid-item-name" placeholder="Extra name">
+      <input type="number" id="new-paid-item-price" placeholder="Price" step="0.01">
+      <button onclick="addPaidItem()">Add</button>
+      <div id="paid-items"></div>
+    </div>
 
-            itemDiv.innerHTML = `
-                <label>
-                    <input type="checkbox" data-name="${name}" data-type="free" checked> ${name}
-                </label>
-                <button onclick="deleteItem(this)">Delete</button>
-            `;
-            container.appendChild(itemDiv);
-            document.getElementById("new-free-item-name").value = "";
-        }
+    <button onclick="addItem()">Save Item</button>
+  </div>
 
-        // Add a Free Toggle Item with a delete button
-        function addFreeToggleItem() {
-            const name = document.getElementById("new-free-toggle-name").value.trim();
-            if (!name) return;
+  <script>
 
-            const container = document.getElementById("free-toggle-items");
+    function deleteItem(btn) {
+      btn.parentElement.remove();
+    }
 
-            const itemDiv = document.createElement("div");
-            itemDiv.classList.add("item");
+    // INCLUDED (freeItems)
+    function addFreeItem() {
+      const name = document.getElementById("new-free-item-name").value.trim();
+      if (!name) return;
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <label>
+          <input type="checkbox" data-name="${name}" data-type="free" checked> ${name}
+        </label>
+        <button onclick="deleteItem(this)">Delete</button>
+      `;
+      document.getElementById("free-items").appendChild(div);
+      document.getElementById("new-free-item-name").value = "";
+    }
 
-            itemDiv.innerHTML = `
-                <label>
-                    <input type="checkbox" data-name="${name}" data-type="free-toggle" checked> ${name}
-                </label>
-                <button onclick="deleteItem(this)">Delete</button>
-            `;
-            container.appendChild(itemDiv);
-            document.getElementById("new-free-toggle-name").value = "";
-        }
+    // TOGGLE ITEMS (with type + price)
+    function addToggleItem() {
+      const type = document.getElementById("new-toggle-type").value.trim();
+      const name = document.getElementById("new-toggle-name").value.trim();
+      const price = parseFloat(document.getElementById("new-toggle-price").value);
+      if (!type || !name || isNaN(price)) return;
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <label>
+          <input type="checkbox"
+                 data-name="${name}"
+                 data-type="${type}"
+                 data-price="${price}"
+                 checked> ${name}
+        </label>
+        $<input type="number" value="${price.toFixed(2)}" step="0.01">
+        <button onclick="deleteItem(this)">Delete</button>
+      `;
+      document.getElementById("toggle-items").appendChild(div);
+      document.getElementById("new-toggle-type").value = "";
+      document.getElementById("new-toggle-name").value = "";
+      document.getElementById("new-toggle-price").value = "";
+    }
 
-        // Add a Paid Item with a delete button
-        function addPaidItem() {
-            const name = document.getElementById("new-paid-item-name").value.trim();
-            const price = parseFloat(document.getElementById("new-paid-item-price").value);
-            if (!name || isNaN(price)) return;
+    // PAID EXTRAS
+    function addPaidItem() {
+      const name = document.getElementById("new-paid-item-name").value.trim();
+      const price = parseFloat(document.getElementById("new-paid-item-price").value);
+      if (!name || isNaN(price)) return;
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <label>
+          <input type="checkbox"
+                 data-name="${name}"
+                 data-type="paid" checked> ${name}
+        </label>
+        $<input type="number" value="${price.toFixed(2)}" step="0.01">
+        <button onclick="deleteItem(this)">Delete</button>
+      `;
+      document.getElementById("paid-items").appendChild(div);
+      document.getElementById("new-paid-item-name").value = "";
+      document.getElementById("new-paid-item-price").value = "";
+    }
 
-            const container = document.getElementById("paid-items");
+    // Helpers to collect data
+    function getItemsObj(containerId) {
+      const obj = {};
+      document.getElementById(containerId)
+        .querySelectorAll("input[type=checkbox]")
+        .forEach(input => {
+          obj[input.dataset.name] = input.checked;
+        });
+      return obj;
+    }
 
-            const itemDiv = document.createElement("div");
-            itemDiv.classList.add("item");
+    function getToggleArr() {
+      const arr = [];
+      document.querySelectorAll("#toggle-items .item").forEach(div => {
+        const chk = div.querySelector("input[type=checkbox]");
+        const price = parseFloat(div.querySelector("input[type=number]").value) || 0;
+        arr.push({
+          name: chk.dataset.name,
+          type: chk.dataset.type,
+          selected: chk.checked,
+          price
+        });
+      });
+      return arr;
+    }
 
-            itemDiv.innerHTML = `
-                <label>
-                    <input type="checkbox" data-name="${name}" data-type="paid" checked> ${name}
-                </label>
-                $<input type="number" value="${price}" step="0.01">
-                <button onclick="deleteItem(this)">Delete</button>
-            `;
-            container.appendChild(itemDiv);
-            document.getElementById("new-paid-item-name").value = "";
-            document.getElementById("new-paid-item-price").value = "";
-        }
-
-        // Add a Paid Toggle Item with a delete button
-        function addPaidToggleItem() {
-            const name = document.getElementById("new-paid-toggle-name").value.trim();
-            const price = parseFloat(document.getElementById("new-paid-toggle-price").value);
-            if (!name || isNaN(price)) return;
-
-            const container = document.getElementById("paid-toggle-items");
-
-            const itemDiv = document.createElement("div");
-            itemDiv.classList.add("item");
-
-            itemDiv.innerHTML = `
-                <label>
-                    <input type="checkbox" data-name="${name}" data-type="paid-toggle" checked> ${name}
-                </label>
-                $<input type="number" value="${price}" step="0.01">
-                <button onclick="deleteItem(this)">Delete</button>
-            `;
-            container.appendChild(itemDiv);
-            document.getElementById("new-paid-toggle-name").value = "";
-            document.getElementById("new-paid-toggle-price").value = "";
-        }
-
-        // Delete an item from the section
-        function deleteItem(button) {
-            const itemDiv = button.parentElement;
-            itemDiv.remove();
-        }
-
-        // Collect the items to send to the backend
-        async function addItem() {
-            const params = new URLSearchParams(window.location.search);
-
-            const updatedData = {
-                itemName: document.getElementById("item-name").value,
-                category: document.getElementById("category").value,
-                price: parseFloat(document.getElementById("item-price").value),
-                freeItems: getUpdatedItems("free-items"),
-                freeToggleItems: getUpdatedToggleItems("free-toggle-items"),
-                paidItems: getUpdatedItems("paid-items"),
-                paidToggleItems: getUpdatedToggleItems("paid-toggle-items"),
-                itemImageUrl: document.getElementById("item-image-url").value,
-               
-            };
+    // gather paidItems as [{ name, price, selected }] but drop any blank‐name rows
+function getPaidArr() {
+  return Array.from(
+    document.querySelectorAll("#paid-items .item")
+  )
+  .map(div => {
+    const chk        = div.querySelector("input[type=checkbox]");
+    const priceInput = div.querySelector("input[type=number]");
+    const name       = chk.dataset.name || "";
+    const price      = parseFloat(priceInput.value) || 0;
+    return {
+      name: name.trim(),
+      price,
+      selected: chk.checked
+    };
+  })
+  .filter(item => item.name.length > 0);
+}
 
 
-            try {
-                const response = await fetch("http://127.0.0.1:5000/add-item", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({  
-                        update_fields: updatedData
-                    })
-                });
+    async function addItem() {
+      const toggles = getToggleArr();
+      const data = {
+        itemName:       document.getElementById("item-name").value.trim(),
+        category:       document.getElementById("category").value.trim(),
+        price:          parseFloat(document.getElementById("item-price").value) || 0,
+        itemImageUrl:   document.getElementById("item-image-url").value.trim(),
+        freeItems:      getItemsObj("free-items"),
+        freeToggleItems:   toggles.filter(t=>t.price===0),
+        paidToggleItems:   toggles.filter(t=>t.price>0),
+        paidItems:      getPaidArr()
+      };
 
-                const result = await response.json();
-                alert(result.message);
-            } catch (error) {
-                console.error("Error adding item:", error);
-                //alert("Failed to add item.");
-            }
-        }
+      try {
+        const res = await fetch("http://127.0.0.1:5000/add-item", {
+          method: "POST",
+          headers: { "Content-Type":"application/json" },
+          body: JSON.stringify({ update_fields: data })
+        });
+        const result = await res.json();
+        alert(result.message||"Saved!");
+      } catch(e) {
+        console.error(e);
+        alert("Failed to save.");
+      }
+    }
 
-        // Get selected (checked) items from a container
-        function getUpdatedItems(containerId) {
-            const items = {};
-            document.getElementById(containerId).querySelectorAll("input[type='checkbox']").forEach(input => {
-                items[input.getAttribute("data-name")] = input.checked;
-            });
-            return items;
-        }
-
-        // Get selected toggle items from a container
-        function getUpdatedToggleItems(containerId) {
-            const toggleItems = [];
-            document.getElementById(containerId).querySelectorAll("div").forEach(div => {
-                const name = div.querySelector("input[type='checkbox']").getAttribute("data-name");
-                const type = div.querySelector("input[type='checkbox']").getAttribute("data-type");
-                const selected = div.querySelector("input[type='checkbox']").checked;
-                const priceInput = div.querySelector("input[type='number']");
-                const price = priceInput ? parseFloat(priceInput.value) : 0;
-
-                toggleItems.push({ name, type, selected, price });
-            });
-            return toggleItems;
-        }
-
-        window.onload = () => {
-            // Any initial setup if needed
-        };
-    </script>
+    window.onload = ()=>{};
+  </script>
 </body>
-
 </html>

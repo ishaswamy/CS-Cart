@@ -43,8 +43,24 @@ def add_to_cart(product, username,quantity=None):
         quantity=1
     
     cartCollection.insert_one(product)
+    # compute extras cost
+    extras_cost = 0.0
+    for extra in product.get("paidItems", []):
+        if extra.get("selected", False):
+            extras_cost += float(extra.get("price", 0.0))
+    for toggle in product.get("paidToggleItems", []):
+        if toggle.get("selected", False):
+            extras_cost += float(toggle.get("price", 0.0))
 
+    base_price = float(product.get("price", 0.0))
+    product["totalPrice"] = (base_price + extras_cost) * quantity
+
+    # insert into cart
+    cartCollection.insert_one(product)
     return {"message": "Item successfully added to cart"}
+
+
+
 
 # Marks items for checkout by giving them an orderID.
 def checkout(username):
@@ -65,12 +81,9 @@ def checkout(username):
 
 # Retrieves all items in the cart for the specified username
 def get_cart_items(username):
-    cart_items = list(cartCollection.find({"username": username}))  # Fetch cart items from MongoDB
-    
-    # Remove the "_id" field from each item to make the response cleaner
+    cart_items = list(cartCollection.find({"username": username}))
     for item in cart_items:
         item.pop("_id", None)
-
     return cart_items
 
 # Deletes a specific item from the user's cart based on itemID
