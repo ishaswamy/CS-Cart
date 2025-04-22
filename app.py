@@ -381,6 +381,18 @@ def delete_category():
         return jsonify(result), 404
     return jsonify(result), 200
 
+@app.route('/delete-menu-item', methods=['POST'])
+def delete_menu_item():
+    data = request.get_json()
+    itemName = data.get("itemName")
+    if not itemName:
+        return jsonify({"error": "Missing itemName"}), 400
+
+    businessID = getBusinessID()
+    result = menu.deleteItem(itemName, businessID)
+    status = 200 if "message" in result else 404
+    return jsonify(result), status
+
 
 if __name__ == "__main__":
     app.run(debug=True)  

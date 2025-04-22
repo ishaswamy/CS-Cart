@@ -129,10 +129,26 @@ def addCategory(categoryName,businessID,categoryImageURL):
         return{"message":"Item "+categoryName+" already exists in the menu."}
 
 def deleteCategory(categoryName, businessID):
-    result = categoryCollection.delete_one({
+    # delete items in this category 
+    items_result = menuCollection.delete_many({
+        "businessID": businessID,
+        "category": categoryName
+    })
+    items_deleted = items_result.deleted_count
+
+    #delete category
+    category_result = categoryCollection.delete_one({
         "category": categoryName,
         "businessID": businessID
     })
-    if result.deleted_count == 1:
-        return {"message": f"Category {categoryName} successfully deleted"}
-    return {"error": f"Category {categoryName} not found"}
+    category_deleted = category_result.deleted_count
+    if category_deleted == 1:
+        return {
+            "message": (
+                f"Category '{categoryName}' deleted, "
+                f"{items_deleted} item{'s' if items_deleted!=1 else ''} removed."
+            )
+        }
+    else:
+        # no category to delete
+        return {"error": f"Category '{categoryName}' not found"}

@@ -29,60 +29,117 @@
     <div class="menu-container"></div>
 
     <script>
+
         async function fetchUser() {
-            try {
-                const response = await fetch("http://127.0.0.1:5000/account", {
-                    method: "GET",
-                    credentials: "include"
-                });
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                const data = await response.json();
-                return data.message.split(' ')[1];
-            } catch (error) {
-                console.error("Error fetching user:", error);
-            }
+            const resp = await fetch("http://127.0.0.1:5000/account", {
+                method: "GET",
+                credentials: "include"
+            });
+            if (!resp.ok) throw new Error("Not logged in");
+            const { message } = await resp.json();
+            return message.split(" ")[1];
         }
+
 
         async function fetchMenu(username) {
-            try {
-                const response = await fetch(`http://127.0.0.1:5000/get-menu?username=${username}`);
-                const data = await response.json();
+            const resp = await fetch(
+                `http://127.0.0.1:5000/get-menu?username=${username}`,
+                { credentials: "include" }
+            );
+            const { menuItems } = await resp.json();
+            const menuContainer = document.querySelector(".menu-container");
+            menuContainer.innerHTML = "";
 
-                if (data.error) {
-                    console.error("Error fetching menu:", data.error);
-                    return;
-                }
+            menuItems.forEach(item => {
+                const itemDiv = document.createElement("div");
+                itemDiv.classList.add("menu-item");
+                itemDiv.innerHTML = `
+        <img src="${item.itemImageUrl}" alt="${item.itemName}" />
+        <h3>${item.itemName}</h3>
+      `;
 
-                const menuContainer = document.querySelector(".menu-container");
-                menuContainer.innerHTML = "";
+                // Edit button
+                const editBtn = document.createElement("button");
+                editBtn.innerText = "Edit";
+                editBtn.onclick = () =>
+                    window.location.href =
+                    `/BusinessItemCustomization.html?itemID=${item.itemID}`;
+                itemDiv.appendChild(editBtn);
 
-                data.menuItems.forEach(item => {
-                    const itemDiv = document.createElement("div");
-                    itemDiv.classList.add("menu-item");
+                // Delete button
+                const delBtn = document.createElement("button");
+                delBtn.innerText = "Delete";
+                delBtn.onclick = async () => {
+                    if (!confirm(`Delete "${item.itemName}"?`)) return;
+                    const r = await fetch(
+                        "http://127.0.0.1:5000/delete-menu-item",
+                        {
+                            method: "POST",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ itemName: item.itemName })
+                        }
+                    );
+                    const res = await r.json();
+                    alert(res.message || res.error);
+                    if (r.ok) {
+                        const user = await fetchUser();
+                        await fetchCategories(user);
+                        await fetchMenu(user);
+                    }
+                };
+                itemDiv.appendChild(delBtn);
 
-                    const itemImage = document.createElement("img");
-                    itemImage.src = item.itemImageUrl || "https://images.pexels.com/photos/1639565/pexels-photo-1639565.jpeg?cs=srgb&dl=pexels-valeriya-1639565.jpg&fm=jpg";
-                    itemImage.alt = item.itemName;
-
-                    const itemName = document.createElement("h3");
-                    itemName.innerText = item.itemName;
-
-                    const editButton = document.createElement("button");
-                    editButton.innerText = "Edit";
-                    editButton.onclick = () => {
-                        window.location.href = `/BusinessItemCustomization.html?itemID=${item.itemID}`;
-                    };
-
-                    itemDiv.appendChild(itemImage);
-                    itemDiv.appendChild(itemName);
-                    itemDiv.appendChild(editButton);
-
-                    menuContainer.appendChild(itemDiv);
-                });
-            } catch (error) {
-                console.error("Error fetching menu:", error);
-            }
+                menuContainer.appendChild(itemDiv);
+            });
         }
+
+        async function fetchCategories(username) {
+            const resp = await fetch("http://127.0.0.1:5000/get-categories", {
+                credentials: "include"
+            });
+            const { categories } = await resp.json();
+            const catContainer = document.querySelector(".category-container");
+            catContainer.innerHTML = "";
+
+            categories.forEach(cat => {
+                const div = document.createElement("div");
+                div.classList.add("menu-item");
+                div.innerHTML = `
+        <img src="${cat.categoryImageURL}" alt="${cat.category}" />
+        <h3>${cat.category}</h3>
+        <button class="del">Delete</button>
+      `;
+                div.querySelector(".del").onclick = async () => {
+                    if (!confirm(`Delete category "${cat.category}"?`)) return;
+                    const r = await fetch("http://127.0.0.1:5000/delete-category", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ category: cat.category })
+                    });
+                    const res = await r.json();
+                    alert(res.message || res.error);
+                    if (r.ok) {
+                        // *both* lists reload here
+                        await fetchCategories(username);
+                        await fetchMenu(username);
+                    }
+                };
+                catContainer.appendChild(div);
+            });
+        }
+
+        window.onload = async () => {
+            try {
+                const user = await fetchUser();
+                await fetchMenu(user);
+                await fetchCategories(user);
+            } catch (e) {
+                alert("Please log in first.");
+            }
+        };
+
 
         async function addCategory() {
             const name = document.getElementById("category-name").value.trim();
@@ -127,55 +184,8 @@
             }
         }
 
-        async function fetchCategories() {
-            const resp = await fetch("http://127.0.0.1:5000/get-categories");
-            const data = await resp.json();
-            const container = document.querySelector(".category-container");
-            container.innerHTML = "";
-
-            data.categories.forEach(cat => {
-                const div = document.createElement("div");
-                div.classList.add("menu-item");
-
-                const img = document.createElement("img");
-                img.src = cat.categoryImageURL;
-                img.alt = cat.category;
-
-                const label = document.createElement("h3");
-                label.textContent = cat.category;
-
-                const delBtn = document.createElement("button");
-                delBtn.innerText = "Delete";
-                delBtn.onclick = async () => {
-                    if (!confirm(`Delete category "${cat.category}"?`)) return;
-                    const res = await fetch("http://127.0.0.1:5000/delete-category", {
-                        method: "POST",
-                        credentials: "include",                
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ category: cat.category })
-                    });
-
-                    const result = await res.json();
-                    alert(result.message || result.error);
-                    fetchCategories();
-                };
-
-                div.append(img, label, delBtn);
-                container.appendChild(div);
-            });
-        }
 
 
-
-        window.onload = async () => {
-            const user = await fetchUser();
-            if (user) {
-                fetchMenu(user);
-                fetchCategories();
-            } else {
-                alert("Failed to fetch user. Please log in first.");
-            }
-        };
     </script>
 </body>
 
