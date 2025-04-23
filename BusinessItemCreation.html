@@ -187,13 +187,20 @@ function getPaidArr() {
 
     window.onload = async ()=>{
       try {
-        const res = await fetch("http://127.0.0.1:5000/accountType");
-        const data = await res.json();
-        if (data.accountType !== "employee") {
-          alert("Access denied. You are not authorized to view this page.");
-          window.location.href = "index.html"; // Redirect to homepage or login
-          return;
-        }
+          // Check the account type
+          const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
+              method: "GET",
+              credentials: "include"  // Include cookies (session)
+          });
+
+          const accountData = await accountResponse.json();
+          const userType = accountData.accountType;
+
+          // If the user is not 'owner' or 'employee', redirect them to an unauthorized page
+          if (userType !== "owner") {
+              window.location.href = "UnauthorizedPage.html";  // Redirect to an Unauthorized page
+              return;  // Prevent further page loading
+          }
         fetchOrders(); // Proceed to load orders only if authorized
       } catch (e) {
         console.error("Error checking account type", e);
@@ -208,12 +215,6 @@ function getPaidArr() {
 
         const accountData = await accountResponse.json();
         const userType = accountData.accountType;
-
-        // If the user is not 'owner' or 'employee', redirect them to an unauthorized page
-        if (userType !== "owner") {
-            window.location.href = "UnauthorizedPage.html";  // Redirect to an Unauthorized page
-            return;  // Prevent further page loading
-        }
 
         // Otherwise, load the content (this is a safe page for owners/employees)
         console.log("User type authorized:", userType);
