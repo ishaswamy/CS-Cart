@@ -37,62 +37,68 @@
 
     <script>
         window.onload = async () => {
+            let id;
             try {
-            // Check the account type
-            const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
-                method: "GET",
-                credentials: "include"  // Include cookies (session)
-            });
-
-            const accountData = await accountResponse.json();
-            const userType = accountData.accountType;
-
-            // If the user is not 'owner' or 'employee', redirect them to an unauthorized page
-            if (userType !== "owner") {
-                window.location.href = "UnauthorizedPage.html";  // Redirect to an Unauthorized page
-                return;  // Prevent further page loading
-            }
-
-            // Otherwise, load the content (this is a safe page for owners/employees)
-            console.log("User type authorized:", userType);
-        } catch (error) {
-            console.error("Error loading account type:", error);
-            window.location.href = "LoginPage.html";  // Fallback if the user is not logged in
-        }
-        };
-
-        document.getElementById("employeeSignupForm").addEventListener("submit", async function (event) {
-            event.preventDefault();
-
-            const formData = {
-                username: document.getElementById("username").value,
-                password: document.getElementById("password").value,
-                fullName: document.getElementById("name").value,
-                birthday: document.getElementById("birthday").value,
-                businessID: "1"  // Hardcoded for now
-
-
-                
-            };
-
-            try {
-                const response = await fetch("http://127.0.0.1:5000/register_employee", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(formData)
+                // Check the account type
+                const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
+                    method: "GET",
+                    credentials: "include"  // Include cookies (session)
                 });
 
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message);
-                } else {
-                    alert(result.error);
+                const accountData = await accountResponse.json();
+                const userType = accountData.accountType;
+
+                // If the user is not 'owner' or 'employee', redirect them to an unauthorized page
+                if (userType !== "owner") {
+                    window.location.href = "UnauthorizedPage.html";  // Redirect to an Unauthorized page
+                    return;  // Prevent further page loading
                 }
+                const response = await fetch("http://127.0.0.1:5000/business-id", {
+                    credentials: "include"
+                });
+                const business = await response.json();
+                id = business.businessID;
+                // Otherwise, load the content (this is a safe page for owners/employees)
+                console.log("User type authorized:", userType);
             } catch (error) {
-                console.error("Error:", error);
-                alert("Something went wrong. Please try again.");
+                console.error("Error loading account type:", error);
+                window.location.href = "LoginPage.html";  // Fallback if the user is not logged in
             }
-        });
+            document.getElementById("employeeSignupForm").addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const formData = {
+                    username: document.getElementById("username").value,
+                    password: document.getElementById("password").value,
+                    fullName: document.getElementById("name").value,
+                    birthday: document.getElementById("birthday").value,
+                    businessID: id
+
+
+
+                };
+
+                try {
+                    const response = await fetch("http://127.0.0.1:5000/register_employee", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert(result.message);
+                    } else {
+                        alert(result.error);
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("Something went wrong. Please try again.");
+                }
+            });
+        };
+
 
     </script>
 </body>

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CS-Cart - Sign Up</title>
     <link rel="stylesheet" type="text/css" href="styles/signup_style.css">
 </head>
+
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
     <div class="container">
@@ -21,8 +23,8 @@
 
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required placeholder="Enter your password"
-                   pattern="^(?=.*[A-Z])(?=.*[\W_]).{8,}$" 
-                   title="Password must be at least 8 characters long, include one uppercase letter and one special character (e.g., !, @, #, $, etc.)">
+                pattern="^(?=.*[A-Z])(?=.*[\W_]).{8,}$"
+                title="Password must be at least 8 characters long, include one uppercase letter and one special character (e.g., !, @, #, $, etc.)">
             <br>
 
             <label for="name">Full Name</label>
@@ -33,28 +35,25 @@
             <input type="date" id="birthday" name="birthday" required>
             <br>
 
-            <label for="restaurant">Select Restaurant</label>
-            <select id="restaurant" name="restaurant" required>
-                <option value="">-- Choose a Restaurant --</option>
-                <option value="pizza">Pizza Place</option>
-                <option value="burger">Burger Joint</option>
-                <option value="sushi">Sushi Spot</option>
-                <option value="mexican">Mexican Grill</option>
-                <option value="vegan">Vegan Bistro</option>
+            <label for="business">Select Business</label>
+            <select id="business" name="businessID" required>
+                <option value="">-- Choose a Business --</option>
+
             </select>
             <br>
 
+
             <button type="submit">Sign Up</button>
         </form>
-        
+
         <div class="form-footer">
             <p>Already have an account? <a href="LoginPage.html">Login here</a></p>
         </div>
     </div>
 
     <script>
-        document.getElementById("signupForm").addEventListener("submit", async function(event) {
-            event.preventDefault(); 
+        document.getElementById("signupForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
 
             const formData = {
                 username: document.getElementById("username").value,
@@ -66,7 +65,7 @@
             };
 
             try {
-                const response = await fetch("http://127.0.0.1:5000/signup", { 
+                const response = await fetch("http://127.0.0.1:5000/signup", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(formData)
@@ -75,7 +74,7 @@
                 const result = await response.json();
                 if (response.ok) {
                     alert(result.message);
-                    window.location.href = "LoginPage.html"; 
+                    window.location.href = "LoginPage.html";
                 } else {
                     alert(result.error);
                 }
@@ -84,6 +83,42 @@
                 alert("Something went wrong. Please try again.");
             }
         });
+        async function loadBusinesses() {
+            try {
+                const resp = await fetch("http://127.0.0.1:5000/get-businesses");
+                const { businesses } = await resp.json();
+                const sel = document.getElementById("business");
+                businesses.forEach(b => {
+                    const opt = document.createElement("option");
+                    opt.value = b.businessID;
+                    opt.textContent = b.businessName;
+                    sel.appendChild(opt);
+                });
+            } catch (e) {
+                console.error("Failed to load businesses:", e);
+            }
+        }
+
+        window.onload = async () => {
+            await loadBusinesses();
+
+
+            document.getElementById("signupForm").addEventListener("submit", async event => {
+                event.preventDefault();
+
+                const formData = {
+                    username: document.getElementById("username").value,
+                    email: document.getElementById("email").value,
+                    password: document.getElementById("password").value,
+                    name: document.getElementById("name").value,
+                    birthday: document.getElementById("birthday").value,
+                    businessID: document.getElementById("business").value 
+                };
+
+            });
+        };
+
     </script>
 </body>
+
 </html>

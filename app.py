@@ -23,12 +23,19 @@ app.config["SESSION_COOKIE_SECURE"] = False  # Set to True in production with HT
 CORS(app, supports_credentials=True)  # Allow session cookies
 
 #Hardcoded businessID. Changing this changes what business is currently being accessed.
-BUSINESSID="1"
+BUSINESSID="2"
 
 #Returns current businessID for use in python scripts.
 def getBusinessID():
     return str(BUSINESSID)
 
+@app.route('/get-businesses', methods=['GET'])
+def get_businesses():
+    from connectModule import mongoConnect
+    business_col = mongoConnect("Businesses", "businessInfo")
+    # pull only the ID and name
+    docs = list(business_col.find({}, {"_id":0, "businessID":1, "businessName":1}))
+    return jsonify({"businesses": docs}), 200
 
 #Reads addons that are selected true for display under orders.
 def readAddons(product):
@@ -105,6 +112,10 @@ def get_specific_items():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/business-id', methods=['GET'])
+def business_id():
+    
+    return jsonify({"businessID": getBusinessID()}), 200
 
 @app.route('/get-item')
 def get_item():

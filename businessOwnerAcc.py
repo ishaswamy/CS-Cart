@@ -74,8 +74,8 @@ def taxCalculation(zipCode):
 
 
 def register_employee(username, password, fullName, birthday, businessID):
-    #businessName = businessInfoCollection.find_one({"businessID": businessID},{"businessName":1,"_id":0})["businessName"]
-    businessName = "shoobydooby"#i put this here for testing purposes since the commented out line above was throwing errors
+    businessName = businessInfoCollection.find_one({"businessID": businessID},{"businessName":1,"_id":0})["businessName"]
+    
     #password encryption object called
     hashed_password = pwd_encrypt.hash(password) 
 
