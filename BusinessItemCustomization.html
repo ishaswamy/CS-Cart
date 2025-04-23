@@ -1,204 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customize Menu Item</title>
-    <link rel="stylesheet" type="text/css" href="styles/business_item_customization.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Customize Menu Item</title>
+  <link rel="stylesheet" href="styles/business_item_customization.css">
 </head>
-
 <body>
-    <iframe src="HeaderMenu.html" class="header-frame"></iframe>
+  <iframe src="HeaderMenu.html" class="header-frame"></iframe>
+  <div class="container">
+    <h1>
+      Name: <input type="text" id="item-name" placeholder="Item Name" value="Loading…">
+    </h1>
+    <p>
+      Category:
+      <select id="item-category"><option>Loading…</option></select>
+    </p>
+    <p>
+      Price: $<input type="number" id="item-price" step="0.01">
+    </p>
+    <p>
+      Image URL:
+      <input type="url" id="item-image-url" placeholder="https://…">
+    </p>
 
-    <div class="container">
-        <h1><input type="text" id="item-name" value="Loading..."></h1>
-        <img id="item-image" src="" alt="Item Image">
-        <p>Price: $<input type="number" id="item-price" step="0.01"></p>
-
-        <div class="item-section">
-            <h2>Included Items</h2>
-            <div id="free-items"></div>
-        </div>
-
-        <div class="item-section">
-            <h2>Free Toggle Items</h2>
-            <div id="free-toggle-items"></div>
-        </div>
-
-        <div class="item-section">
-            <h2>Paid Extras</h2>
-            <div id="paid-items"></div>
-        </div>
-
-        <div class="item-section">
-            <h2>Paid Toggle Extras</h2>
-            <div id="paid-toggle-items"></div>
-        </div>
-
-        <button onclick="updateItem()">Update Item</button>
+    <div class="item-section">
+      <h2>Included Items</h2>
+      <input type="text" id="new-free-item-name" placeholder="New free item">
+      <button onclick="addFreeItem()">Add</button>
+      <div id="free-items"></div>
     </div>
 
-    <script>
+    <!-- toggle items-->
+    <div class="item-section">
+      <h2>Free Toggle Items (one per type)</h2>
+      <input type="text" id="new-toggle-type" placeholder="Type (e.g. bun)">
+      <input type="text" id="new-toggle-name" placeholder="Name">
+      <input type="number" id="new-toggle-price" placeholder="Price" step="0.01">
+      <button onclick="addToggleItem()">Add</button>
+      <div id="toggle-items"></div>
+    </div>
 
-        async function fetchItemDetails(itemID) {
-            try {
-                const response = await fetch(`http://127.0.0.1:5000/get-item?itemID=${itemID}`);
+    <!-- PAID items -->
+    <div class="item-section">
+      <h2>Extras (multiple)</h2>
+      <input type="text" id="new-paid-item-name" placeholder="Name">
+      <input type="number" id="new-paid-item-price" placeholder="Price" step="0.01">
+      <button onclick="addPaidItem()">Add</button>
+      <div id="paid-items"></div>
+    </div>
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+    <button onclick="updateItem()">Update Item</button>
+  </div>
 
-                const item = await response.json();
+  <script>
+    
+    function deleteItem(btn) {
+      btn.parentElement.remove();
+    }
 
-                if (!item || Object.keys(item).length === 0) {
-                    alert("Item not found.");
-                    return;
-                }
+    function addFreeItem() {
+      const name = document.getElementById("new-free-item-name").value.trim();
+      if (!name) return;
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <label>
+          <input type="checkbox" data-name="${name}" checked> ${name}
+        </label>
+        <button onclick="deleteItem(this)">Delete</button>
+      `;
+      document.getElementById("free-items").appendChild(div);
+      document.getElementById("new-free-item-name").value = "";
+    }
 
-                document.getElementById("item-name").value = item.itemName;
-                document.getElementById("item-price").value = item.price.toFixed(2);
-                document.getElementById("item-image").src = item.itemImageUrl || "default-image.jpg";
+    function addToggleItem() {
+      const type = document.getElementById("new-toggle-type").value.trim();
+      const name = document.getElementById("new-toggle-name").value.trim();
+      const price = parseFloat(document.getElementById("new-toggle-price").value);
+      if (!type||!name||isNaN(price)) return;
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <label>
+          <input type="checkbox" data-name="${name}" data-type="${type}" checked> ${name}
+        </label>
+        $<input type="number" value="${price.toFixed(2)}" step="0.01">
+        <button onclick="deleteItem(this)">Delete</button>
+      `;
+      document.getElementById("toggle-items").appendChild(div);
+      document.getElementById("new-toggle-type").value =
+      document.getElementById("new-toggle-name").value =
+      document.getElementById("new-toggle-price").value = "";
+    }
 
-                populateItems("free-items", item.freeItems, true);
-                populateToggleItems("free-toggle-items", item.freeToggleItems, true);
-                populateItems("paid-items", item.paidItems, false);
-                populateToggleItems("paid-toggle-items", item.paidToggleItems, false);
+    function addPaidItem() {
+      const name = document.getElementById("new-paid-item-name").value.trim();
+      const price = parseFloat(document.getElementById("new-paid-item-price").value);
+      if (!name||isNaN(price)) return;
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <label>
+          <input type="checkbox" data-name="${name}" checked> ${name}
+        </label>
+        $<input type="number" value="${price.toFixed(2)}" step="0.01">
+        <button onclick="deleteItem(this)">Delete</button>
+      `;
+      document.getElementById("paid-items").appendChild(div);
+      document.getElementById("new-paid-item-name").value =
+      document.getElementById("new-paid-item-price").value = "";
+    }
 
-            } catch (error) {
-                console.error("Error fetching item details:", error);
-                alert("Failed to load item details.");
-            }
-        }
-
-        function populateItems(containerId, items, isFree) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = "";
-            if (items) {
-                Object.entries(items).forEach(([name, included]) => {
-                    const div = document.createElement("div");
-                    div.innerHTML = `
-                        <label>${name}: </label>
-                        <input type="checkbox" ${included ? "checked" : ""} data-name="${name}">
-                    `;
-                    container.appendChild(div);
-                });
-            }
-        }
-
-        function populateToggleItems(containerId, toggleItems, isFree) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = "";
-            (toggleItems || []).forEach(toggle => {
-                const div = document.createElement("div");
-                div.innerHTML = `
-                    <label>${toggle.name} (${toggle.type}): </label>
-                    <input type="checkbox" ${toggle.selected ? "checked" : ""} data-name="${toggle.name}" data-type="${toggle.type}">
-                    ${isFree ? "" : `<input type="number" value="${toggle.price.toFixed(2)}" step="0.01">`}
-                `;
-                container.appendChild(div);
-            });
-        }
-
-
-        async function updateItem() {
-            const params = new URLSearchParams(window.location.search);
-            const itemID = params.get("itemID");  
-
-            if (!itemID) {                     
-                alert("Invalid Item ID.");
-                return;
-            }
-
-            const updatedData = {
-                itemName: document.getElementById("item-name").value,
-                price: parseFloat(document.getElementById("item-price").value),
-                freeItems: getUpdatedItems("free-items"),
-                freeToggleItems: getUpdatedToggleItems("free-toggle-items"),
-                paidItems: getUpdatedItems("paid-items"),
-                paidToggleItems: getUpdatedToggleItems("paid-toggle-items")
-            };
-
-            try {
-                const res = await fetch("http://127.0.0.1:5000/update-item", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        itemID: itemID,          
-                        update_fields: updatedData
-                    })
-                });
-                alert((await res.json()).message);
-            } catch (err) {
-                console.error("Update failed:", err);
-                alert("Failed to update item.");
-            }
-        }
-
-       
-
-        function getUpdatedItems(containerId) {
-            const items = {};
-            document.getElementById(containerId).querySelectorAll("input[type='checkbox']").forEach(input => {
-                items[input.getAttribute("data-name")] = input.checked;
-            });
-            return items;
-        }
-
-        function getUpdatedToggleItems(containerId) {
-            const toggleItems = [];
-            document.getElementById(containerId).querySelectorAll("div").forEach(div => {
-                const name = div.querySelector("input[type='checkbox']").getAttribute("data-name");
-                const type = div.querySelector("input[type='checkbox']").getAttribute("data-type");
-                const selected = div.querySelector("input[type='checkbox']").checked;
-                const priceInput = div.querySelector("input[type='number']");
-                const price = priceInput ? parseFloat(priceInput.value) : 0;
-
-                toggleItems.push({ name, type, selected, price });
-            });
-            return toggleItems;
-        }
-
-     
-
-        window.onload = async () => {
-            const params = new URLSearchParams(window.location.search);
-            const itemID = params.get("itemID");  
-            if (itemID) fetchItemDetails(itemID);
-            else alert("Invalid Item ID.");
-            
-            try {
-                const user = await fetchUser();
-                await fetchMenu(user);
-                await fetchCategories(user);
-            } catch (e) {
-                alert("Please log in first.");
-            }
-            try {
-            // Check the account type
-            const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
-                method: "GET",
-                credentials: "include"  // Include cookies (session)
-            });
-
-            const accountData = await accountResponse.json();
-            const userType = accountData.accountType;
-
-            // If the user is not 'owner' or 'employee', redirect them to an unauthorized page
-            if (userType !== "owner") {
-                window.location.href = "UnauthorizedPage.html";  // Redirect to an Unauthorized page
-                return;  // Prevent further page loading
-            }
-
-            // Otherwise, load the content (this is a safe page for owners/employees)
-            console.log("User type authorized:", userType);
-        } catch (error) {
-            console.error("Error loading account type:", error);
-            window.location.href = "LoginPage.html";  // Fallback if the user is not logged in
-        }
+    function getItemsObj(containerId) {
+      const o = {};
+      document.getElementById(containerId)
+        .querySelectorAll("input[type=checkbox]").forEach(cb => {
+          o[cb.dataset.name] = cb.checked;
+        });
+      return o;
+    }
+    function getToggleArr() {
+      return Array.from(
+        document.querySelectorAll("#toggle-items .item")
+      ).map(div => {
+        const cb = div.querySelector("input[type=checkbox]");
+        const price = parseFloat(div.querySelector("input[type=number]").value)||0;
+        return {
+          name: cb.dataset.name,
+          type: cb.dataset.type,
+          selected: cb.checked,
+          price
         };
+      });
+    }
+    function getPaidArr() {
+      return Array.from(
+        document.querySelectorAll("#paid-items .item")
+      ).map(div => {
+        const cb = div.querySelector("input[type=checkbox]");
+        const price = parseFloat(div.querySelector("input[type=number]").value)||0;
+        return { name: cb.dataset.name, price, selected: cb.checked };
+      });
+    }
 
-    </script>
+
+    async function fetchCategories() {
+      const resp = await fetch("http://127.0.0.1:5000/get-categories",{
+        credentials:"include"
+      });
+      const { categories } = await resp.json();
+      const sel = document.getElementById("item-category");
+      sel.innerHTML = categories
+        .map(c=>`<option value="${c.category}">${c.category}</option>`)
+        .join("");
+    }
+
+    // FETCH item details & prefill everything
+    async function fetchItemDetails(itemID) {
+      await fetchCategories();
+      const res = await fetch(`http://127.0.0.1:5000/get-item?itemID=${itemID}`);
+      const item = await res.json();
+      // basic fields
+      document.getElementById("item-name").value = item.itemName;
+      document.getElementById("item-price").value = item.price.toFixed(2);
+      document.getElementById("item-image-url").value = item.itemImageUrl;
+      document.getElementById("item-category").value = item.category;
+      // sections
+      populateItems("free-items", item.freeItems);
+      populateToggleItems("toggle-items", item.freeToggleItems);
+      populatePaid("paid-items", item.paidItems);
+    }
+    function populateItems(id, o) {
+      const c = document.getElementById(id); c.innerHTML = "";
+      Object.entries(o||{}).forEach(([n,v])=>{
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <label>
+            <input type="checkbox" data-name="${n}" ${v?"checked":""}> ${n}
+          </label>
+          <button onclick="deleteItem(this)">Delete</button>
+        `;
+        c.appendChild(div);
+      });
+    }
+    function populateToggleItems(id, arr=[]) {
+      const c = document.getElementById(id); c.innerHTML = "";
+      arr.forEach(t=>{
+        const div = document.createElement("div");
+        div.className="item";
+        div.innerHTML = `
+          <label>
+            <input type="checkbox"
+                   data-name="${t.name}"
+                   data-type="${t.type}"
+                   ${t.selected?"checked":""}>
+            ${t.name} (${t.type})
+          </label>
+          $<input type="number"
+                  value="${(t.price||0).toFixed(2)}"
+                  step="0.01">
+          <button onclick="deleteItem(this)">Delete</button>
+        `;
+        c.appendChild(div);
+      });
+    }
+    function populatePaid(id, arr=[]) {
+      const c = document.getElementById(id); c.innerHTML = "";
+      arr.forEach(e=>{
+        const div = document.createElement("div");
+        div.className="item";
+        div.innerHTML = `
+          <label>
+            <input type="checkbox" data-name="${e.name}"
+                   ${e.selected?"checked":""}>
+            ${e.name}
+          </label>
+          $<input type="number"
+                  value="${(e.price||0).toFixed(2)}"
+                  step="0.01">
+          <button onclick="deleteItem(this)">Delete</button>
+        `;
+        c.appendChild(div);
+      });
+    }
+
+    // SEND update
+    async function updateItem() {
+      const params = new URLSearchParams(location.search);
+      const itemID = params.get("itemID");
+      const payload = {
+        itemID,
+        update_fields: {
+          itemName:     document.getElementById("item-name").value.trim(),
+          category:     document.getElementById("item-category").value,
+          price:        parseFloat(document.getElementById("item-price").value)||0,
+          itemImageUrl: document.getElementById("item-image-url").value.trim(),
+          freeItems:      getItemsObj("free-items"),
+          freeToggleItems: getToggleArr().filter(t=>t.price===0),
+          paidToggleItems: getToggleArr().filter(t=>t.price>0),
+          paidItems:      getPaidArr()
+        }
+      };
+      const res = await fetch("http://127.0.0.1:5000/update-item", {
+        method:"POST",
+        credentials: "include",      
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      });
+      const j = await res.json();
+      alert(j.message||j.error);
+    }
+
+    window.onload = () => {
+      const itemID = new URLSearchParams(location.search).get("itemID");
+      if (!itemID) return alert("Invalid itemID");
+      fetchItemDetails(itemID);
+    };
+  </script>
 </body>
-
 </html>

@@ -211,7 +211,7 @@
       paidExtrasSel.forEach(e => extrasCost += e.price);
       toggles.forEach(t => extrasCost += t.price);
       const qty = parseInt(document.getElementById('quantity').value);
-      const totalPrice = (base + extrasCost) * qty;
+      const totalPrice = (base + extrasCost);
 
       const product = {
         itemName:         document.getElementById('item-name').textContent,
