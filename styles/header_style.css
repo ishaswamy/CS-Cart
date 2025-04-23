@@ -9,7 +9,9 @@ header {
     box-sizing: border-box;
     margin: 0;
 }
- 
+
+
+
 .header-frame {
     width: 100%;
     height: auto; 
@@ -39,7 +41,8 @@ nav {
 
 .nav-button {
     display: inline-block;
-    padding: 10px 15px;
+    vertical-align: center;
+    padding: 10px 15px 10px 15px;
     background-color: #5c6bc0;
     color: white;
     text-decoration: none;
@@ -48,6 +51,10 @@ nav {
     font-weight: bold;
 }
 
+
+.cart-button{
+    padding-left: 15px;
+}
 .nav-button:hover {
     background-color: #4e61cb;
 }
