@@ -62,18 +62,23 @@ update_data = {
 '''
 
 
-def updateItem(item_id, update_fields):
-   result= menuCollection.update_one(
-        {"itemID":item_id}, #query
-        {"$set":update_fields}#Update fields here
-    ) 
-   
-   if result.matched_count==0:
+def updateItem(item_id, update_fields,account_type):
+    # Authorization check (You can check session or pass accountType here as well if needed)
+    if account_type != "owner":
+        return {"error": "Access denied. Only owners can update items."}
+
+    # Update item in the database
+    result = menuCollection.update_one(
+        {"itemID": item_id},  # Query
+        {"$set": update_fields}  # Update fields here
+    )
+
+    if result.matched_count == 0:
         return {"message": "Item Not Found"}
-   else:
+    else:
         match result.modified_count:
             case 0:
-                return {"message":"No changes made"}
+                return {"message": "No changes made"}
             case _:
                 return {"message": "Item successfully updated"}
     

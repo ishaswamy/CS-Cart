@@ -65,12 +65,6 @@ def markItemInProgress(itemID):
     )
     return {f"message": f"Item {itemID} has been marked as in progress."}
 
-# Marks item with given itemID as incomplete
-def markItemIncomplete(itemID):
-    orderCollection.update_one({"itemID": itemID}, 
-        {"$set": {"itemStatus": "incomplete"}}  
-    )
-    return {f"message": f"Item {itemID} has been marked as incomplete."}
 
 def clearOrder(orderID):
     
