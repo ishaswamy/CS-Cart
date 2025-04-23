@@ -6,6 +6,33 @@
   <title>Employee Order Management</title>
   <link rel="stylesheet" href="styles/status.css"/>
   <script>
+
+    window.onload = async () => {
+      try {
+        // Check the account type
+        const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
+            method: "GET",
+            credentials: "include"  // Include cookies (session)
+        });
+
+        const accountData = await accountResponse.json();
+        const userType = accountData.accountType;
+
+        // If the user is not 'owner' or 'employee', redirect them to an unauthorized page
+        if (userType !== "owner"&& userType!=="employee") {
+            window.location.href = "UnauthorizedPage.html";  // Redirect to an Unauthorized page
+            return;  // Prevent further page loading
+        }
+
+        // Otherwise, load the content (this is a safe page for owners/employees)
+        console.log("User type authorized:", userType);
+      } catch (error) {
+          console.error("Error loading account type:", error);
+          window.location.href = "LoginPage.html";  // Fallback if the user is not logged in
+      }
+      
+    };
+
     document.addEventListener("DOMContentLoaded", fetchOrders);
 
     function fetchOrders() {

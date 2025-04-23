@@ -35,10 +35,10 @@
                 <a href="CustomerOrderStatusPage.html" class="nav-button" target="_top">Order Status</a>
             </span>
             <span id="customize-products" style="display:none;">
-                <a href="BusinessMenuCustomization.html" class ="nav-button" target="_top"></a>
+                <a href="BusinessMenuCustomization.html" class ="nav-button" target="_top">Edit Products</a>
             </span>
             <span id="employee-signup" style="display:none;">
-                <a href="EmployeeSignUp.html" class ="nav-button" target="_top"></a>
+                <a href="EmployeeSignUp.html" class ="nav-button" target="_top">Employee Signup</a>
             </span>
             <span id="logout-button" style="display:none;">
                 <a id="logout-link" href="#" class="nav-button" onclick="logout()">Logout</a>
@@ -74,13 +74,14 @@
                     document.getElementById("login").style.display="none";
                 } else if (userType === "employee") {
                     document.getElementById("employee-order-status").style.display = "inline-block";
-                    document.getElementById("logout-link").style.display = "inline-block";
+                    document.getElementById("logout-button").style.display = "inline-block";
                     document.getElementById("login").style.display="none";
                 } else if (userType=== "owner"){
                     document.getElementById("customize-products").style.display="inline-block";
                     document.getElementById("employee-order-status").style.display = "inline-block";
                     document.getElementById("employee-signup").style.display="inline-block";
-                    document.getElementById("logout-link").style.display = "inline-block";
+                    document.getElementById("logout-button").style.display = "inline-block";
+                    document.getElementById("login").style.display="none";
 
                 } else {
                     // No logged in user
