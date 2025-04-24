@@ -23,19 +23,12 @@ app.config["SESSION_COOKIE_SECURE"] = False  # Set to True in production with HT
 CORS(app, supports_credentials=True)  # Allow session cookies
 
 #Hardcoded businessID. Changing this changes what business is currently being accessed.
-BUSINESSID="2"
+BUSINESSID="1"
 
 #Returns current businessID for use in python scripts.
 def getBusinessID():
     return str(BUSINESSID)
 
-@app.route('/get-businesses', methods=['GET'])
-def get_businesses():
-    from connectModule import mongoConnect
-    business_col = mongoConnect("Businesses", "businessInfo")
-    # pull only the ID and name
-    docs = list(business_col.find({}, {"_id":0, "businessID":1, "businessName":1}))
-    return jsonify({"businesses": docs}), 200
 
 #Reads addons that are selected true for display under orders.
 def readAddons(product):
@@ -112,10 +105,6 @@ def get_specific_items():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/business-id', methods=['GET'])
-def business_id():
-    
-    return jsonify({"businessID": getBusinessID()}), 200
 
 @app.route('/get-item')
 def get_item():
@@ -132,15 +121,6 @@ def get_item():
 
 @app.route('/update-item', methods=['POST'])
 def update_item():
-    # Authorization check
-    if "user" not in session:
-        return jsonify({"error": "Unauthorized. Please log in."}), 401
-
-    account_type = get_accountType(session["user"])
-    if account_type != "owner":
-        return jsonify({"error": "Access denied. Only owners can update items."}), 403
-
-    # Extract data
     data = request.json
     item_id = data.get("itemID")              
     if not item_id:
@@ -150,8 +130,7 @@ def update_item():
     if not update_fields:
         return jsonify({"message": "No fields provided"}), 400
 
-    # Perform update
-    result = menu.updateItem(item_id, update_fields,account_type)  
+    result = menu.updateItem(item_id, update_fields)  
     return jsonify(result), 200
 
 
@@ -275,43 +254,23 @@ def get_order_status():
 
 @app.route("/update-item-status", methods=["POST"])
 def update_item_status():
-    # Authorization Check
-    if "user" not in session:
-        return jsonify({"error": "Unauthorized. Please log in."}), 401
-
-    account_type = get_accountType(session["user"])
-    if account_type not in ["owner", "employee"]:
-        return jsonify({"error": "Access denied. Only owners or employees can update item status."}), 403
-
-    # Request Data
     data = request.json
-    itemID = data.get("itemID")
-    newStatus = data.get("itemStatus")
+    itemID   = data["itemID"]
+    newStatus = data["itemStatus"]
 
-    if not itemID or not newStatus:
-        return jsonify({"error": "Missing itemID or itemStatus"}), 400
-
-    # Status Update Logic
     if newStatus == "completed":
         result = status.markItemCompleted(itemID)
     elif newStatus == "in_progress":
         result = status.markItemInProgress(itemID)
+    elif newStatus == "incomplete":
+        result = status.markItemIncomplete(itemID)
     else:
         return jsonify({"error": "Invalid status"}), 400
 
     return jsonify(result), 200
 
-
 @app.route("/clear-order", methods=["POST"])
 def clear_order():
-    # Authorization Check
-    if "user" not in session:
-        return jsonify({"error": "Unauthorized. Please log in."}), 401
-
-    account_type = get_accountType(session["user"])
-    if account_type not in ["owner", "employee"]:
-        return jsonify({"error": "Access denied. Only owners or employees can clear orders."}), 403
-
     try:
         data = request.json
         orderID = data.get("orderID")
@@ -322,27 +281,17 @@ def clear_order():
         if "message" in result:
             return jsonify(result), 200
         else:
-            return jsonify({"error": result.get("error", "Unknown error")}), 500
+            return jsonify({"error": result.get("error","Unknown error")}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 @app.route('/register_employee', methods=['POST'])
 def register_employee_route():
-    # Authorization Check
-    if "user" not in session:
-        return jsonify({"error": "Unauthorized. Please log in."}), 401
-
-    account_type = get_accountType(session["user"])
-    if account_type != "owner":
-        return jsonify({"error": "Access denied. Only owners can register employees."}), 403
-
-    # Data Validation
     data = request.json
     if not all(k in data for k in ["username", "password", "fullName", "birthday", "businessID"]):
         return jsonify({"error": "Missing required fields"}), 400
 
-    # Register Employee
     result = register_employee(
         username=data["username"],
         password=data["password"],
@@ -352,7 +301,8 @@ def register_employee_route():
     )
     return jsonify(result), 200
 
-#Update cart
+
+
 @app.route('/update-cart-item', methods=['POST'])
 def update_cart_item_route():
     data = request.json
@@ -380,34 +330,20 @@ def getBusinessHeaderInformation():
         return jsonify(response), 200
     else:
         return jsonify({"error": "Business not found"}), 404
-
-#Add item to business menu
 @app.route('/add-item', methods=['POST'])
 def add_item_route():
-    # Authorization Check
-    if "user" not in session:
-        return jsonify({"error": "Unauthorized. Please log in."}), 401
-
-    account_type = get_accountType(session["user"])
-    if account_type != "owner":
-        return jsonify({"error": "Access denied. Only owners can add items."}), 403
-
-    # Data Handling
     data = request.get_json()
     update_fields = data.get("update_fields")
+    
 
-    if not update_fields:
-        return jsonify({"error": "Missing update_fields"}), 400
-
-    update_fields["businessID"] = getBusinessID()  # Secure way to get businessID
-    update_fields["itemID"] = str(uuid4())
+    update_fields["businessID"] = BUSINESSID
+    update_fields["itemID"] =  str(uuid4())
 
     if not update_fields["businessID"]:
         return jsonify({"message": "Business ID not found"}), 400
 
     result = menu.addItem(update_fields)
-    return jsonify(result), 201
-
+    return jsonify(result)
 
 @app.route('/get-categories', methods=['GET'])
 def get_categories_route():
@@ -418,35 +354,18 @@ def get_categories_route():
 
 @app.route('/add-category', methods=['POST'])
 def add_category():
-    # Authorization Check
-    if "user" not in session:
-        return jsonify({"error": "Unauthorized. Please log in."}), 401
-
-    account_type = get_accountType(session["user"])
-    if account_type != "owner":
-        return jsonify({"error": "Access denied. Only owners can add categories."}), 403
-
-    # Get and validate request data
     data = request.get_json()
     category = data.get("category")
     categoryImageURL = data.get("categoryImageURL")
     businessID = getBusinessID()
-
     if not businessID or not category or not categoryImageURL:
         return jsonify({"error": "Missing required fields"}), 400
 
-    result = menu.addCategory(category, businessID, categoryImageURL)
+    result = menu.addCategory(category, businessID, categoryImageURL)  
+    return jsonify(result), 201
 
 @app.route('/delete-category', methods=['POST'])
 def delete_category():
-    # Authorization Check
-    if "user" not in session:
-        return jsonify({"error": "Unauthorized. Please log in."}), 401
-
-    account_type = get_accountType(session["user"])
-    if account_type != "owner":
-        return jsonify({"error": "Access denied. Only owners can delete categories."}), 403
-
     data = request.get_json()
     category = data.get("category")
     businessID = getBusinessID()
@@ -461,14 +380,6 @@ def delete_category():
 
 @app.route('/delete-menu-item', methods=['POST'])
 def delete_menu_item():
-    # Authorization Check
-    if "user" not in session:
-        return jsonify({"error": "Unauthorized. Please log in."}), 401
-
-    account_type = get_accountType(session["user"])
-    if account_type != "owner":
-        return jsonify({"error": "Access denied. Only owners can delete menu items."}), 403
-
     data = request.get_json()
     itemName = data.get("itemName")
     if not itemName:
@@ -478,6 +389,7 @@ def delete_menu_item():
     result = menu.deleteItem(itemName, businessID)
     status = 200 if "message" in result else 404
     return jsonify(result), status
+
 
 if __name__ == "__main__":
     app.run(debug=True)  

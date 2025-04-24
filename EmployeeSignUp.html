@@ -62,7 +62,7 @@
                 console.log("User type authorized:", userType);
             } catch (error) {
                 console.error("Error loading account type:", error);
-                window.location.href = "UnauthorizedPage.html";  // Fallback if the user is not logged in
+                window.location.href = "LoginPage.html";  // Fallback if the user is not logged in
             }
             document.getElementById("employeeSignupForm").addEventListener("submit", async function (event) {
                 event.preventDefault();
