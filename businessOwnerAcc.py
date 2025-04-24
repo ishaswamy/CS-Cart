@@ -66,10 +66,7 @@ def get_business_zip(businessID):
 
 # Function to calculate tax
 def taxCalculation(zipCode):
-    df = pd.read_csv(
-        'Tax/taxes.csv',
-        dtype={'ZipCode': str}
-    )
+    df = pd.read_csv('Tax/taxes.csv')
     return df.loc[df['ZipCode'] == zipCode, 'EstimatedCombinedRate'].values[0]
 
 
