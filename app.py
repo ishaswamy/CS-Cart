@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 import orderStatus as status
 from businessOwnerAcc import register_business_owner, register_employee, taxCalculation, get_business_zip
 
-
 load_dotenv()
 
 app = Flask(__name__) 
@@ -23,11 +22,12 @@ app.config["SESSION_COOKIE_SECURE"] = False  # Set to True in production with HT
 CORS(app, supports_credentials=True)  # Allow session cookies
 
 #Hardcoded businessID. Changing this changes what business is currently being accessed.
-BUSINESSID="1"
+BUSINESSID="2"
 
 #Returns current businessID for use in python scripts.
 def getBusinessID():
     return str(BUSINESSID)
+
 
 
 #Reads addons that are selected true for display under orders.
@@ -64,7 +64,6 @@ def get_tax():
         return jsonify({"taxRate": tax_rate})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 # API route to fetch all cart items for a user
 @app.route("/get-cart", methods=["GET"])
 def get_cart():
@@ -77,7 +76,20 @@ def get_cart():
         return jsonify({"cartItems": cart_items}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/business-id', methods=['GET'])
+def business_id():
     
+    return jsonify({"businessID": getBusinessID()}), 200
+    
+@app.route('/get-businesses', methods=['GET'])
+def get_businesses():
+    from connectModule import mongoConnect
+    business_col = mongoConnect("Businesses", "businessInfo")
+    # pull only the ID and name
+    docs = list(business_col.find({}, {"_id":0, "businessID":1, "businessName":1}))
+    return jsonify({"businesses": docs}), 200
+
 # API route to fetch all menu items for a business
 @app.route("/get-menu", methods=["GET"])
 def get_menu():
