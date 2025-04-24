@@ -13,7 +13,11 @@
 
   <div class="container">
     <h1><input type="text" id="item-name" placeholder="Item Name" value="New Item"></h1>
-    <p>Category: <input type="text" id="category" placeholder="Category"></p>
+    <p>
+      Category:
+      <select id="item-category"><option>Loading…</option></select>
+    </p>
+
     <p>Base Price: $<input type="number" id="item-price" step="0.01" placeholder="0.00"></p>
     <p>Item Image URL: <input type="url" id="item-image-url" placeholder="Image URL"></p>
 
@@ -45,7 +49,8 @@
   </div>
 
   <script>
-
+       
+    
     function deleteItem(btn) {
       btn.parentElement.remove();
     }
@@ -139,79 +144,91 @@
     }
 
     // gather paidItems as [{ name, price, selected }] but drop any blank‐name rows
-function getPaidArr() {
-  return Array.from(
-    document.querySelectorAll("#paid-items .item")
-  )
-  .map(div => {
-    const chk        = div.querySelector("input[type=checkbox]");
-    const priceInput = div.querySelector("input[type=number]");
-    const name       = chk.dataset.name || "";
-    const price      = parseFloat(priceInput.value) || 0;
-    return {
-      name: name.trim(),
-      price,
-      selected: chk.checked
-    };
-  })
-  .filter(item => item.name.length > 0);
-}
+    function getPaidArr() {
+      return Array.from(
+        document.querySelectorAll("#paid-items .item")
+      )
+        .map(div => {
+          const chk = div.querySelector("input[type=checkbox]");
+          const priceInput = div.querySelector("input[type=number]");
+          const name = chk.dataset.name || "";
+          const price = parseFloat(priceInput.value) || 0;
+          return {
+            name: name.trim(),
+            price,
+            selected: chk.checked
+          };
+        })
+        .filter(item => item.name.length > 0);
+    }
 
 
     async function addItem() {
       const toggles = getToggleArr();
       const data = {
-        itemName:       document.getElementById("item-name").value.trim(),
-        category:       document.getElementById("category").value.trim(),
-        price:          parseFloat(document.getElementById("item-price").value) || 0,
-        itemImageUrl:   document.getElementById("item-image-url").value.trim(),
-        freeItems:      getItemsObj("free-items"),
-        freeToggleItems:   toggles.filter(t=>t.price===0),
-        paidToggleItems:   toggles.filter(t=>t.price>0),
-        paidItems:      getPaidArr()
+        itemName: document.getElementById("item-name").value.trim(),
+        category: document.getElementById("category").value.trim(),
+        price: parseFloat(document.getElementById("item-price").value) || 0,
+        itemImageUrl: document.getElementById("item-image-url").value.trim(),
+        freeItems: getItemsObj("free-items"),
+        freeToggleItems: toggles.filter(t => t.price === 0),
+        paidToggleItems: toggles.filter(t => t.price > 0),
+        paidItems: getPaidArr()
       };
 
       try {
         const res = await fetch("http://127.0.0.1:5000/add-item", {
           method: "POST",
-          headers: { "Content-Type":"application/json" },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ update_fields: data })
         });
         const result = await res.json();
-        alert(result.message||"Saved!");
-      } catch(e) {
+        alert(result.message || "Saved!");
+      } catch (e) {
         console.error(e);
-        
+
       }
-      window.location.href="BusinessMenuCustomization.html"
+      window.location.href = "BusinessMenuCustomization.html"
     }
-
-    window.onload = async ()=>{
+    async function fetchCategories() {
+      const resp = await fetch("http://127.0.0.1:5000/get-categories",{
+        credentials:"include"
+      });
+      const { categories } = await resp.json();
+      const sel = document.getElementById("item-category");
+      sel.innerHTML = categories
+        .map(c=>`<option value="${c.category}">${c.category}</option>`)
+        .join("");
+    }
+ 
+    window.onload = async () => {
+      
       try {
-          // Check the account type
-          const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
-              method: "GET",
-              credentials: "include"  // Include cookies (session)
-          });
+        
+        // Check the account type
+        const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
+          method: "GET",
+          credentials: "include"  // Include cookies (session)
+        });
 
-          const accountData = await accountResponse.json();
-          const userType = accountData.accountType;
+        const accountData = await accountResponse.json();
+        const userType = accountData.accountType;
 
-          // If the user is not 'owner' or 'employee', redirect them to an unauthorized page
-          if (userType !== "owner") {
-              window.location.href = "UnauthorizedPage.html";  // Redirect to an Unauthorized page
-              return;  // Prevent further page loading
-          }
+        // If the user is not 'owner' or 'employee', redirect them to an unauthorized page
+        if (userType !== "owner") {
+          window.location.href = "UnauthorizedPage.html";  // Redirect to an Unauthorized page
+          return;  // Prevent further page loading
+        }
         fetchOrders(); // Proceed to load orders only if authorized
       } catch (e) {
         console.error("Error checking account type", e);
         document.getElementById("ordersContainer").innerHTML = "<p>Failed to verify user.</p>";
-    }
+      }
       try {
         // Check the account type
         const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
-            method: "GET",
-            credentials: "include"  // Include cookies (session)
+          method: "GET",
+          credentials: "include"  // Include cookies (session)
         });
 
         const accountData = await accountResponse.json();
@@ -219,11 +236,15 @@ function getPaidArr() {
 
         // Otherwise, load the content (this is a safe page for owners/employees)
         console.log("User type authorized:", userType);
-    } catch (error) {
+      } catch (error) {
         console.error("Error loading account type:", error);
         window.location.href = "LoginPage.html";  // Fallback if the user is not logged in
-    }
+      }
+    };
+    window.onload = () => {
+      fetchCategories();
     };
   </script>
 </body>
+
 </html>
