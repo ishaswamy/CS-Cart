@@ -56,14 +56,12 @@ def readAddons(product):
 @app.route("/get-tax", methods=["GET"])
 def get_tax():
     zip_code = get_business_zip(getBusinessID())
+    print(zip_code)
     if not zip_code:
         return jsonify({"error": "Zip code is required"}), 400
+    tax_rate = taxCalculation(zip_code)
+    return jsonify({"taxRate": tax_rate})
 
-    try:
-        tax_rate = taxCalculation(zip_code)
-        return jsonify({"taxRate": tax_rate})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 # API route to fetch all cart items for a user
 @app.route("/get-cart", methods=["GET"])
 def get_cart():
@@ -183,7 +181,7 @@ def delete_item():
 
 # API route to checkout the cart and create an order
 @app.route("/checkout", methods=["POST"])
-def checkout():
+def checkout_route():
     data = request.json
     username = data.get("username")
 
@@ -191,7 +189,7 @@ def checkout():
         return jsonify({"error": "Username is required"}), 400
 
     try:
-        result = sc.checkout(username)  # Checkout and create an order
+        result = sc.checkout(username)
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -223,13 +223,38 @@
     document.getElementById("tax-percentage").innerText = (taxRate * 100).toFixed(2);
     document.getElementById("tax-value").innerText      = `$${taxAmount}`;
     document.getElementById("total-cost").innerText      = `$${(subtotal + +taxAmount).toFixed(2)}`;
-  }
-  catch (err) {
-    console.error("updateTax error:", err);
-  }
-}
+    }
+    catch (err) {
+        console.error("updateTax error:", err);
+    }
+    }
 
-    </script>
+    async function checkoutButtonClicked() {
+        try {
+            const username = await fetchUser(); // Use existing function
+
+            if (!username) {
+                document.getElementById("response").innerText = "Username not found. Please log in.";
+                return;
+            }
+
+            const response = await fetch("http://127.0.0.1:5000/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username: username }),
+            });
+
+            const data = await response.json();
+            document.getElementById("response").innerText = data.message || data.error;
+        } catch (error) {
+            document.getElementById("response").innerText = "Error: " + error;
+        }
+        window.location.href="CustomerOrderStatusPage.html"
+    }
+
+</script>
 
 
 </head>
@@ -255,6 +280,7 @@
                         <td><strong>Total Cost:</strong></td>
                         <td id="total-cost"><strong>$--</strong></td>
                     </tr>
+                    <button onclick="checkoutButtonClicked()">Place Order</button>
                 </table>
             </div>
         </div>

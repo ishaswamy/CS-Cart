@@ -28,6 +28,9 @@
                 <img src="https://www.freeiconspng.com/thumbs/cart-icon/basket-cart-icon-27.png" alt="Cart">
                 </a>
             </span>
+            <span id="placed-orders" style="display: none;">
+                <a href="CustomerOrderStatusPage.html" class="nav-button" target="_top">Placed Orders</a>
+            </span>
             <span id="employee-order-status" style="display: none;">
                 <a href="EmployeeOrderStatusPage.html" class="nav-button" target="_top">Customer Orders</a>
             </span>
@@ -71,6 +74,7 @@
                 if (userType === "customer") {
                     document.getElementById("cart-button").style.display = "inline-block";
                     document.getElementById("logout-button").style.display = "inline-block";
+                    document.getElementById("placed-orders").style.display = "inline-block";
                     document.getElementById("login").style.display="none";
                 } else if (userType === "employee") {
                     document.getElementById("employee-order-status").style.display = "inline-block";
