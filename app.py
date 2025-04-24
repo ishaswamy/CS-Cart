@@ -28,6 +28,14 @@ BUSINESSID="3"
 def getBusinessID():
     return str(BUSINESSID)
 
+def checkAccountType(user=None):
+    if "user" in session:
+        account_type = get_accountType(session["user"])  # <- use session user
+        return str(account_type)
+    elif user:
+        return get_accountType(user)
+    else:
+        return jsonify({"accountType": None}), 200
 
 
 #Reads addons that are selected true for display under orders.
@@ -131,6 +139,9 @@ def get_item():
 
 @app.route('/update-item', methods=['POST'])
 def update_item():
+    #Permissions check to prevent unauthorized access
+    if checkAccountType()!="owner":
+        return jsonify({"Invalid credentials"})
     data = request.json
     item_id = data.get("itemID")              
     if not item_id:
@@ -197,6 +208,10 @@ def checkout_route():
 # User registration route
 @app.route("/signup", methods=["POST", "OPTIONS"])
 def register():
+    # Check if there's already a user logged in
+    if "user" in session:
+        return jsonify({"error": "User is already logged in"}), 400  # Early return if user is logged in
+    
     if request.method == "OPTIONS":
         return "", 200  
     
@@ -218,6 +233,11 @@ def register():
 # User login route
 @app.route("/login", methods=["POST"])
 def login():
+
+    # Check if there's already a user logged in
+    if "user" in session:
+        return jsonify({"error": "User is already logged in"}), 400  # Early return if user is logged in
+    
     data = request.json
     username_or_email = data.get("username_or_email")
     password = data.get("password")
@@ -264,6 +284,9 @@ def get_order_status():
 
 @app.route("/update-item-status", methods=["POST"])
 def update_item_status():
+    #Permissions check to prevent unauthorized access
+    if checkAccountType() not in ["owner", "employee"]:
+        return jsonify({"error": "Invalid credentials"})
     data = request.json
     itemID   = data["itemID"]
     newStatus = data["itemStatus"]
@@ -279,8 +302,12 @@ def update_item_status():
 
     return jsonify(result), 200
 
+#API Call that clears orders from Order Page
 @app.route("/clear-order", methods=["POST"])
 def clear_order():
+    #Permissions check to prevent unauthorized access
+    if checkAccountType() not in ["owner", "employee"]:
+        return jsonify({"error": "Invalid credentials"})
     try:
         data = request.json
         orderID = data.get("orderID")
@@ -298,6 +325,9 @@ def clear_order():
 
 @app.route('/register_employee', methods=['POST'])
 def register_employee_route():
+    #Permissions check to prevent unauthorized access
+    if checkAccountType() !="owner":
+        return jsonify({"error": "Invalid credentials"})
     data = request.json
     if not all(k in data for k in ["username", "password", "fullName", "birthday", "businessID"]):
         return jsonify({"error": "Missing required fields"}), 400
@@ -312,7 +342,7 @@ def register_employee_route():
     return jsonify(result), 200
 
 
-
+#APP route to update shopping cart item
 @app.route('/update-cart-item', methods=['POST'])
 def update_cart_item_route():
     data = request.json
@@ -340,8 +370,13 @@ def getBusinessHeaderInformation():
         return jsonify(response), 200
     else:
         return jsonify({"error": "Business not found"}), 404
+    
+#App route that adds items to menu
 @app.route('/add-item', methods=['POST'])
 def add_item_route():
+    #Permissions check to prevent unauthorized access
+    if checkAccountType() !="owner":
+        return jsonify({"error": "Invalid credentials"})
     data = request.get_json()
     update_fields = data.get("update_fields")
     
@@ -364,6 +399,9 @@ def get_categories_route():
 
 @app.route('/add-category', methods=['POST'])
 def add_category():
+    #Permissions check to prevent unauthorized access
+    if checkAccountType() !="owner":
+        return jsonify({"error": "Invalid credentials"})
     data = request.get_json()
     category = data.get("category")
     categoryImageURL = data.get("categoryImageURL")
@@ -376,6 +414,9 @@ def add_category():
 
 @app.route('/delete-category', methods=['POST'])
 def delete_category():
+    #Permissions check to prevent unauthorized access
+    if checkAccountType() !="owner":
+        return jsonify({"error": "Invalid credentials"})
     data = request.get_json()
     category = data.get("category")
     businessID = getBusinessID()
@@ -390,6 +431,9 @@ def delete_category():
 
 @app.route('/delete-menu-item', methods=['POST'])
 def delete_menu_item():
+    #Permissions check to prevent unauthorized access
+    if checkAccountType() !="owner":
+        return jsonify({"error": "Invalid credentials"})
     data = request.get_json()
     itemName = data.get("itemName")
     if not itemName:

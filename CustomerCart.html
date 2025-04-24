@@ -247,11 +247,12 @@
             });
 
             const data = await response.json();
+            window.location.href="CustomerOrderStatusPage.html"
             document.getElementById("response").innerText = data.message || data.error;
         } catch (error) {
             document.getElementById("response").innerText = "Error: " + error;
         }
-        window.location.href="CustomerOrderStatusPage.html"
+        
     }
 
 </script>

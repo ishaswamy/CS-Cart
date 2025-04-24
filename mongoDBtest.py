@@ -13,6 +13,7 @@ from customerAcc import get_accountType
 #import shoppingCart
 #import orderStatus
 from businessOwnerAcc import taxCalculation
+from app import checkAccountType
 
-print(taxCalculation(63333))
-
+print(taxCalculation(33333))
+print(checkAccountType("akumar2"))

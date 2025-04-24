@@ -32,35 +32,71 @@
     </footer>
 
     <script>
-        document.getElementById("loginForm").addEventListener("submit", async function(event) {
-            event.preventDefault(); 
-
-            const formData = {
-                username_or_email: document.getElementById("username").value,
-                password: document.getElementById("password").value
-            };
-
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Check if the user is already logged in
             try {
-                const response = await fetch("http://127.0.0.1:5000/login", {  
-                    method: "POST",
-                    credentials:"include",
-                    headers: { 
-                        "Content-Type": "application/json"  
-                    },
-                    body: JSON.stringify(formData)  
+                const response = await fetch("http://127.0.0.1:5000/account", {
+                    method: "GET",
+                    credentials: "include"
                 });
 
-                const result = await response.json();
                 if (response.ok) {
-                    window.location.href = "/CustomerHomepage.html";  
-                } else {
-                    alert(result.error); 
+                    // If the user is logged in, redirect them to the Customer Homepage
+                    window.location.href = "/CustomerHomepage.html";
+                    return;  // Exit early to prevent further execution
                 }
             } catch (error) {
-                console.error("Error:", error);
-                alert("Something went wrong. Please try again.");
+                console.error("Error checking user session:", error);
             }
+            // Update heading with business name
+            try {
+                const response = await fetch("http://127.0.0.1:5000/getBusinessHeaderInformation", {
+                    method: "GET",
+                    credentials: "include"
+                });
+    
+                const data = await response.json();
+    
+                if (response.ok && data.businessName) {
+                    document.querySelector("header h1").textContent = `Welcome to ${data.businessName}!`;
+                    document.title = `${data.businessName} Login`;
+                }
+            } catch (error) {
+                console.error("Error fetching business name:", error);
+            }
+    
+            // Login form logic
+            document.getElementById("loginForm").addEventListener("submit", async function(event) {
+                event.preventDefault(); 
+    
+                const formData = {
+                    username_or_email: document.getElementById("username").value,
+                    password: document.getElementById("password").value
+                };
+    
+                try {
+                    const response = await fetch("http://127.0.0.1:5000/login", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(formData)
+                    });
+    
+                    const result = await response.json();
+                    if (response.ok) {
+                        window.location.href = "/CustomerHomepage.html";
+                    } else {
+                        alert(result.error);
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("Something went wrong. Please try again.");
+                }
+            });
         });
     </script>
+    
 </body>
 </html>

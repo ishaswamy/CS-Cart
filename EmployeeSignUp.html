@@ -42,42 +42,51 @@
                 // Check the account type
                 const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
                     method: "GET",
-                    credentials: "include"  // Include cookies (session)
-                });
-
-                const accountData = await accountResponse.json();
-                const userType = accountData.accountType;
-
-                // If the user is not 'owner' or 'employee', redirect them to an unauthorized page
-                if (userType !== "owner") {
-                    window.location.href = "UnauthorizedPage.html";  // Redirect to an Unauthorized page
-                    return;  // Prevent further page loading
-                }
-                const response = await fetch("http://127.0.0.1:5000/business-id", {
                     credentials: "include"
                 });
-                const business = await response.json();
+    
+                const accountData = await accountResponse.json();
+                const userType = accountData.accountType;
+    
+                if (userType !== "owner") {
+                    window.location.href = "UnauthorizedPage.html";
+                    return;
+                }
+    
+                // Get business ID
+                const businessResponse = await fetch("http://127.0.0.1:5000/business-id", {
+                    credentials: "include"
+                });
+                const business = await businessResponse.json();
                 id = business.businessID;
-                // Otherwise, load the content (this is a safe page for owners/employees)
-                console.log("User type authorized:", userType);
+    
+                // Fetch business header info
+                const headerInfoResponse = await fetch("http://127.0.0.1:5000/getBusinessHeaderInformation", {
+                    credentials: "include"
+                });
+                const headerInfo = await headerInfoResponse.json();
+    
+                if (headerInfo.businessName) {
+                    document.querySelector("h2").textContent = `${headerInfo.businessName} Employee Sign Up`;
+                }
+    
             } catch (error) {
-                console.error("Error loading account type:", error);
-                window.location.href = "LoginPage.html";  // Fallback if the user is not logged in
+                console.error("Error during initialization:", error);
+                window.location.href = "LoginPage.html";
             }
+    
+            // Form submission handler
             document.getElementById("employeeSignupForm").addEventListener("submit", async function (event) {
                 event.preventDefault();
-
+    
                 const formData = {
                     username: document.getElementById("username").value,
                     password: document.getElementById("password").value,
                     fullName: document.getElementById("name").value,
                     birthday: document.getElementById("birthday").value,
                     businessID: id
-
-
-
                 };
-
+    
                 try {
                     const response = await fetch("http://127.0.0.1:5000/register_employee", {
                         method: "POST",
@@ -85,7 +94,7 @@
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(formData)
                     });
-
+    
                     const result = await response.json();
                     if (response.ok) {
                         alert(result.message);
@@ -98,9 +107,8 @@
                 }
             });
         };
-
-
     </script>
+    
 </body>
 
 </html>

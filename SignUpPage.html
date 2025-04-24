@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS-Cart - Sign Up</title>
+    <title id="pageTitle">Business - Sign Up</title> <!-- Dynamic title -->
     <link rel="stylesheet" type="text/css" href="styles/signup_style.css">
 </head>
 
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
     <div class="container">
-        <h2>CS-Cart Sign Up</h2>
+        <h2 id="pageHeader">Business Sign Up</h2> <!-- Dynamic heading -->
         <form id="signupForm">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required placeholder="Enter your username">
@@ -38,10 +38,8 @@
             <label for="business">Select Business</label>
             <select id="business" name="businessID" required>
                 <option value="">-- Choose a Business --</option>
-
             </select>
             <br>
-
 
             <button type="submit">Sign Up</button>
         </form>
@@ -52,7 +50,39 @@
     </div>
 
     <script>
-        
+        // Function to check if the user is already logged in
+        async function checkIfLoggedIn() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/account", {
+                    method: "GET",
+                    credentials: "include"
+                });
+    
+                if (response.ok) {
+                    // If the user is logged in, redirect them to the Customer Homepage
+                    window.location.href = "/CustomerHomepage.html";
+                }
+            } catch (error) {
+                console.error("Error checking user session:", error);
+            }
+        }
+    
+        // Function to load business name and update title and heading dynamically
+        async function loadBusinessName() {
+            try {
+                const resp = await fetch("http://127.0.0.1:5000/getBusinessHeaderInformation");
+                const { businessName } = await resp.json(); // Assuming API returns a JSON with businessName
+                if (businessName) {
+                    document.getElementById('pageTitle').textContent = `${businessName} - Sign Up`;
+                    document.getElementById('pageHeader').textContent = `${businessName} Sign Up`;
+                }
+            } catch (e) {
+                console.error("Failed to load business name:", e);
+                alert("Unable to load business name, please try again.");
+            }
+        }
+    
+        // Function to load businesses into the dropdown
         async function loadBusinesses() {
             try {
                 const resp = await fetch("http://127.0.0.1:5000/get-businesses");
@@ -66,64 +96,54 @@
                 });
             } catch (e) {
                 console.error("Failed to load businesses:", e);
+                alert("Unable to load businesses, please try again.");
             }
         }
-
-
-  async function loadBusinesses() {
-    try {
-      const resp = await fetch("http://127.0.0.1:5000/get-businesses");
-      const { businesses } = await resp.json();
-      const sel = document.getElementById("business");
-      businesses.forEach(b => {
-        const opt = document.createElement("option");
-        opt.value = b.businessID;        
-        opt.textContent = b.businessName; 
-        sel.appendChild(opt);
-      });
-    } catch (e) {
-      console.error("Failed to load businesses:", e);
-    }
-  }
-
-  window.onload = async () => {
-     await loadBusinesses();
-    document.getElementById("signupForm")
-      .addEventListener("submit", async event => {
-        event.preventDefault();
-
-        const formData = {
-          username: document.getElementById("username").value,
-          email:    document.getElementById("email").value,
-          password: document.getElementById("password").value,
-          name:     document.getElementById("name").value,
-          birthday: document.getElementById("birthday").value,
-          restaurant: document.getElementById("business").value 
-            
+    
+        // When the page loads, check if the user is logged in and load necessary data
+        window.onload = async () => {
+            await checkIfLoggedIn();  // Check if the user is logged in
+            await loadBusinessName();  // Load business name and update title/heading
+            await loadBusinesses();  // Load the businesses into the dropdown
         };
-
-        try {
-          const response = await fetch("http://127.0.0.1:5000/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData)
-          });
-          const result = await response.json();
-          if (response.ok) {
-            alert(result.message);
-            window.location.href = "LoginPage.html";
-          } else {
-            alert(result.error);
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("Something went wrong. Please try again.");
-        }
-      });
-  };
-
-
-
+    
+        // Handle form submission
+        document.getElementById("signupForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+    
+            const submitButton = document.querySelector('button[type="submit"]');
+            submitButton.disabled = true;  // Disable the submit button to prevent multiple submissions.
+    
+            const formData = {
+                username: document.getElementById("username").value,
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value,
+                name: document.getElementById("name").value,
+                birthday: document.getElementById("birthday").value,
+                businessID: document.getElementById("business").value
+            };
+    
+            try {
+                const response = await fetch("http://127.0.0.1:5000/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData)
+                });
+    
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.href = "LoginPage.html";  // Redirect after successful signup
+                } else {
+                    alert(result.error);  // Display error if signup failed
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Something went wrong. Please try again.");
+            } finally {
+                submitButton.disabled = false;  // Re-enable the submit button after the response.
+            }
+        });
     </script>
 </body>
 
