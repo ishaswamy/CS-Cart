@@ -16,4 +16,4 @@ from businessOwnerAcc import taxCalculation
 from app import checkAccountType
 
 print(taxCalculation(33333))
-print(checkAccountType("akumar2"))
+print(get_accountType("johndoe"))

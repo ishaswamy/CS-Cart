@@ -160,19 +160,22 @@ def update_item():
 # API route to add an item to the cart
 @app.route("/add-to-cart", methods=["POST"])
 def add_to_cart():
-    data = request.json
-    username = data.get("username")
-    product = data.get("product")
-    businessID = BUSINESSID
-    product["businessID"] = businessID 
-    if not username or not product:
-        return jsonify({"error": "Username and product data are required"}), 400
+    if checkAccountType()=="customer":
+        data = request.json
+        username = data.get("username")
+        product = data.get("product")
+        businessID = BUSINESSID
+        product["businessID"] = businessID 
+        if not username or not product:
+            return jsonify({"error": "Username and product data are required"}), 400
 
-    try:
-        result = sc.add_to_cart(product, username)  # Add the item to the cart
-        return jsonify(result), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        try:
+            result = sc.add_to_cart(product, username)  # Add the item to the cart
+            return jsonify(result), 201
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        return ({"error":"Non-Customer cannot add items to"})
 
 # API route to delete an item from the cart
 @app.route("/delete-item", methods=["POST"])

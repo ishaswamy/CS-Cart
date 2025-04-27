@@ -65,7 +65,8 @@ def login_user(username_or_email,password):
         return {"error": "Incorrect Username or Password"}
     
 def get_accountType(username):
-    user= userLoginCollection.find_one({"username":username})
+    from app import getBusinessID
+    user= userLoginCollection.find_one({"username":username,"businessID":getBusinessID()})
     return user["accountType"]
 
 def change_password(username_or_email,oldPassword,newPassword):

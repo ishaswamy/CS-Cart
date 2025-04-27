@@ -62,10 +62,8 @@ update_data = {
 '''
 
 
-def updateItem(item_id, update_fields,account_type):
+def updateItem(item_id, update_fields):
     # Authorization check (You can check session or pass accountType here as well if needed)
-    if account_type != "owner":
-        return {"error": "Access denied. Only owners can update items."}
 
     # Update item in the database
     result = menuCollection.update_one(
