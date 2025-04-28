@@ -278,11 +278,19 @@ def accountType():
     
 @app.route("/get-order-status", methods=["GET"])
 def get_order_status():
-    try:
-        orders = status.get_all_orders()  # Get all orders from the database
-        return jsonify({"orders": orders}), 200  
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    print(checkAccountType())
+    if checkAccountType()=="customer":
+        try:
+            orders = status.get_customer_orders(session["user"])  # Get all orders from the database
+            return jsonify({"orders": orders}), 200  
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        try:
+            orders = status.get_all_orders()  # Get all orders from the database
+            return jsonify({"orders": orders}), 200  
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
 
 @app.route("/update-item-status", methods=["POST"])
@@ -297,8 +305,6 @@ def update_item_status():
         result = status.markItemCompleted(itemID)
     elif newStatus == "in_progress":
         result = status.markItemInProgress(itemID)
-    elif newStatus == "incomplete":
-        result = status.markItemIncomplete(itemID)
     else:
         return jsonify({"error": "Invalid status"}), 400
 

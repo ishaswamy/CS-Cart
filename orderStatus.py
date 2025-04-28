@@ -86,7 +86,12 @@ def getOrderID(itemID):
 def getItemID(username):
     itemDict=list(orderCollection.find({"username":username},{"_id":0,"itemID":1}))
     return itemDict[0]["itemID"]
+# Return all orders with their items and itemStatus 
 def get_all_orders():
-    # Return all orders with their items and itemStatus 
     orders = list(orderCollection.find({}, {"_id": 0, "itemID": 1, "itemStatus": 1, "itemName": 1, "category": 1, "price": 1, "orderID": 1}))
+    return orders
+
+#Return orders held by specific customer
+def get_customer_orders(username): 
+    orders = list(orderCollection.find({"username":username}, {"_id": 0, "itemID": 1, "itemStatus": 1, "itemName": 1, "category": 1, "price": 1, "orderID": 1}))
     return orders

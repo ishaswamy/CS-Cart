@@ -32,7 +32,10 @@
             }
         }
         function fetchOrders() {
-    fetch("http://127.0.0.1:5000/get-order-status")
+            fetch("http://127.0.0.1:5000/get-order-status", {
+                method: "GET",
+                credentials: "include" // or "same-origin" depending on your case
+            })
         .then(response => response.json())
         .then(data => {
             
