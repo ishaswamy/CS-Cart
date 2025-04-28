@@ -25,6 +25,40 @@ p {
     color: #dcdcdc;
 }
 
+.category-form {
+    margin: 40px auto;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: left;
+}
+
+.category-form input {
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.category-form button {
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.category-form button:hover {
+    background-color: #27ae60;
+    transform: scale(1.05);
+}
+
+.category-container,
 .menu-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -48,10 +82,7 @@ p {
     padding: 15px;
 }
 
-.menu-item:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(80, 170, 255, 0.6);
-}
+
 
 .menu-item img {
     max-width: 150px;
@@ -73,6 +104,42 @@ p {
     color: white;
 }
 
+/*Edit + Delete */
+.menu-item button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 80%;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Edit button */
+.menu-item button:first-of-type {
+    background-color: #4a85ad;
+    color: white;
+}
+
+.menu-item button:first-of-type:hover {
+    background-color: #284254;
+    transform: scale(1.05);
+}
+
+/* Delete button */
+.menu-item button:last-of-type {
+    background-color: #dc3545;
+    color: white;
+}
+
+.menu-item button:last-of-type:hover {
+    background-color: #b02a37;
+    transform: scale(1.05);
+}
+
+/* Nav Buttons like "Add Item" */
 .nav-button {
     display: inline-block;
     padding: 12px 20px;
@@ -81,6 +148,7 @@ p {
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
+    margin-top: 30px;
     transition: background-color 0.3s, transform 0.2s;
 }
 

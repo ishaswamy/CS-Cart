@@ -1,15 +1,15 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
-    background-color: #f8f8f8;
+    background-color: #001f3f; 
     margin: 0;
     padding: 20px;
+    color: white;
 }
-
 
 .header-frame {
     width: 100%;
-    height: auto; 
+    height: auto;
     border: none;
 }
 
@@ -25,43 +25,51 @@ body {
 nav {
     display: flex;
     gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 nav button {
-    background-color: #2f00ff;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
     border: none;
-    padding: 10px;
+    padding: 10px 20px;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background 0.3s, transform 0.2s;
 }
 
 nav button:hover {
-    background-color: #19024b;
+    background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+    transform: scale(1.05);
 }
 
 .menu-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    max-width: 900px;
-    margin: auto;
-    padding-top: 20px;
+    gap: 25px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
 }
 
 .menu-item {
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
+    background: #355c76; 
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-decoration: none;
-    color: black
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
-
 
 .menu-item:hover {
     transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(80, 170, 255, 0.6); /* Soft glow */
 }
 
 .menu-item img {
@@ -72,11 +80,14 @@ nav button:hover {
     object-fit: contain;
     border-radius: 10px;
     display: block;
-    margin: 0 auto;
+    margin: 0 auto 10px auto;
+    background: white;
+    padding: 5px;
+    border: 1px solid #ddd;
 }
 
-
-
 .menu-item h3 {
-    margin: 10px 0;
+    margin: 10px 0 0 0;
+    font-size: 1.4rem;
+    color: white;
 }

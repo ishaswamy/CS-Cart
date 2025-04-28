@@ -1,8 +1,9 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #001f3f; 
     margin: 0;
     padding: 0;
+    color: white;
 }
 
 .header-frame {
@@ -12,24 +13,24 @@ body {
 }
 
 .container {
-    width: 80%;
-    margin: 0 auto;
-    padding-top: 30px;
+    width: 90%;
+    max-width: 1200px;
+    margin: 30px auto;
 }
 
 .cart-content {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 20px;
     align-items: flex-start;
 }
 
 .cart-items {
-    flex: 0 0 65%; 
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex: 1 1 60%;
+    background-color: #355c76;
+    border-radius: 15px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .item {
@@ -37,7 +38,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 15px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #ccc;
 }
 
 .item:last-child {
@@ -51,17 +52,22 @@ body {
 }
 
 .item-name {
-    font-size: 18px;
+    font-size: 20px;
     margin-right: 20px;
+    font-weight: bold;
+    color: white;
     flex: 2;
 }
 
 .item-image {
-    width: 100px;  
+    width: 100px;
     height: 100px;
     object-fit: cover;
     margin-left: 10px;
     flex: 1;
+    border-radius: 10px;
+    background-color: white;
+    padding: 5px;
 }
 
 .item-info {
@@ -71,37 +77,61 @@ body {
 
 .item-info p {
     margin: 5px 0;
+    font-size: 1em;
 }
 
-.edit-btn, .delete-btn {
-    padding: 5px 10px;
-    margin: 5px;
-    background-color: #007bff;
-    color: white;
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+/* Quantity button */
+.quantity-controls button {
+    background-color: #2ecc71;
     border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1em;
+    padding: 5px 10px;
+    border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
 }
 
-.edit-btn:hover {
-    background-color: #0056b3;
+.quantity-controls button:hover {
+    background-color: #27ae60;
+    transform: scale(1.1);
 }
 
+/* Delete Button */
 .delete-btn {
-    background-color: red;
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 14px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .delete-btn:hover {
-    background-color: darkred;
+    background-color: #b02a37;
+    transform: scale(1.05);
 }
 
 .totals {
-    flex: 0 0 30%;  
-    background-color: #fff;
+    flex: 1 1 35%;
+    background-color: #355c76;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
     text-align: right;
-    max-width: 350px; 
+    max-width: 350px;
 }
 
 .totals table {
@@ -110,5 +140,27 @@ body {
 }
 
 .totals td {
-    padding: 10px;
+    padding: 12px 5px;
+    font-size: 1.1em;
+    color: white;
+}
+
+/* Checkout Button */
+.totals button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    width: 100%;
+    background-color: #1e7e34; 
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.totals button:hover {
+    background-color: #19692c;
+    transform: scale(1.05);
 }

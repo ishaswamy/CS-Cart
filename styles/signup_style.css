@@ -4,26 +4,31 @@
     box-sizing: border-box;
 }
 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #001f3f; 
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
 .header-frame {
     width: 100%;
     height: auto; 
     border: none;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
-    line-height: 1.6;
-    margin: 20px;
-}
-
 header {
-    background-color: #5c6bc0;
+    background-color: #355c76;
     color: white;
     text-align: center;
     padding: 30px 0;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    width: 100%;
 }
 
 h1 {
@@ -32,66 +37,73 @@ h1 {
 
 .signup {
     width: 100%;
-    max-width: 450px;
-    margin: 40px auto;
-    background-color: white;
+    max-width: 400px;
+    background-color: #355c76; 
     padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .signup h3 {
-    text-align: center;
-    font-size: 22px;
+    font-size: 24px;
     margin-bottom: 20px;
-    color: #333;
+    color: white;
 }
 
 label {
     font-size: 14px;
-    color: #666;
+    color: #dcdcdc;
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+    text-align: left;
+    width: 100%;
 }
 
 input[type="text"], input[type="password"], input[type="email"], input[type="date"], select {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
     color: #333;
 }
-
-input[type="submit"] {
+button[type="submit"] {
     width: 100%;
     padding: 12px;
-    background-color: #5c6bc0;
+    background-color: #355c76; 
     color: white;
-    font-size: 16px;
+    font-size: 18px;
+    font-weight: bold;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-input[type="submit"]:hover {
-    background-color: #3f51b5;
+button[type="submit"]:hover {
+    background-color: #284254;
+    transform: scale(1.05);
 }
+
+
 
 footer {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 30px;
     font-size: 14px;
+    width: 100%;
 }
 
 footer span {
-    color: #666;
+    color: #dcdcdc;
 }
 
 footer a {
-    color: #5c6bc0;
+    color: #2ecc71;
     text-decoration: none;
     font-weight: bold;
     margin-left: 5px;
@@ -102,7 +114,7 @@ footer a:hover {
 }
 
 @media (max-width: 480px) {
-    header h1 {
+    h1 {
         font-size: 28px;
     }
 
@@ -112,11 +124,11 @@ footer a:hover {
     }
 
     .signup h3 {
-        font-size: 18px;
+        font-size: 20px;
     }
 
     input[type="text"], input[type="password"], input[type="email"], input[type="date"], select {
-        padding: 10px;
+        padding: 8px;
     }
 
     input[type="submit"] {
