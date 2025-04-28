@@ -288,12 +288,11 @@ def get_order_status():
 @app.route("/update-item-status", methods=["POST"])
 def update_item_status():
     #Permissions check to prevent unauthorized access
-    if checkAccountType() not in ["owner", "employee"]:
+    if checkAccountType()!= "owner" and checkAccountType()!="employee":
         return jsonify({"error": "Invalid credentials"})
     data = request.json
     itemID   = data["itemID"]
     newStatus = data["itemStatus"]
-
     if newStatus == "completed":
         result = status.markItemCompleted(itemID)
     elif newStatus == "in_progress":
@@ -309,7 +308,7 @@ def update_item_status():
 @app.route("/clear-order", methods=["POST"])
 def clear_order():
     #Permissions check to prevent unauthorized access
-    if checkAccountType() not in ["owner", "employee"]:
+    if checkAccountType()!= "owner" and checkAccountType()!="employee":
         return jsonify({"error": "Invalid credentials"})
     try:
         data = request.json

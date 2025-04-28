@@ -33,7 +33,7 @@
       
     };
 
-    document.addEventListener("DOMContentLoaded", fetchOrders);
+    document.addEventListener("DOMContentLoaded", fetchOrders());
 
     function fetchOrders() {
       fetch("http://127.0.0.1:5000/get-order-status")
@@ -85,7 +85,6 @@
               <select onchange="updateItemStatus('${item.itemID}', this)">
                 <option value="in_progress" ${item.itemStatus==="in_progress"?"selected":""}>In Progress</option>
                 <option value="completed"   ${item.itemStatus==="completed"  ?"selected":""}>Completed</option>
-                <option value="incomplete"  ${item.itemStatus==="incomplete" ?"selected":""}>Incomplete</option>
               </select>
               <hr/>
             </div>
@@ -98,8 +97,10 @@
 
     function updateItemStatus(itemID, dropdown) {
       const newStatus = dropdown.value;
+      console.log("updateItemStatus reached")
       fetch("http://127.0.0.1:5000/update-item-status", {
         method: "POST",
+        credentials: "include", 
         headers: { "Content-Type":"application/json" },
         body: JSON.stringify({ itemID, itemStatus: newStatus })
       })
@@ -113,12 +114,14 @@
         }
       })
       .catch(console.error);
+      location.window.href="EmployeeOrderStatusPage.html"
     }
 
     function clearOrder(orderID) {
       if (!confirm(`Clear all items in order ${orderID}?`)) return;
       fetch("http://127.0.0.1:5000/clear-order", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type":"application/json" },
         body: JSON.stringify({ orderID })
       })
@@ -132,6 +135,7 @@
         }
       })
       .catch(console.error);
+      window.location.href="EmployeeOrderStatusPage.html"
     }
   </script>
 </head>
