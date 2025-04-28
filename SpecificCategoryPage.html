@@ -11,12 +11,21 @@
 <body>
     <iframe src="HeaderMenu.html" class="header-frame"></iframe>
 
-    <h1>Menu</h1>
+    <span id="categoryHeader">Loading…</span></p> <br> 
+
     <p>Select an item to customize</p>
 
     <div class="menu-container"></div>
 
     <script>
+        // Function to load category name
+        async function loadCategoryName() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = (urlParams.get('category')).toString();
+            document.getElementById('categoryHeader').textContent = category;
+          
+
+        }
         async function fetchUser() {
             try {
                 const response = await fetch("http://127.0.0.1:5000/account", {
@@ -69,11 +78,13 @@
             }
         }
 
-
+        window.onload = loadCategoryName();
         window.onload = async () => {
             const user = await fetchUser();
+            
             if (user) {
                 fetchMenu(user);
+                
             } else {
                 alert("Failed to fetch user. Please log in first.");
             }
