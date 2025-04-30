@@ -68,7 +68,7 @@ def checkout(username):
     orderList = list(cartCollection.find({"username": username}))  # Retrieve all cart items for the user
 
     for order in orderList:
-        order.update({"orderID": orderID, "orderStatus": "in_progress"})  # Update the order status and ID
+        order.update({"orderID": orderID, "itemStatus": "in_progress"})  # Update the order status and ID
         order.pop("_id", None)  # Remove _id to avoid duplicate key errors in MongoDB
 
     # Insert the cart items into the order collection

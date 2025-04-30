@@ -62,9 +62,8 @@
                 orderDiv.innerHTML = `
                     <h3>Order ID: ${order.orderID}</h3>
                     <p>Item: ${order.itemName}</p>
-                    <p>Category: ${order.category}</p>
                     <p>Price: $${order.price.toFixed(2)}</p>
-                    <p>Status: ${order.orderStatus}</p>
+                    <p>Status: ${order.itemStatus}</p>
                     <hr>
                 `;
                 container.appendChild(orderDiv);
