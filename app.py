@@ -64,7 +64,7 @@ def readAddons(product):
 @app.route("/get-tax", methods=["GET"])
 def get_tax():
     zip_code = get_business_zip(getBusinessID())
-    print(zip_code)
+    #print(zip_code)
     if not zip_code:
         return jsonify({"error": "Zip code is required"}), 400
     tax_rate = taxCalculation(zip_code)
@@ -224,7 +224,7 @@ def register():
     password = data.get("password")
     fullName = data.get("name")
     birthday = data.get("birthday")
-    businessID = data.get("restaurant")
+    businessID = BUSINESSID
 
     result = register_user(username, email, password, fullName, birthday, businessID)
 
@@ -265,7 +265,7 @@ def account():
     if "user" in session:
         #print(f"Session user: {session['user']} is here")
         return {"message": f"User {session['user']} is logged in"},200
-    print("User lookup failed.")
+    #print("User lookup failed.")
     return {"error": "No user logged in"},401
 
 @app.route("/accountType", methods=["GET"])
@@ -278,7 +278,7 @@ def accountType():
     
 @app.route("/get-order-status", methods=["GET"])
 def get_order_status():
-    print(checkAccountType())
+    #print(checkAccountType())
     if checkAccountType()=="customer":
         try:
             orders = status.get_customer_orders(session["user"])  # Get all orders from the database
@@ -369,7 +369,9 @@ def getBusinessHeaderInformation():
     #Queries mongodb for the address and zipcode
     businessHeaderDisplay=businessInfo.find_one({"businessID":getBusinessID()},
                                   {"_id":0,"address":1,"zipCode":1,"businessLogoURL":1,"businessName":1})
+    #print(f"test:{businessHeaderDisplay}")
     if businessHeaderDisplay:
+        
         response = {
             "address": f"{businessHeaderDisplay['address']}, {businessHeaderDisplay['zipCode']}",
             "logoURL": businessHeaderDisplay["businessLogoURL"],
@@ -387,14 +389,13 @@ def add_item_route():
         return jsonify({"error": "Invalid credentials"})
     data = request.get_json()
     update_fields = data.get("update_fields")
-    
 
     update_fields["businessID"] = BUSINESSID
     update_fields["itemID"] =  str(uuid4())
 
     if not update_fields["businessID"]:
         return jsonify({"message": "Business ID not found"}), 400
-
+    #print(f"Test: Update_fields={update_fields}")
     result = menu.addItem(update_fields)
     return jsonify(result)
 

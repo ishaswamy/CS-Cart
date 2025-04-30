@@ -44,6 +44,7 @@ def addItem(update_fields):
     menu_data=update_fields
     try:
         menuCollection.insert_one(menu_data)
+        return
     except pymongo.errors.DuplicateKeyError:
         return{"message":"Item already exists in the menu."}
 

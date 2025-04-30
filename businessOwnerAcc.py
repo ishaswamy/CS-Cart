@@ -30,7 +30,7 @@ def register_business(businessName,zipCode,ID,address,logoUrl):
         "zipCode": zipCode,
         "businessID": ID,
         "address": address,
-        "logoUrl": logoUrl
+        "businessLogoURL": logoUrl
     }
 
     try:

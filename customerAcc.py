@@ -9,7 +9,9 @@ from passlib.context import CryptContext
 userLoginCollection=cM.mongoConnect("accountInfo","userInformation")
 
 #Prevents duplicate emails and username
-userLoginCollection.create_index(["username","email"], unique=True)
+userLoginCollection.create_index(["businessID", "username"], unique=True)
+userLoginCollection.create_index(["businessID", "email"], unique=True)
+
 
 #Encrypts passwords in database
 pwd_encrypt= CryptContext(schemes=["bcrypt"], deprecated="auto")

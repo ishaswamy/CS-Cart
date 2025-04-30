@@ -35,11 +35,7 @@
             <input type="date" id="birthday" name="birthday" required>
             <br>
 
-            <label for="business">Select Business</label>
-            <select id="business" name="businessID" required>
-                <option value="">-- Choose a Business --</option>
-            </select>
-            <br><br>
+            <br>
             <button type="submit">Sign Up</button>
         </form>
 
@@ -82,24 +78,6 @@
             }
         }
     
-        // Function to load businesses into the dropdown
-        async function loadBusinesses() {
-            try {
-                const resp = await fetch("http://127.0.0.1:5000/get-businesses");
-                const { businesses } = await resp.json();
-                const sel = document.getElementById("business");
-                businesses.forEach(b => {
-                    const opt = document.createElement("option");
-                    opt.value = b.businessID;
-                    opt.textContent = b.businessName;
-                    sel.appendChild(opt);
-                });
-            } catch (e) {
-                console.error("Failed to load businesses:", e);
-                alert("Unable to load businesses, please try again.");
-            }
-        }
-    
         // When the page loads, check if the user is logged in and load necessary data
         window.onload = async () => {
             await checkIfLoggedIn();  // Check if the user is logged in
@@ -119,8 +97,7 @@
                 email: document.getElementById("email").value,
                 password: document.getElementById("password").value,
                 name: document.getElementById("name").value,
-                birthday: document.getElementById("birthday").value,
-                businessID: document.getElementById("business").value
+                birthday: document.getElementById("birthday").value
             };
     
             try {
