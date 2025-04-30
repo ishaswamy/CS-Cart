@@ -43,7 +43,7 @@ def register_business(businessName,zipCode,ID,address,logoUrl):
 
 
 def register_business_owner(username, password, fullName, birthday, businessID):
-    businessName = businessInfoCollection.find_one({"businessID": businessID},{"businessName":1,"_id":0})
+    businessName = businessInfoCollection.find_one({"businessID": businessID},{"businessName":1,"_id":0})["businessName"]
     #password encryption object called
     hashed_password = pwd_encrypt.hash(password) 
 
@@ -61,7 +61,7 @@ def register_business_owner(username, password, fullName, birthday, businessID):
 
         "birthday": birthday,
 
-        "businessId":businessID,
+        "businessID":businessID,
 
         "accountType":"owner"
 
