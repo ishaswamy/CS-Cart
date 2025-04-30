@@ -43,7 +43,7 @@ def register_business(businessName,zipCode,ID,address,logoUrl):
 
 
 def register_business_owner(username, password, fullName, birthday, businessID):
-    businessName = businessInfoCollection.find_one({"businessID": businessID},{"businessName":1,"_id":0})["businessName"]
+    businessName = businessInfoCollection.find_one({"businessID": businessID},{"businessName":1,"_id":0})
     #password encryption object called
     hashed_password = pwd_encrypt.hash(password) 
 
@@ -72,6 +72,8 @@ def register_business_owner(username, password, fullName, birthday, businessID):
     try:
 
         result = userLoginCollection.insert_one(user_data)
+
+        print(f"Business Owner with username {username} added")
 
         return {"message": "Employee registered successfully", "user_id": str(result.inserted_id)}
 
