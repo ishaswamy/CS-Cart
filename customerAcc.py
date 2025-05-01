@@ -16,6 +16,15 @@ userLoginCollection.create_index(["businessID", "email"], unique=True)
 #Encrypts passwords in database
 pwd_encrypt= CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+def accountValidate(username):
+    from app import getBusinessID
+     # Find the user by username or email
+    user = userLoginCollection.find_one({"username": username, "businessID": getBusinessID()})
+    if user:
+        return True
+    else:
+        return False
+
 def register_user(username, email, password, fullName, birthday, businessID):
 
     #password encryption object called
@@ -69,7 +78,10 @@ def login_user(username_or_email,password):
 def get_accountType(username):
     from app import getBusinessID
     user= userLoginCollection.find_one({"username":username,"businessID":getBusinessID()})
-    return user["accountType"]
+    if user:
+        return user["accountType"]
+    else:
+        return None
 
 def change_password(username_or_email,oldPassword,newPassword):
      # Find the user by username or email

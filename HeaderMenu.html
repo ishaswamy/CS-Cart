@@ -54,6 +54,20 @@
     </header>
 
     <script>
+        async function checkSessionValidity() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/checkSessionValidity", {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                const result = await response.json();
+                console.log(result.message);
+            } catch (error) {
+                console.error("Error validating session:", error);
+            }
+        }
+
         async function logout(){
             try {
                 const response = await fetch("http://127.0.0.1:5000/logout", {
@@ -142,6 +156,7 @@
             } catch (error) {
                 console.error("Error loading page:", error);
             }
+        await checkSessionValidity();
         };
 
 

@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 import shoppingCart as sc  
 import menuChange as menu
-from customerAcc import register_user, login_user, get_accountType
+from customerAcc import register_user, login_user, get_accountType, accountValidate
 import os
 from dotenv import load_dotenv
 import orderStatus as status
@@ -37,6 +37,20 @@ def checkAccountType(user=None):
     else:
         return jsonify({"accountType": None}), 200
 
+
+
+@app.route("/checkSessionValidity", methods=["GET"])
+def check_session_validity():
+    if "user" in session:
+        if accountValidate(session["user"]):
+            #print("Grabbing account information from stored cookie")
+            return {"message": "Session valid"}, 200
+        else:
+            #print("Cookie account information incorrect. Deleting account information")
+            session.pop("user", None)
+            return {"message": "Invalid session. Logged out"}, 401
+    else:
+        return {"message": "No session found"}, 401
 
 #Reads addons that are selected true for display under orders.
 def readAddons(product):
