@@ -54,6 +54,29 @@
     </header>
 
     <script>
+        async function logout(){
+            try {
+                const response = await fetch("http://127.0.0.1:5000/logout", {
+                    method: "POST",
+                    credentials: "include",  // Ensures cookies/session data is sent
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response.ok) {
+                    // Optionally, you can clear any client-side user data here
+
+                    // Redirect to login page
+                    window.top.location.href = "LoginPage.html";
+                } else {
+                    alert("Logout failed. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error during logout:", error);
+                alert("Logout failed. Please try again.");
+            }
+        }
         async function fetchUser() {
             const resp = await fetch("http://127.0.0.1:5000/account", {
                 method: "GET",
