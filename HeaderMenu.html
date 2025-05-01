@@ -17,8 +17,9 @@
             <p>1031 My Road, Goodtown, Place, 99939</p>
         </div>
         <nav>
-            
-            <a href="CustomerHomepage.html" class="nav-button" target="_top" style="display:inline;">Home</a>
+            <span>
+            <a href="CustomerHomepage.html" class="nav-button" target="_top" style="display:inline-block;">Home</a>
+            </span>
             <span id="login" style="display: inline-block;">
                 <a href="LoginPage.html" class="nav-button" target="_top">Login</a>
             </span>
@@ -46,49 +47,70 @@
             <span id="logout-button" style="display:none;">
                 <a id="logout-link" href="#" class="nav-button" onclick="logout()">Logout</a>
             </span>
+            <span class="user-info" style="display: none;">
+                <p id="username-display"></p>
+            </span>
         </nav>
     </header>
 
     <script>
+        async function fetchUser() {
+            const resp = await fetch("http://127.0.0.1:5000/account", {
+                method: "GET",
+                credentials: "include"
+            });
+            if (!resp.ok) throw new Error("Not logged in");
+            const { message } = await resp.json();
+            return message.split(" ")[1]; // Gets the username
+        }
         window.onload = async () => {
             try {
-                // Get business info and update logo + address
+                // Get business info
                 const response = await fetch("http://127.0.0.1:5000/getBusinessHeaderInformation");
                 const data = await response.json();
                 document.getElementById("business-logo").src = data.logoURL;
+
                 const addressElement = document.querySelector(".business-info p");
                 if (addressElement) {
-                    addressElement.innerText = data.address;
+                    addressElement.innerText = `${data.businessName} - ${data.address}`;
                 }
 
-                // 🔍 Now get the account type
+                // Display username if logged in
+                try {
+                    const username = await fetchUser();
+                    const usernameEl = document.getElementById("username-display");
+                    usernameEl.innerText = `Welcome ${username}`;
+                    document.querySelector(".user-info").style.display = "inline-block";
+                    document.querySelector(".user-info").style.verticalAlign = "top";
+                } catch (err) {
+                    console.log("User not logged in");
+                }
+
+                // Get account type
                 const accountResponse = await fetch("http://127.0.0.1:5000/accountType", {
                     method: "GET",
-                    credentials: "include"  // <- this is crucial
+                    credentials: "include"
                 });
                 const userData = await accountResponse.json();
                 const userType = userData.accountType;
 
-                // 🔄 Show elements based on userType
-                console.log("userType:"+userType)
+                // Show/hide nav buttons based on userType
                 if (userType === "customer") {
                     document.getElementById("cart-button").style.display = "inline-block";
                     document.getElementById("logout-button").style.display = "inline-block";
                     document.getElementById("placed-orders").style.display = "inline-block";
-                    document.getElementById("login").style.display="none";
+                    document.getElementById("login").style.display = "none";
                 } else if (userType === "employee") {
                     document.getElementById("employee-order-status").style.display = "inline-block";
                     document.getElementById("logout-button").style.display = "inline-block";
-                    document.getElementById("login").style.display="none";
-                } else if (userType=== "owner"){
-                    document.getElementById("customize-products").style.display="inline-block";
+                    document.getElementById("login").style.display = "none";
+                } else if (userType === "owner") {
+                    document.getElementById("customize-products").style.display = "inline-block";
                     document.getElementById("employee-order-status").style.display = "inline-block";
-                    document.getElementById("employee-signup").style.display="inline-block";
+                    document.getElementById("employee-signup").style.display = "inline-block";
                     document.getElementById("logout-button").style.display = "inline-block";
-                    document.getElementById("login").style.display="none";
-
+                    document.getElementById("login").style.display = "none";
                 } else {
-                    // No logged in user
                     document.getElementById("logout-link").style.display = "none";
                     document.getElementById("cart-button").style.display = "none";
                     document.getElementById("order-status-button").style.display = "none";
@@ -98,28 +120,8 @@
                 console.error("Error loading page:", error);
             }
         };
-        
-        async function logout() {
-            try {
-                const response = await fetch("http://127.0.0.1:5000/logout", {
-                    method: "POST",
-                    credentials: "include",  // <-- ADD THIS
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
 
-                if (response.ok) {
-                    
-                    window.top.location.href = "LoginPage.html"; 
-                } else {
-                    alert("Logout failed. Please try again.");
-                }
-            } catch (error) {
-                console.error("Error during logout:", error);
-                alert("Logout failed. Please try again.");
-            }
-        }
+
 
     </script>
 
