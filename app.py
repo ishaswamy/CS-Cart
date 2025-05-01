@@ -22,7 +22,7 @@ app.config["SESSION_COOKIE_SECURE"] = False  # Set to True in production with HT
 CORS(app, supports_credentials=True)  # Allow session cookies
 
 #Hardcoded businessID. Changing this changes what business is currently being accessed.
-BUSINESSID="1"
+BUSINESSID="2"
 
 #Returns current businessID for use in python scripts.
 def getBusinessID():
