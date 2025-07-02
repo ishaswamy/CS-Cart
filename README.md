@@ -1,7 +1,7 @@
 # 🍽️ Customizable Storefront & Restaurant Online Ordering System
 A full-stack web application designed to empower local restaurants and businesses with a customizable storefront and online ordering system. Built with Python, MongoDB, Flask, and HTML/CSS/JavaScript, this system allows for intuitive menu management, order processing, and customer interaction — all from an easy-to-use interface.
 
-Developed as part of a capstone project at Nova Southeastern University by [Isha Swamy](https://github.com/ishaswamy) and [Brandon Catalano](https://github.com/brandjtc)
+Developed as part of a capstone project at Nova Southeastern University by [Isha Swamy](https://github.com/ishaswamy) and [Brandon Catalano](https://github.com/brandjtc) under the guidance of Dr. Ajoy Kumar
 
 
 ---
@@ -26,7 +26,7 @@ User accounts are managed with hashed passwords and session-based authentication
 
 
 # 🛠️ Tech Stack
-Frontend: HTML, CSS, JavaScript
+Frontend: HTML, SCSS, JavaScript
 
 Backend: Python
 
